@@ -2,7 +2,8 @@ namespace Users.DataAccess.Enums;
 
 public enum UserRole
 {
-    User = 0,
-    Admin = 1,
-    CityManager = 2
+    None = 0,
+    User = 1 << 0,
+    Admin = 1 << 1,
+    CityManager = 1 << 2
 }
