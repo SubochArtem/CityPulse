@@ -4,18 +4,12 @@ using Users.DataAccess.Interfaces;
 
 namespace Users.DataAccess.Repositories;
 
-public class UserRepository : Repository<User>, IUserRepository
+public class UserRepository(ApplicationDbContext context)
+    : Repository<User>(context), IUserRepository
 {
-    public UserRepository(ApplicationDbContext context)
-        : base(context)
-    {
-    }
-
-
     public async Task<User?> GetByAuth0UserIdAsync(string auth0UserId)
     {
         return await _dbSet
             .FirstOrDefaultAsync(u => u.Auth0UserId == auth0UserId);
     }
-    
 }
