@@ -4,17 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Users.DataAccess.Repositories;
 
-public class Repository<T> : IRepository<T> where T : EntityBase
+public class Repository<T>(ApplicationDbContext context) : IRepository<T> where T : EntityBase
 {
-    protected readonly ApplicationDbContext _context;
-    protected readonly DbSet<T> _dbSet;
-
-    public Repository(ApplicationDbContext context)
-    {
-        _context = context;
-        _dbSet = _context.Set<T>();
-    }
-
+    protected readonly ApplicationDbContext _context = context;
+    protected readonly DbSet<T> _dbSet = context.Set<T>();
+    
     public async Task<T?> GetByIdAsync(Guid id)
     {
         return await _dbSet.FindAsync(id);
