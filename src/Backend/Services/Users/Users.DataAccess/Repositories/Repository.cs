@@ -21,7 +21,7 @@ public class Repository<T>(ApplicationDbContext context) : IRepository<T> where 
 
     public async Task CreateAsync(T entity)
     {
-        await _dbSet.AddAsync(entity);
+        _dbSet.Add(entity);
     }
 
     public async Task UpdateAsync(T entity)
