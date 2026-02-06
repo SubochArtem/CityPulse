@@ -8,5 +8,5 @@ public interface IRepository<T> where T : EntityBase
     Task CreateAsync(T entity);
     Task UpdateAsync(T entity);
     Task DeleteAsync(T entity);
-    Task SaveChangesAsync();
+    Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }

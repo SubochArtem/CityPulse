@@ -34,8 +34,8 @@ public class Repository<T>(ApplicationDbContext context) : IRepository<T> where 
         _dbSet.Remove(entity);
     }
 
-    public async Task SaveChangesAsync()
+    public Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        await _context.SaveChangesAsync();
+        return _context.SaveChangesAsync(cancellationToken);
     }
 }
