@@ -7,6 +7,6 @@ public interface IRepository<T> where T : EntityBase
     Task<IEnumerable<T>> GetAllAsync();
     Task CreateAsync(T entity);
     Task UpdateAsync(T entity);
-    Task DeleteAsync(Guid id);
+    Task DeleteAsync(T entity);
     Task SaveChangesAsync();
 }

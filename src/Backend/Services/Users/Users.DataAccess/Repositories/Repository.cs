@@ -29,9 +29,8 @@ public class Repository<T>(ApplicationDbContext context) : IRepository<T> where 
         _dbSet.Update(entity);
     }
 
-    public async Task DeleteAsync(Guid id)
+    public async Task DeleteAsync(T entity)
     {
-        var entity = await GetByIdAsync(id);
         _dbSet.Remove(entity);
     }
 
