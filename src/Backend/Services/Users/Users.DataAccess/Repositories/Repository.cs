@@ -9,14 +9,14 @@ public class Repository<T>(ApplicationDbContext context) : IRepository<T> where 
     protected readonly ApplicationDbContext _context = context;
     protected readonly DbSet<T> _dbSet = context.Set<T>();
     
-    public async Task<T?> GetByIdAsync(Guid id)
+    public async Task<T?> GetByIdAsync(Guid id ,CancellationToken cancellationToken = default)
     {
-        return await _dbSet.FindAsync(id);
+        return await _dbSet.FindAsync(new object[] { id }, cancellationToken);
     }
 
-    public async Task<IEnumerable<T>> GetAllAsync()
+    public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        return await _dbSet.ToListAsync();
+        return await _dbSet.ToListAsync(cancellationToken);
     }
 
     public async Task CreateAsync(T entity)
