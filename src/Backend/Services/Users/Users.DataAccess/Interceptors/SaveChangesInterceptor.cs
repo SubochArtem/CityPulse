@@ -31,20 +31,18 @@ public class SaveChangesInterceptor : Microsoft.EntityFrameworkCore.Diagnostics.
         var entries = context.ChangeTracker.Entries<EntityBase>()
             .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified);
 
+        var utcNow = DateTimeOffset.UtcNow;
 
         foreach (var entry in entries)
-        {
             if (entry.State == EntityState.Added)
             {
-                entry.Entity.CreatedAt = DateTimeOffset.UtcNow;
-                entry.Entity.UpdatedAt = DateTimeOffset.UtcNow;
+                entry.Entity.CreatedAt = utcNow;
+                entry.Entity.UpdatedAt = utcNow;
             }
-            else 
+            else
             {
                 entry.Property(e => e.CreatedAt).IsModified = false;
-                entry.Entity.UpdatedAt = DateTimeOffset.UtcNow;
+                entry.Entity.UpdatedAt = utcNow;
             }
-        }
-
     }
 }
