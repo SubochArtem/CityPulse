@@ -2,7 +2,7 @@ using Users.DataAccess.Entities;
 
 namespace Users.DataAccess.Interfaces;
 
-public interface IUserRepository : IRepository<User>
+public interface IUserUnitOfWorkRepository: IRepository<User>, IUnitOfWork
 {
     Task<User?> GetByAuth0UserIdAsync(string auth0UserId, CancellationToken cancellationToken = default);
 }

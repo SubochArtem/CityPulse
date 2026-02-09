@@ -4,8 +4,8 @@ using Users.DataAccess.Interfaces;
 
 namespace Users.DataAccess.Repositories;
 
-public class UserRepository(ApplicationDbContext context)
-    : Repository<User>(context), IUserRepository
+public class UserUnitOfWorkRepository(ApplicationDbContext context)
+    : Repository<User>(context), IUserUnitOfWorkRepository
 {
     public async Task<User?> GetByAuth0UserIdAsync(
         string auth0UserId,
@@ -13,5 +13,10 @@ public class UserRepository(ApplicationDbContext context)
     {
         return await _dbSet
             .FirstOrDefaultAsync(u => u.Auth0UserId == auth0UserId, cancellationToken);
+    }
+    
+    public Task SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        return _context.SaveChangesAsync(cancellationToken);
     }
 }
