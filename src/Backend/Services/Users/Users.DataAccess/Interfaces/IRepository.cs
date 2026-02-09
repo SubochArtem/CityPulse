@@ -1,12 +1,12 @@
 namespace Users.DataAccess.Interfaces;
 using Users.DataAccess.Entities;
 
-public interface IRepository<T> where T : EntityBase
+public interface IRepository<TEntity> where TEntity : EntityBase
 {
-    Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default);
-    Task CreateAsync(T entity);
-    Task UpdateAsync(T entity);
-    Task DeleteAsync(T entity);
+    Task<TEntity?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default);
+    Task CreateAsync(TEntity entity);
+    Task UpdateAsync(TEntity entity);
+    Task DeleteAsync(TEntity entity);
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
 }
