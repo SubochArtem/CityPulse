@@ -1,6 +1,7 @@
-namespace Users.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Users.DataAccess.Entities;
+
+namespace Users.DataAccess;
 
 public class ApplicationDbContext : DbContext
 {
@@ -8,7 +9,7 @@ public class ApplicationDbContext : DbContext
         : base(options)
     {
     }
-    
+
     public DbSet<User> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -17,5 +18,4 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
     }
-
 }
