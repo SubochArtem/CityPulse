@@ -39,5 +39,4 @@ public class Repository<TEntity>(ApplicationDbContext context) : IRepository<TEn
         
         return Task.CompletedTask;
     }
-    
 }
