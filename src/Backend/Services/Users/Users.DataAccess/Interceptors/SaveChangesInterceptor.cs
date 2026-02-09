@@ -25,7 +25,7 @@ public class SaveChangesInterceptor : Microsoft.EntityFrameworkCore.Diagnostics.
 
     private void UpdateTimestamps(DbContext? context)
     {
-        if (context == null)
+        if (context is null)
             return;
 
         var entries = context.ChangeTracker.Entries<EntityBase>()

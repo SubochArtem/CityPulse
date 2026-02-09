@@ -28,7 +28,7 @@ public sealed class AuditInterceptor(
 
     private static void LogEntityChanges(DbContext? context, ILogger logger)
     {
-        if (context == null || !logger.IsEnabled(LogLevel.Information))
+        if (context is null || !logger.IsEnabled(LogLevel.Information))
             return;
 
         var entries = context.ChangeTracker.Entries<EntityBase>()
