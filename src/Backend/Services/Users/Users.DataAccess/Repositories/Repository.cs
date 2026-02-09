@@ -19,19 +19,25 @@ public class Repository<TEntity>(ApplicationDbContext context) : IRepository<TEn
         return await _dbSet.ToListAsync(cancellationToken);
     }
 
-    public async Task CreateAsync(TEntity entity)
+    public Task CreateAsync(TEntity entity)
     {
         _dbSet.Add(entity);
+        
+        return Task.CompletedTask;
     }
 
-    public async Task UpdateAsync(TEntity entity)
+    public Task UpdateAsync(TEntity entity)
     {
         _dbSet.Update(entity);
+        
+        return Task.CompletedTask;
     }
 
-    public async Task DeleteAsync(TEntity entity)
+    public  Task DeleteAsync(TEntity entity)
     {
         _dbSet.Remove(entity);
+        
+        return Task.CompletedTask;
     }
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)
