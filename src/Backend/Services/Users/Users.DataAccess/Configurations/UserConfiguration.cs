@@ -32,6 +32,5 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.HasIndex(u => u.Auth0UserId)
             .IsUnique()
             .HasDatabaseName("IX_User_Auth0UserId");
-        
     }
 }
