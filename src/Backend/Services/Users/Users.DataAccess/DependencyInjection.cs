@@ -37,7 +37,7 @@ public static class DependencyInjection
                 .AddInterceptors(saveChangesInterceptor, auditInterceptor);
         });
 
-        services.AddScoped<IUserUnitOfWorkRepository, UserUnitOfWorkRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
 
         return services;
     }
