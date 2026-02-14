@@ -9,32 +9,39 @@ namespace Users.DataAccess;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddDataAccess(this IServiceCollection services,
+    public static IServiceCollection AddDataAccess(
+        this IServiceCollection services,
         IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw
-            new InvalidOperationException("Connection string 'DefaultConnection' is not configured.");
+        var connectionString =
+            configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException(
+                "Connection string 'DefaultConnection' is not configured.");
 
-        services.AddScoped<SaveChangesInterceptor>();
-        services.AddScoped<AuditInterceptor>();
+        services
+            .AddScoped<SaveChangesInterceptor>()
+            .AddScoped<AuditInterceptor>();
 
         services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
         {
-            var saveChangesInterceptor = serviceProvider.GetRequiredService<SaveChangesInterceptor>();
-            var auditInterceptor = serviceProvider.GetRequiredService<AuditInterceptor>();
+            var saveChangesInterceptor =
+                serviceProvider.GetRequiredService<SaveChangesInterceptor>();
+            var auditInterceptor =
+                serviceProvider.GetRequiredService<AuditInterceptor>();
 
-            options.UseNpgsql(
+            options
+                .UseNpgsql(
                     connectionString,
                     npgsqlOptions =>
                     {
                         npgsqlOptions.EnableRetryOnFailure(
                             5,
                             TimeSpan.FromSeconds(30),
-                            null
-                        );
-                    }
-                )
-                .AddInterceptors(saveChangesInterceptor, auditInterceptor);
+                            null);
+                    })
+                .AddInterceptors(
+                    saveChangesInterceptor,
+                    auditInterceptor);
         });
 
         services.AddScoped<IUserUnitOfWorkRepository, UserUnitOfWorkRepository>();
