@@ -44,7 +44,7 @@ public static class DependencyInjection
                     auditInterceptor);
         });
 
-        services.AddScoped<IUserUnitOfWorkRepository, UserUnitOfWorkRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
 
         return services;
     }
