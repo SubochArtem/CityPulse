@@ -1,12 +1,7 @@
 namespace Users.Business.Exceptions;
 
-public class UserAlreadyExistsException : Exception
+public class UserAlreadyExistsException(string auth0UserId)
+    : Exception($"User with Auth0 ID '{auth0UserId}' already exists.")
 {
-    public UserAlreadyExistsException(string auth0UserId)
-        : base($"User with Auth0 ID '{auth0UserId}' already exists.")
-    {
-        Auth0UserId = auth0UserId;
-    }
-
-    public string Auth0UserId { get; }
+    public string Auth0UserId { get; } = auth0UserId;
 }
