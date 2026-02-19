@@ -1,16 +1,16 @@
 namespace Users.Business.Interfaces;
 
-public interface IAuth0Service
+public interface IIdentityProvider
 {
     Task BlockUserAsync(
-        string auth0UserId,
+        string identityId,
         CancellationToken cancellationToken = default);
 
     Task UnblockUserAsync(
-        string auth0UserId,
+        string identityId,
         CancellationToken cancellationToken = default);
 
     Task DeleteUserAsync(
-        string auth0UserId,
+        string identityId,
         CancellationToken cancellationToken = default);
 }

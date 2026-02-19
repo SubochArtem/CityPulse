@@ -9,7 +9,7 @@ using Users.Business.Interfaces;
 
 namespace Users.Business.Services;
 
-public class Auth0Service : IAuth0Service
+public class Auth0Service : IIdentityProvider
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<Auth0Service> _logger;
@@ -33,34 +33,34 @@ public class Auth0Service : IAuth0Service
     }
 
     public Task BlockUserAsync(
-        string auth0UserId,
+        string identityId,
         CancellationToken cancellationToken = default)
     {
         return PatchUserAsync(
-            auth0UserId,
+            identityId,
             new { blocked = true },
             cancellationToken);
     }
 
     public Task UnblockUserAsync(
-        string auth0UserId,
+        string identityId,
         CancellationToken cancellationToken = default)
     {
         return PatchUserAsync(
-            auth0UserId,
+            identityId,
             new { blocked = false },
             cancellationToken);
     }
 
     public async Task DeleteUserAsync(
-        string auth0UserId,
+        string identityId,
         CancellationToken cancellationToken = default)
     {
         var token = await GetManagementApiTokenAsync(cancellationToken);
 
         using var request = new HttpRequestMessage(
             HttpMethod.Delete,
-            $"/api/v2/users/{Uri.EscapeDataString(auth0UserId)}");
+            $"/api/v2/users/{Uri.EscapeDataString(identityId)}");
 
         request.Headers.Authorization =
             new AuthenticationHeaderValue("Bearer", token);
@@ -72,12 +72,12 @@ public class Auth0Service : IAuth0Service
         if (!response.IsSuccessStatusCode)
             await ThrowAuth0ExceptionAsync(
                 response,
-                $"Failed to delete Auth0 user {auth0UserId}",
+                $"Failed to delete user {identityId}",
                 cancellationToken);
     }
-    
+
     private async Task PatchUserAsync(
-        string auth0UserId,
+        string identityId,
         object payload,
         CancellationToken cancellationToken)
     {
@@ -85,7 +85,7 @@ public class Auth0Service : IAuth0Service
 
         using var request = new HttpRequestMessage(
             HttpMethod.Patch,
-            $"/api/v2/users/{Uri.EscapeDataString(auth0UserId)}")
+            $"/api/v2/users/{Uri.EscapeDataString(identityId)}")
         {
             Content = JsonContent.Create(payload)
         };
@@ -100,7 +100,7 @@ public class Auth0Service : IAuth0Service
         if (!response.IsSuccessStatusCode)
             await ThrowAuth0ExceptionAsync(
                 response,
-                $"Failed to update Auth0 user {auth0UserId}",
+                $"Failed to update user {identityId}",
                 cancellationToken);
     }
 
@@ -151,7 +151,7 @@ public class Auth0Service : IAuth0Service
             if (!response.IsSuccessStatusCode)
                 await ThrowAuth0ExceptionAsync(
                     response,
-                    "Failed to obtain Auth0 management token",
+                    "Failed to obtain management token",
                     cancellationToken);
 
             var tokenResponse =
@@ -160,7 +160,7 @@ public class Auth0Service : IAuth0Service
 
             if (tokenResponse == null ||
                 string.IsNullOrWhiteSpace(tokenResponse.AccessToken))
-                throw new Auth0Exception("Invalid Auth0 token response");
+                throw new Auth0Exception("Invalid token response");
 
             _managementApiToken = tokenResponse.AccessToken;
             _tokenExpiresAt =
