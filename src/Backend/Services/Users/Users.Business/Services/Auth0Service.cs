@@ -1,36 +1,20 @@
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using Microsoft.Extensions.Logging;
+using Auth0.AuthenticationApi;
+using Auth0.AuthenticationApi.Models;
+using Auth0.ManagementApi;
+using Auth0.ManagementApi.Models;
 using Microsoft.Extensions.Options;
 using Users.Business.Configurations;
-using Users.Business.DTOs;
 using Users.Business.Exceptions;
 using Users.Business.Interfaces;
 
 namespace Users.Business.Services;
 
-public class Auth0Service : IIdentityProvider
+public class Auth0Service(
+    AuthenticationApiClient authClient,
+    IOptions<Auth0Settings> settings) : IIdentityProvider
 {
-    private readonly HttpClient _httpClient;
-    private readonly ILogger<Auth0Service> _logger;
-    private readonly Auth0Settings _settings;
-
-    private readonly SemaphoreSlim _tokenLock = new(1, 1);
-
-    private string? _managementApiToken;
-    private DateTimeOffset _tokenExpiresAt;
-
-    public Auth0Service(
-        HttpClient httpClient,
-        IOptions<Auth0Settings> settings,
-        ILogger<Auth0Service> logger)
-    {
-        _httpClient = httpClient;
-        _settings = settings.Value;
-        _logger = logger;
-
-        _httpClient.BaseAddress = new Uri($"https://{_settings.Domain}");
-    }
+    private readonly AuthenticationApiClient _authClient = authClient;
+    private readonly Auth0Settings _settings = settings.Value;
 
     public Task BlockUserAsync(
         string identityId,
@@ -38,7 +22,7 @@ public class Auth0Service : IIdentityProvider
     {
         return PatchUserAsync(
             identityId,
-            new { blocked = true },
+            new UserUpdateRequest { Blocked = true },
             cancellationToken);
     }
 
@@ -48,7 +32,7 @@ public class Auth0Service : IIdentityProvider
     {
         return PatchUserAsync(
             identityId,
-            new { blocked = false },
+            new UserUpdateRequest { Blocked = false },
             cancellationToken);
     }
 
@@ -56,121 +40,41 @@ public class Auth0Service : IIdentityProvider
         string identityId,
         CancellationToken cancellationToken = default)
     {
-        var token = await GetManagementApiTokenAsync(cancellationToken);
-
-        using var request = new HttpRequestMessage(
-            HttpMethod.Delete,
-            $"/api/v2/users/{Uri.EscapeDataString(identityId)}");
-
-        request.Headers.Authorization =
-            new AuthenticationHeaderValue("Bearer", token);
-
-        using var response = await _httpClient.SendAsync(
-            request,
-            cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-            await ThrowAuth0ExceptionAsync(
-                response,
-                $"Failed to delete user {identityId}",
-                cancellationToken);
+        var client = await CreateManagementClientAsync(cancellationToken);
+        await client.Users.DeleteAsync(identityId, cancellationToken);
     }
 
     private async Task PatchUserAsync(
         string identityId,
-        object payload,
+        UserUpdateRequest request,
+        CancellationToken cancellationToken)
+    {
+        var client = await CreateManagementClientAsync(cancellationToken);
+        await client.Users.UpdateAsync(identityId, request, cancellationToken);
+    }
+
+    private async Task<ManagementApiClient> CreateManagementClientAsync(
         CancellationToken cancellationToken)
     {
         var token = await GetManagementApiTokenAsync(cancellationToken);
-
-        using var request = new HttpRequestMessage(
-            HttpMethod.Patch,
-            $"/api/v2/users/{Uri.EscapeDataString(identityId)}")
-        {
-            Content = JsonContent.Create(payload)
-        };
-
-        request.Headers.Authorization =
-            new AuthenticationHeaderValue("Bearer", token);
-
-        using var response = await _httpClient.SendAsync(
-            request,
-            cancellationToken);
-
-        if (!response.IsSuccessStatusCode)
-            await ThrowAuth0ExceptionAsync(
-                response,
-                $"Failed to update user {identityId}",
-                cancellationToken);
-    }
-
-    private async Task ThrowAuth0ExceptionAsync(
-        HttpResponseMessage response,
-        string message,
-        CancellationToken cancellationToken)
-    {
-        var body = await response.Content.ReadAsStringAsync(cancellationToken);
-
-        _logger.LogError(
-            "Auth0 request failed. Status={Status}, Body={Body}",
-            response.StatusCode,
-            body);
-
-        throw new Auth0Exception(
-            message,
-            response.StatusCode);
+        return new ManagementApiClient(token, _settings.Domain);
     }
 
     private async Task<string> GetManagementApiTokenAsync(
         CancellationToken cancellationToken)
     {
-        if (_managementApiToken != null &&
-            DateTimeOffset.UtcNow < _tokenExpiresAt)
-            return _managementApiToken;
-
-        await _tokenLock.WaitAsync(cancellationToken);
-        try
-        {
-            if (_managementApiToken != null &&
-                DateTimeOffset.UtcNow < _tokenExpiresAt)
-                return _managementApiToken;
-
-            var request = new Auth0TokenRequest
+        var tokenResponse = await _authClient.GetTokenAsync(
+            new ClientCredentialsTokenRequest
             {
                 ClientId = _settings.ManagementApiClientId,
                 ClientSecret = _settings.ManagementApiClientSecret,
-                Audience = _settings.ManagementApiAudience,
-                GrantType = "client_credentials"
-            };
+                Audience = _settings.ManagementApiAudience
+            },
+            cancellationToken);
 
-            using var response = await _httpClient.PostAsJsonAsync(
-                "/oauth/token",
-                request,
-                cancellationToken);
+        if (tokenResponse is not { AccessToken: { Length: > 0 } accessToken })
+            throw new Auth0Exception("Invalid token response");
 
-            if (!response.IsSuccessStatusCode)
-                await ThrowAuth0ExceptionAsync(
-                    response,
-                    "Failed to obtain management token",
-                    cancellationToken);
-
-            var tokenResponse =
-                await response.Content.ReadFromJsonAsync<Auth0TokenResponse>(
-                    cancellationToken);
-
-            if (tokenResponse == null ||
-                string.IsNullOrWhiteSpace(tokenResponse.AccessToken))
-                throw new Auth0Exception("Invalid token response");
-
-            _managementApiToken = tokenResponse.AccessToken;
-            _tokenExpiresAt =
-                DateTimeOffset.UtcNow.AddSeconds(tokenResponse.ExpiresIn - 60);
-
-            return _managementApiToken;
-        }
-        finally
-        {
-            _tokenLock.Release();
-        }
+        return accessToken;
     }
 }
