@@ -5,14 +5,14 @@ namespace Users.Business.DTOs;
 public class Auth0TokenRequest
 {
     [JsonPropertyName("client_id")] 
-    public string ClientId { get; set; } = null!;
+    public required string ClientId { get; set; }
 
     [JsonPropertyName("client_secret")] 
-    public string ClientSecret { get; set; } = null!;
+    public required string ClientSecret { get; set; }
 
     [JsonPropertyName("audience")] 
-    public string Audience { get; set; } = null!;
+    public required string Audience { get; set; } 
 
     [JsonPropertyName("grant_type")] 
-    public string GrantType { get; set; } = null!;
+    public required string GrantType { get; set; }
 }

@@ -2,17 +2,17 @@ namespace Users.Business.Configurations;
 
 public class Auth0Settings
 {
-    public string Domain { get; set; } = null!;
+    public required string Domain { get; set; }
 
-    public string ClientId { get; set; } = null!;
+    public required string ClientId { get; set; }
 
-    public string ClientSecret { get; set; } = null!;
+    public required string ClientSecret { get; set; }
 
-    public string Audience { get; set; } = null!;
+    public required string Audience { get; set; }
 
-    public string ManagementApiClientId { get; set; } = null!;
+    public required string ManagementApiClientId { get; set; }
 
-    public string ManagementApiClientSecret { get; set; } = null!;
+    public required string ManagementApiClientSecret { get; set; }
 
-    public string ManagementApiAudience { get; set; } = null!;
+    public required string ManagementApiAudience { get; set; }
 }
