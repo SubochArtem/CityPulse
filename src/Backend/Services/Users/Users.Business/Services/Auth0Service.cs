@@ -9,28 +9,38 @@ using Users.Business.Interfaces;
 
 namespace Users.Business.Services;
 
-public class Auth0Service(
-    AuthenticationApiClient authClient,
-    IOptions<Auth0Settings> settings) : IIdentityProvider
+public class Auth0Service : IIdentityProvider
 {
-    private readonly AuthenticationApiClient _authClient = authClient;
-    private readonly Auth0Settings _settings = settings.Value;
+    private readonly AuthenticationApiClient _authClient;
+    private readonly Lazy<Task<ManagementApiClient>> _managementClient;
+    private readonly Auth0Settings _settings;
 
-    public Task BlockUserAsync(
+    public Auth0Service(
+        AuthenticationApiClient authClient,
+        IOptions<Auth0Settings> settings)
+    {
+        _authClient = authClient;
+        _settings = settings.Value;
+        _managementClient = new Lazy<Task<ManagementApiClient>>(CreateManagementClientAsync);
+    }
+
+    public async Task BlockUserAsync(
         string identityId,
         CancellationToken cancellationToken = default)
     {
-        return PatchUserAsync(
+        var client = await _managementClient.Value;
+        await client.Users.UpdateAsync(
             identityId,
             new UserUpdateRequest { Blocked = true },
             cancellationToken);
     }
 
-    public Task UnblockUserAsync(
+    public async Task UnblockUserAsync(
         string identityId,
         CancellationToken cancellationToken = default)
     {
-        return PatchUserAsync(
+        var client = await _managementClient.Value;
+        await client.Users.UpdateAsync(
             identityId,
             new UserUpdateRequest { Blocked = false },
             cancellationToken);
@@ -40,41 +50,22 @@ public class Auth0Service(
         string identityId,
         CancellationToken cancellationToken = default)
     {
-        var client = await CreateManagementClientAsync(cancellationToken);
+        var client = await _managementClient.Value;
         await client.Users.DeleteAsync(identityId, cancellationToken);
     }
 
-    private async Task PatchUserAsync(
-        string identityId,
-        UserUpdateRequest request,
-        CancellationToken cancellationToken)
+    private async Task<ManagementApiClient> CreateManagementClientAsync()
     {
-        var client = await CreateManagementClientAsync(cancellationToken);
-        await client.Users.UpdateAsync(identityId, request, cancellationToken);
-    }
-
-    private async Task<ManagementApiClient> CreateManagementClientAsync(
-        CancellationToken cancellationToken)
-    {
-        var token = await GetManagementApiTokenAsync(cancellationToken);
-        return new ManagementApiClient(token, _settings.Domain);
-    }
-
-    private async Task<string> GetManagementApiTokenAsync(
-        CancellationToken cancellationToken)
-    {
-        var tokenResponse = await _authClient.GetTokenAsync(
-            new ClientCredentialsTokenRequest
-            {
-                ClientId = _settings.ManagementApiClientId,
-                ClientSecret = _settings.ManagementApiClientSecret,
-                Audience = _settings.ManagementApiAudience
-            },
-            cancellationToken);
+        var tokenResponse = await _authClient.GetTokenAsync(new ClientCredentialsTokenRequest
+        {
+            ClientId = _settings.ManagementApiClientId,
+            ClientSecret = _settings.ManagementApiClientSecret,
+            Audience = _settings.ManagementApiAudience
+        });
 
         if (tokenResponse is not { AccessToken: { Length: > 0 } accessToken })
             throw new Auth0Exception("Invalid token response");
 
-        return accessToken;
+        return new ManagementApiClient(accessToken, _settings.Domain);
     }
 }
