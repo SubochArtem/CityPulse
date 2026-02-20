@@ -19,6 +19,5 @@ public static class UserMappingConfig
             .Ignore(dest => dest.Id)
             .Ignore(dest => dest.CreatedAt)
             .Ignore(dest => dest.UpdatedAt);
-        
     }
 }
