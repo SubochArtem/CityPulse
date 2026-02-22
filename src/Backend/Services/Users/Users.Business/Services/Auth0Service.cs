@@ -5,30 +5,27 @@ using Auth0.ManagementApi.Models;
 using Microsoft.Extensions.Options;
 using Users.Business.Configurations;
 using Users.Business.Exceptions;
+using Users.Business.Helpers;
 using Users.Business.Interfaces;
 
 namespace Users.Business.Services;
 
-public class Auth0Service : IIdentityProvider
+public class Auth0Service(
+    IOptions<Auth0Settings> settings,
+    IHttpClientFactory httpClientFactory) : IIdentityProvider
 {
-    private readonly AuthenticationApiClient _authClient;
-    private readonly Lazy<Task<ManagementApiClient>> _managementClient;
-    private readonly Auth0Settings _settings;
+    private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
+    private readonly SemaphoreSlim _semaphore = new(1, 1);
+    private readonly Auth0Settings _settings = settings.Value;
 
-    public Auth0Service(
-        AuthenticationApiClient authClient,
-        IOptions<Auth0Settings> settings)
-    {
-        _authClient = authClient;
-        _settings = settings.Value;
-        _managementClient = new Lazy<Task<ManagementApiClient>>(CreateManagementClientAsync);
-    }
+    private ManagementApiClient? _managementClient;
+    private DateTime _tokenExpiresAt = DateTime.MinValue;
 
     public async Task BlockUserAsync(
         string identityId,
         CancellationToken cancellationToken = default)
     {
-        var client = await _managementClient.Value;
+        var client = await GetManagementClientAsync(cancellationToken);
         await client.Users.UpdateAsync(
             identityId,
             new UserUpdateRequest { Blocked = true },
@@ -39,7 +36,7 @@ public class Auth0Service : IIdentityProvider
         string identityId,
         CancellationToken cancellationToken = default)
     {
-        var client = await _managementClient.Value;
+        var client = await GetManagementClientAsync(cancellationToken);
         await client.Users.UpdateAsync(
             identityId,
             new UserUpdateRequest { Blocked = false },
@@ -50,22 +47,55 @@ public class Auth0Service : IIdentityProvider
         string identityId,
         CancellationToken cancellationToken = default)
     {
-        var client = await _managementClient.Value;
+        var client = await GetManagementClientAsync(cancellationToken);
         await client.Users.DeleteAsync(identityId, cancellationToken);
     }
 
-    private async Task<ManagementApiClient> CreateManagementClientAsync()
+    private async Task<ManagementApiClient> GetManagementClientAsync(
+        CancellationToken cancellationToken)
     {
-        var tokenResponse = await _authClient.GetTokenAsync(new ClientCredentialsTokenRequest
+        if (_managementClient is not null && DateTime.UtcNow < _tokenExpiresAt)
+            return _managementClient;
+
+        await _semaphore.WaitAsync(cancellationToken);
+        try
         {
-            ClientId = _settings.ManagementApiClientId,
-            ClientSecret = _settings.ManagementApiClientSecret,
-            Audience = _settings.ManagementApiAudience
-        });
+            if (_managementClient is not null && DateTime.UtcNow < _tokenExpiresAt)
+                return _managementClient;
 
-        if (tokenResponse is not { AccessToken: { Length: > 0 } accessToken })
-            throw new Auth0Exception("Invalid token response");
+            var httpClient = _httpClientFactory.CreateClient(
+                IdentityProviderConstants.Auth0HttpClientName);
 
-        return new ManagementApiClient(accessToken, _settings.Domain);
+            var authClient = new AuthenticationApiClient(
+                UriHelper.BuildHttpsUri(_settings.Domain),
+                new HttpClientAuthenticationConnection(httpClient));
+
+            var tokenResponse = await authClient.GetTokenAsync(new ClientCredentialsTokenRequest
+            {
+                ClientId = _settings.ManagementApiClientId,
+                ClientSecret = _settings.ManagementApiClientSecret,
+                Audience = _settings.ManagementApiAudience
+            }, cancellationToken);
+
+            if (tokenResponse is not { AccessToken: { Length: > 0 } accessToken })
+                throw new Auth0Exception("Invalid token response");
+
+            var managementHttpClient = _httpClientFactory.CreateClient(
+                IdentityProviderConstants.Auth0HttpClientName);
+
+            _managementClient = new ManagementApiClient(
+                accessToken,
+                UriHelper.BuildHttpsUri(_settings.Domain, IdentityProviderConstants.Auth0ApiV2Path),
+                new HttpClientManagementConnection(managementHttpClient));
+
+            _tokenExpiresAt = DateTime.UtcNow.AddSeconds(
+                tokenResponse.ExpiresIn - IdentityProviderConstants.TokenExpiryBufferSeconds);
+
+            return _managementClient;
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 }
