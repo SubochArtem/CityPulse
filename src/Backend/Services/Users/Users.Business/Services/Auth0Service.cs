@@ -17,7 +17,6 @@ public class Auth0Service(
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
     private readonly SemaphoreSlim _semaphore = new(1, 1);
     private readonly Auth0Settings _settings = settings.Value;
-
     private ManagementApiClient? _managementClient;
     private DateTime _tokenExpiresAt = DateTime.MinValue;
 
