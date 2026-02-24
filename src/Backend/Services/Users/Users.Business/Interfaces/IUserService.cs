@@ -4,30 +4,30 @@ namespace Users.Business.Interfaces;
 
 public interface IUserService
 {
-    Task<GetUserDto> CreateUserAsync(
+    public Task<GetUserDto> CreateUserAsync(
         CreateUserDto createUserDto,
         CancellationToken cancellationToken = default);
 
-    Task<GetUserDto?> GetUserByIdAsync(
+    public Task<GetUserDto?> GetUserByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default);
 
-    Task<GetUserDto?> GetUserByAuth0IdAsync(
+    public Task<GetUserDto?> GetUserByAuth0IdAsync(
         string auth0UserId,
         CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<GetUserDto>> GetAllUsersAsync(
+    public Task<IEnumerable<GetUserDto>> GetAllUsersAsync(
         CancellationToken cancellationToken = default);
 
-    Task DeleteUserAsync(
+    public Task DeleteUserAsync(
         Guid id,
         CancellationToken cancellationToken = default);
 
-    Task ActivateUserAsync(
+    public Task ActivateUserAsync(
         Guid id,
         CancellationToken cancellationToken = default);
 
-    Task DeactivateUserAsync(
+    public Task DeactivateUserAsync(
         Guid id,
         CancellationToken cancellationToken = default);
 }
