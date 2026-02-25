@@ -69,12 +69,14 @@ public class UserService(
         await _userRepository.DeleteAsync(user, cancellationToken);
     }
 
-    public async Task<GetUserDto?> GetUserByIdAsync(
+    public async Task<GetUserDto> GetUserByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default)
     {
-        var user = await _userRepository.GetByIdAsync(id, cancellationToken);
-        return user?.Adapt<GetUserDto>();
+        var user = await _userRepository.GetByIdAsync(id, cancellationToken)
+                   ?? throw new UserNotFoundException(id.ToString(), IdentitySources.Internal);
+
+        return user.Adapt<GetUserDto>();
     }
 
     public async Task<GetUserDto?> GetUserByIdentityIdAsync(
