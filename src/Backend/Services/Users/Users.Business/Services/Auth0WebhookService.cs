@@ -36,7 +36,7 @@ public class Auth0WebhookService(
                 StringComparison.Ordinal))
             throw new InvalidWebhookPayloadException("Invalid issuer");
 
-        if (payload.Event != IdentityProviderConstants.WebhookUserCreatedEvent)
+        if (payload.Event is not IdentityProviderConstants.WebhookUserCreatedEvent)
             return;
 
         await _userService.CreateUserAsync(new CreateUserDto
