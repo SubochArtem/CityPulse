@@ -33,8 +33,7 @@ public static class DependencyInjection
             configuration.GetSection(IdentityProviderConstants.Auth0ConfigurationSection));
 
         services.AddHttpClient(IdentityProviderConstants.Auth0HttpClientName)
-            .AddPolicyHandler(HttpPolicies.RetryPolicy())
-            .AddPolicyHandler(HttpPolicies.CircuitBreakerPolicy());
+            .AddResiliencePolicies();
 
         services.AddSingleton<IIdentityProvider, Auth0Service>();
 
