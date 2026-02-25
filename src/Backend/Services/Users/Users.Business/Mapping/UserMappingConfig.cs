@@ -10,12 +10,12 @@ public static class UserMappingConfig
     {
         config.NewConfig<User, GetUserDto>()
             .Map(dest => dest.Id, src => src.Id)
-            .Map(dest => dest.IdentityId, src => src.Auth0UserId)
+            .Map(dest => dest.IdentityId, src => src.IdentityId)
             .Map(dest => dest.CreatedAt, src => src.CreatedAt)
             .Map(dest => dest.UpdatedAt, src => src.UpdatedAt);
 
         config.NewConfig<CreateUserDto, User>()
-            .Map(dest => dest.Auth0UserId, src => src.IdentityId)
+            .Map(dest => dest.IdentityId, src => src.IdentityId)
             .Ignore(dest => dest.Id)
             .Ignore(dest => dest.CreatedAt)
             .Ignore(dest => dest.UpdatedAt);

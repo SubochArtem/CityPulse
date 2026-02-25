@@ -12,8 +12,8 @@ public interface IUserService
         Guid id,
         CancellationToken cancellationToken = default);
 
-    public Task<GetUserDto?> GetUserByAuth0IdAsync(
-        string auth0UserId,
+    public Task<GetUserDto?> GetUserByIdentityIdAsync(
+        string identityId,
         CancellationToken cancellationToken = default);
 
     public Task<IEnumerable<GetUserDto>> GetAllUsersAsync(
