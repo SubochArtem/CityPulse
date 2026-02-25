@@ -26,7 +26,7 @@ public class UserService(
             createUserDto,
             cancellationToken);
 
-        var existingUser = await _userRepository.GetByAuth0UserIdAsync(
+        var existingUser = await _userRepository.GetByIdentityIdAsync(
             createUserDto.IdentityId,
             cancellationToken);
 
@@ -49,7 +49,7 @@ public class UserService(
         CancellationToken cancellationToken = default)
     {
         var user = await GetExistingUserAsync(id, IdentitySources.Internal, cancellationToken);
-        await _identityProvider.BlockUserAsync(user.Auth0UserId, cancellationToken);
+        await _identityProvider.BlockUserAsync(user.IdentityId, cancellationToken);
     }
 
     public async Task ActivateUserAsync(
@@ -57,7 +57,7 @@ public class UserService(
         CancellationToken cancellationToken = default)
     {
         var user = await GetExistingUserAsync(id, IdentitySources.Internal, cancellationToken);
-        await _identityProvider.UnblockUserAsync(user.Auth0UserId, cancellationToken);
+        await _identityProvider.UnblockUserAsync(user.IdentityId, cancellationToken);
     }
 
     public async Task DeleteUserAsync(
@@ -65,7 +65,7 @@ public class UserService(
         CancellationToken cancellationToken = default)
     {
         var user = await GetExistingUserAsync(id, IdentitySources.Internal, cancellationToken);
-        await _identityProvider.DeleteUserAsync(user.Auth0UserId, cancellationToken);
+        await _identityProvider.DeleteUserAsync(user.IdentityId, cancellationToken);
         await _userRepository.DeleteAsync(user, cancellationToken);
     }
 
@@ -77,11 +77,11 @@ public class UserService(
         return user?.Adapt<GetUserDto>();
     }
 
-    public async Task<GetUserDto?> GetUserByAuth0IdAsync(
-        string auth0UserId,
+    public async Task<GetUserDto?> GetUserByIdentityIdAsync(
+        string identityId,
         CancellationToken cancellationToken = default)
     {
-        var user = await _userRepository.GetByAuth0UserIdAsync(auth0UserId, cancellationToken);
+        var user = await _userRepository.GetByIdentityIdAsync(identityId, cancellationToken);
         return user?.Adapt<GetUserDto>();
     }
 

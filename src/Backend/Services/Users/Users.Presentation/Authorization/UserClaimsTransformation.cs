@@ -10,11 +10,11 @@ public sealed class UserClaimsTransformation(IUserService userService) : IClaims
 
     public async Task<ClaimsPrincipal> TransformAsync(ClaimsPrincipal principal)
     {
-        var auth0UserId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (auth0UserId is null || Guid.TryParse(auth0UserId, out _))
+        var identityId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (identityId is null || Guid.TryParse(identityId, out _))
             return principal;
 
-        var user = await _userService.GetUserByAuth0IdAsync(auth0UserId);
+        var user = await _userService.GetUserByIdentityIdAsync(identityId);
         if (user is null)
             return principal;
 

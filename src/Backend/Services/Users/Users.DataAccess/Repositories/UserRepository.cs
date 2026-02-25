@@ -7,11 +7,11 @@ namespace Users.DataAccess.Repositories;
 public class UserRepository(ApplicationDbContext context)
     : Repository<User>(context), IUserRepository
 {
-    public async Task<User?> GetByAuth0UserIdAsync(
-        string auth0UserId,
+    public async Task<User?> GetByIdentityIdAsync(
+        string identityId,
         CancellationToken cancellationToken = default)
     {
         return await _dbSet
-            .FirstOrDefaultAsync(u => u.Auth0UserId == auth0UserId, cancellationToken);
+            .FirstOrDefaultAsync(u => u.IdentityId == identityId, cancellationToken);
     }
 }

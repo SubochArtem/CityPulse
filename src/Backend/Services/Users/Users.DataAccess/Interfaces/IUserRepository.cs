@@ -4,5 +4,5 @@ namespace Users.DataAccess.Interfaces;
 
 public interface IUserRepository : IRepository<User>
 {
-    Task<User?> GetByAuth0UserIdAsync(string auth0UserId, CancellationToken cancellationToken = default);
+    Task<User?> GetByIdentityIdAsync(string identityId, CancellationToken cancellationToken = default);
 }

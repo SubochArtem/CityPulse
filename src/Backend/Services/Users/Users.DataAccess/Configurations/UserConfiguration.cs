@@ -1,7 +1,8 @@
-namespace Users.DataAccess.Configurations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Users.DataAccess.Entities;
+
+namespace Users.DataAccess.Configurations;
 
 public class UserConfiguration : IEntityTypeConfiguration<User>
 {
@@ -15,11 +16,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasDefaultValueSql("gen_random_uuid()")
             .ValueGeneratedOnAdd();
 
-        builder.Property(u => u.Auth0UserId)
-            .HasColumnName("auth0_user_id")
+        builder.Property(u => u.IdentityId)
+            .HasColumnName("identity_id")
             .IsRequired()
             .HasMaxLength(100);
-        
+
         builder.Property(u => u.CreatedAt)
             .HasColumnName("created_at")
             .IsRequired()
@@ -28,9 +29,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(u => u.UpdatedAt)
             .HasColumnName("updated_at")
             .IsRequired();
-        
-        builder.HasIndex(u => u.Auth0UserId)
+
+        builder.HasIndex(u => u.IdentityId)
             .IsUnique()
-            .HasDatabaseName("IX_User_Auth0UserId");
+            .HasDatabaseName("IX_User_IdentityId");
     }
 }
