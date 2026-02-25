@@ -21,20 +21,19 @@ public static class DependencyInjection
     {
         var config = new TypeAdapterConfig();
         UserMappingConfig.Configure(config);
-
         services.AddSingleton(config);
         services.AddScoped<IMapper, ServiceMapper>();
 
         services.AddValidatorsFromAssemblyContaining<CreateUserValidator>();
 
-        services.AddScoped<IUserService, UserService>();
+        services
+            .AddScoped<IUserService, UserService>()
+            .AddScoped<IIdentityProviderWebhookService, Auth0WebhookService>();
 
         services.Configure<Auth0Settings>(
             configuration.GetSection(IdentityProviderConstants.Auth0ConfigurationSection));
-
         services.AddHttpClient(IdentityProviderConstants.Auth0HttpClientName)
             .AddResiliencePolicies();
-
         services.AddSingleton<IIdentityProvider, Auth0Service>();
 
         return services;
