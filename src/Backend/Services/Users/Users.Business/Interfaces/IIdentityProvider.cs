@@ -2,15 +2,15 @@ namespace Users.Business.Interfaces;
 
 public interface IIdentityProvider
 {
-    Task BlockUserAsync(
+    public Task BlockUserAsync(
         string identityId,
         CancellationToken cancellationToken = default);
 
-    Task UnblockUserAsync(
+    public Task UnblockUserAsync(
         string identityId,
         CancellationToken cancellationToken = default);
 
-    Task DeleteUserAsync(
+    public Task DeleteUserAsync(
         string identityId,
         CancellationToken cancellationToken = default);
 }
