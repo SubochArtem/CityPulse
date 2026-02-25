@@ -28,13 +28,13 @@ public class Auth0WebhookService(
         var payload = JsonSerializer.Deserialize<Auth0WebhookPayload>(rawBody);
 
         if (payload?.User?.Id is null)
-            throw new InvalidWebhookPayloadException("Invalid payload");
+            throw new InvalidWebhookPayloadException();
 
         if (!string.Equals(
                 payload.Iss,
                 UriHelper.BuildHttpsUri(_settings.Domain).ToString(),
                 StringComparison.Ordinal))
-            throw new InvalidWebhookPayloadException("Invalid issuer");
+            throw new InvalidWebhookPayloadException();
 
         if (payload.Event is not IdentityProviderConstants.WebhookUserCreatedEvent)
             return;
