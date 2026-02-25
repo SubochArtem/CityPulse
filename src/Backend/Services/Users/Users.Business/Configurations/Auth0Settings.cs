@@ -15,4 +15,6 @@ public class Auth0Settings
     public required string ManagementApiClientSecret { get; set; }
 
     public required string ManagementApiAudience { get; set; }
+
+    public required string WebhookSecret { get; set; }
 }
