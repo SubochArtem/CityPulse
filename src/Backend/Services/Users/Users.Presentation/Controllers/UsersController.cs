@@ -33,7 +33,7 @@ public class UsersController(IUserService userService) : ControllerBase
 
     [HttpPost("{id:guid}/deactivate")]
     [Authorize(Policy = Policies.DeactivateUser)]
-    public async Task<IActionResult> DeactivateUser(
+    public async Task<ActionResult> DeactivateUser(
         Guid id,
         CancellationToken cancellationToken = default)
     {
@@ -43,7 +43,7 @@ public class UsersController(IUserService userService) : ControllerBase
 
     [HttpPost("{id:guid}/activate")]
     [Authorize(Policy = Policies.ActivateUser)]
-    public async Task<IActionResult> ActivateUser(
+    public async Task<ActionResult> ActivateUser(
         Guid id,
         CancellationToken cancellationToken = default)
     {
@@ -53,7 +53,7 @@ public class UsersController(IUserService userService) : ControllerBase
 
     [HttpDelete("{id:guid}")]
     [Authorize(Policy = Policies.DeleteUser)]
-    public async Task<IActionResult> DeleteUser(
+    public async Task<ActionResult> DeleteUser(
         Guid id,
         CancellationToken cancellationToken = default)
     {
