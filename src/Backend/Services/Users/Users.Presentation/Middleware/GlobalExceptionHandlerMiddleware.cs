@@ -11,6 +11,7 @@ public class GlobalExceptionHandlerMiddleware(
 {
     private const string ContentType = "application/json";
     private const string ProblemExtensionKeys = "errors";
+    private const string ExceptionLogMessage = "Exception occurred";
 
     private readonly ILogger<GlobalExceptionHandlerMiddleware> _logger = logger;
     private readonly RequestDelegate _next = next;
@@ -33,7 +34,7 @@ public class GlobalExceptionHandlerMiddleware(
                 _ => LogLevel.Error
             };
 
-            _logger.Log(logLevel, ex, "Exception occurred");
+            _logger.Log(logLevel, ex, ExceptionLogMessage);
             await HandleExceptionAsync(context, ex);
         }
     }
