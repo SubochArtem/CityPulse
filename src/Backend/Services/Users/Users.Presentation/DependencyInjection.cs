@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Users.Presentation.Authorization;
 using Users.Presentation.Extensions;
 using Users.Presentation.Extensions.Swagger;
@@ -14,6 +15,12 @@ public static class DependencyInjection
         services.AddSwaggerConfiguration();
         services.AddPermissionAuthorization();
         services.AddTransient<IClaimsTransformation, UserClaimsTransformation>();
+
+        services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer();
+
+        services.ConfigureOptions<ConfigureJwtBearerOptions>();
 
         return services;
     }
