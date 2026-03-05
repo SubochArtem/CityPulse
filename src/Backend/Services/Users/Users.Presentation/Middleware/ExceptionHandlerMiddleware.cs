@@ -2,12 +2,11 @@ using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Users.Business.Exceptions;
 
-
 namespace Users.Presentation.Middleware;
 
-public class GlobalExceptionHandlerMiddleware(
+public class ExceptionHandlerMiddleware(
     RequestDelegate next,
-    ILogger<GlobalExceptionHandlerMiddleware> logger)
+    ILogger<ExceptionHandlerMiddleware> logger)
 {
     private const string ContentType = "application/json";
     private const string ProblemExtensionKeys = "errors";
@@ -22,9 +21,11 @@ public class GlobalExceptionHandlerMiddleware(
     private const string InternalServerError = "Internal Server Error";
 
     private const string UnexpectedError = "An unexpected error occurred.";
-    private const string IdentityProviderCommunicationError = "An error occurred while communicating with the identity provider.";
 
-    private readonly ILogger<GlobalExceptionHandlerMiddleware> _logger = logger;
+    private const string IdentityProviderCommunicationError =
+        "An error occurred while communicating with the identity provider.";
+
+    private readonly ILogger<ExceptionHandlerMiddleware> _logger = logger;
     private readonly RequestDelegate _next = next;
 
     public async Task InvokeAsync(HttpContext context)
