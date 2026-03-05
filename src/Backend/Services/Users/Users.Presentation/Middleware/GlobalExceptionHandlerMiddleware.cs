@@ -1,7 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Users.Business.Exceptions;
-using Users.Presentation.Constants;
+
 
 namespace Users.Presentation.Middleware;
 
@@ -12,6 +12,17 @@ public class GlobalExceptionHandlerMiddleware(
     private const string ContentType = "application/json";
     private const string ProblemExtensionKeys = "errors";
     private const string ExceptionLogMessage = "Exception occurred";
+
+    private const string UserNotFound = "User Not Found";
+    private const string UserAlreadyExists = "User Already Exists";
+    private const string ValidationFailed = "Validation Failed";
+    private const string Unauthorized = "Unauthorized";
+    private const string BadRequest = "Bad Request";
+    private const string IdentityProviderError = "Identity Provider Error";
+    private const string InternalServerError = "Internal Server Error";
+
+    private const string UnexpectedError = "An unexpected error occurred.";
+    private const string IdentityProviderCommunicationError = "An error occurred while communicating with the identity provider.";
 
     private readonly ILogger<GlobalExceptionHandlerMiddleware> _logger = logger;
     private readonly RequestDelegate _next = next;
@@ -49,50 +60,50 @@ public class GlobalExceptionHandlerMiddleware(
         {
             case UserNotFoundException e:
                 statusCode = StatusCodes.Status404NotFound;
-                title = ProblemTitles.UserNotFound;
+                title = UserNotFound;
                 detail = e.Message;
                 break;
 
             case UserAlreadyExistsException e:
                 statusCode = StatusCodes.Status409Conflict;
-                title = ProblemTitles.UserAlreadyExists;
+                title = UserAlreadyExists;
                 detail = e.Message;
                 break;
 
             case ValidationException e:
                 statusCode = StatusCodes.Status400BadRequest;
-                title = ProblemTitles.ValidationFailed;
+                title = ValidationFailed;
                 detail = string.Join("; ", e.Errors.Select(err => err.ErrorMessage));
                 break;
 
             case UnauthorizedAccessException e:
                 statusCode = StatusCodes.Status401Unauthorized;
-                title = ProblemTitles.Unauthorized;
+                title = Unauthorized;
                 detail = e.Message;
                 break;
 
             case InvalidWebhookSignatureException e:
                 statusCode = StatusCodes.Status401Unauthorized;
-                title = ProblemTitles.Unauthorized;
+                title = Unauthorized;
                 detail = e.Message;
                 break;
 
             case InvalidWebhookPayloadException e:
                 statusCode = StatusCodes.Status400BadRequest;
-                title = ProblemTitles.BadRequest;
+                title = BadRequest;
                 detail = e.Message;
                 break;
 
             case Auth0Exception:
                 statusCode = StatusCodes.Status502BadGateway;
-                title = ProblemTitles.IdentityProviderError;
-                detail = ProblemMessages.IdentityProviderCommunicationError;
+                title = IdentityProviderError;
+                detail = IdentityProviderCommunicationError;
                 break;
 
             default:
                 statusCode = StatusCodes.Status500InternalServerError;
-                title = ProblemTitles.InternalServerError;
-                detail = ProblemMessages.UnexpectedError;
+                title = InternalServerError;
+                detail = UnexpectedError;
                 break;
         }
 
