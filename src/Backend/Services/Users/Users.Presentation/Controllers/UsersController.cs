@@ -16,7 +16,7 @@ public class UsersController(IUserService userService) : ControllerBase
     [Authorize(Policy = Policies.ReadUser)]
     public async Task<GetUserDto> GetUserById(
         Guid id,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         return await _userService.GetUserByIdAsync(id, cancellationToken);
     }
@@ -24,7 +24,7 @@ public class UsersController(IUserService userService) : ControllerBase
     [HttpGet]
     [Authorize(Policy = Policies.ReadUser)]
     public async Task<IEnumerable<GetUserDto>> GetAllUsers(
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         return await _userService.GetAllUsersAsync(cancellationToken);
     }
@@ -33,7 +33,7 @@ public class UsersController(IUserService userService) : ControllerBase
     [Authorize(Policy = Policies.DeactivateUser)]
     public async Task DeactivateUser(
         Guid id,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         await _userService.DeactivateUserAsync(id, cancellationToken);
     }
@@ -42,7 +42,7 @@ public class UsersController(IUserService userService) : ControllerBase
     [Authorize(Policy = Policies.ActivateUser)]
     public async Task ActivateUser(
         Guid id,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         await _userService.ActivateUserAsync(id, cancellationToken);
     }
@@ -51,7 +51,7 @@ public class UsersController(IUserService userService) : ControllerBase
     [Authorize(Policy = Policies.DeleteUser)]
     public async Task DeleteUser(
         Guid id,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         await _userService.DeleteUserAsync(id, cancellationToken);
     }
