@@ -10,7 +10,7 @@ public class ExceptionHandlerMiddleware(
 {
     private const string ContentType = "application/json";
     private const string ProblemExtensionKeys = "errors";
-    private const string ExceptionLogMessage = "Exception occurred";
+    private const string ExceptionLogTemplate = "Exception at {Method} {Path}{Query}";
 
     private const string UserNotFound = "User Not Found";
     private const string UserAlreadyExists = "User Already Exists";
@@ -21,9 +21,7 @@ public class ExceptionHandlerMiddleware(
     private const string InternalServerError = "Internal Server Error";
 
     private const string UnexpectedError = "An unexpected error occurred.";
-
-    private const string IdentityProviderCommunicationError =
-        "An error occurred while communicating with the identity provider.";
+    private const string IdentityProviderCommunicationError = "An error occurred while communicating with the identity provider.";
 
     private readonly ILogger<ExceptionHandlerMiddleware> _logger = logger;
     private readonly RequestDelegate _next = next;
@@ -46,7 +44,14 @@ public class ExceptionHandlerMiddleware(
                 _ => LogLevel.Error
             };
 
-            _logger.Log(logLevel, ex, ExceptionLogMessage);
+            _logger.Log(
+                logLevel,
+                ex,
+                ExceptionLogTemplate,
+                context.Request.Method,
+                context.Request.Path,
+                context.Request.QueryString);
+
             await HandleExceptionAsync(context, ex);
         }
     }
@@ -120,11 +125,12 @@ public class ExceptionHandlerMiddleware(
         };
 
         if (ex is ValidationException validationEx)
-            problemDetails.Extensions[ProblemExtensionKeys] = validationEx.Errors
-                .GroupBy(e => e.PropertyName)
-                .ToDictionary(
-                    group => group.Key,
-                    group => group.Select(e => e.ErrorMessage).ToList());
+            problemDetails.Extensions[ProblemExtensionKeys] =
+                validationEx.Errors
+                    .GroupBy(e => e.PropertyName)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(e => e.ErrorMessage).ToList());
 
         await context.Response.WriteAsJsonAsync(problemDetails);
     }
