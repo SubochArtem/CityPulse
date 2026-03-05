@@ -58,60 +58,56 @@ public class ExceptionHandlerMiddleware(
 
     private static async Task HandleExceptionAsync(HttpContext context, Exception ex)
     {
-        int statusCode;
-        string title;
-        string detail;
-
-        switch (ex)
+        var (statusCode, title, detail) = ex switch
         {
-            case UserNotFoundException e:
-                statusCode = StatusCodes.Status404NotFound;
-                title = UserNotFound;
-                detail = e.Message;
-                break;
+            UserNotFoundException e => (
+                StatusCodes.Status404NotFound,
+                UserNotFound,
+                e.Message
+            ),
 
-            case UserAlreadyExistsException e:
-                statusCode = StatusCodes.Status409Conflict;
-                title = UserAlreadyExists;
-                detail = e.Message;
-                break;
+            UserAlreadyExistsException e => (
+                StatusCodes.Status409Conflict,
+                UserAlreadyExists,
+                e.Message
+            ),
 
-            case ValidationException e:
-                statusCode = StatusCodes.Status400BadRequest;
-                title = ValidationFailed;
-                detail = string.Join("; ", e.Errors.Select(err => err.ErrorMessage));
-                break;
+            ValidationException e => (
+                StatusCodes.Status400BadRequest,
+                ValidationFailed,
+                string.Join("; ", e.Errors.Select(err => err.ErrorMessage))
+            ),
 
-            case UnauthorizedAccessException e:
-                statusCode = StatusCodes.Status401Unauthorized;
-                title = Unauthorized;
-                detail = e.Message;
-                break;
+            UnauthorizedAccessException e => (
+                StatusCodes.Status401Unauthorized,
+                Unauthorized,
+                e.Message
+            ),
 
-            case InvalidWebhookSignatureException e:
-                statusCode = StatusCodes.Status401Unauthorized;
-                title = Unauthorized;
-                detail = e.Message;
-                break;
+            InvalidWebhookSignatureException e => (
+                StatusCodes.Status401Unauthorized,
+                Unauthorized,
+                e.Message
+            ),
 
-            case InvalidWebhookPayloadException e:
-                statusCode = StatusCodes.Status400BadRequest;
-                title = BadRequest;
-                detail = e.Message;
-                break;
+            InvalidWebhookPayloadException e => (
+                StatusCodes.Status400BadRequest,
+                BadRequest,
+                e.Message
+            ),
 
-            case Auth0Exception:
-                statusCode = StatusCodes.Status502BadGateway;
-                title = IdentityProviderError;
-                detail = IdentityProviderCommunicationError;
-                break;
+            Auth0Exception => (
+                StatusCodes.Status502BadGateway,
+                IdentityProviderError,
+                IdentityProviderCommunicationError
+            ),
 
-            default:
-                statusCode = StatusCodes.Status500InternalServerError;
-                title = InternalServerError;
-                detail = UnexpectedError;
-                break;
-        }
+            _ => (
+                StatusCodes.Status500InternalServerError,
+                InternalServerError,
+                UnexpectedError
+            )
+        };
 
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = ContentType;
