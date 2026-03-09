@@ -8,8 +8,6 @@ namespace Polls.Infrastructure.Persistence.Interceptors;
 public sealed class AuditInterceptor(
     ILogger<AuditInterceptor> logger) : SaveChangesInterceptor
 {
-    private readonly ILogger<AuditInterceptor> _logger = logger;
-
     public override InterceptionResult<int> SavingChanges(
         DbContextEventData eventData,
         InterceptionResult<int> result)
@@ -29,7 +27,7 @@ public sealed class AuditInterceptor(
 
     private void LogEntityChanges(DbContext? context)
     {
-        if (context is null || !_logger.IsEnabled(LogLevel.Information))
+        if (context is null || !logger.IsEnabled(LogLevel.Information))
             return;
 
         var entries = context.ChangeTracker.Entries<EntityBase>()
@@ -38,7 +36,7 @@ public sealed class AuditInterceptor(
                 or EntityState.Deleted);
 
         foreach (var entry in entries)
-            _logger.LogInformation(
+            logger.LogInformation(
                 "Entity: {Entity}, Id: {Id}, State: {State}",
                 entry.Metadata.ClrType.Name,
                 entry.Entity.Id,
