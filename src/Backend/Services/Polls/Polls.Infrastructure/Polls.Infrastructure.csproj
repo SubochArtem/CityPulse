@@ -7,12 +7,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Polls.Domain\Polls.Domain.csproj" />
+        <ProjectReference Include="..\Polls.Application\Polls.Application.csproj"/>
+        <ProjectReference Include="..\Polls.Domain\Polls.Domain.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
-      <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.3" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10"/>
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.3"/>
     </ItemGroup>
 
 </Project>
