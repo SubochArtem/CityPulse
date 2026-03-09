@@ -4,7 +4,9 @@ namespace Polls.Domain.Ideas;
 
 public static class IdeaErrors
 {
-    public static Error NotFound => Error.NotFound("Idea not found");
-    public static Error PollAlreadyFinished => Error.Conflict("Cannot create idea in finished poll");
-    public static Error AlreadyApproved => Error.Conflict("Cannot modify approved idea");
+    public static Error AlreadyApproved(Guid id) =>
+        Error.Conflict($"Idea with id '{id}' was already approved and cannot be modified");
+
+    public static Error NotFound(Guid id) =>
+         Error.NotFound($"Idea with id '{id}' was not found");
 }
