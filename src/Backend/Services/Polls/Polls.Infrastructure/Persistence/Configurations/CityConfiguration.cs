@@ -9,7 +9,7 @@ public class CityConfiguration : IEntityTypeConfiguration<City>
     public void Configure(EntityTypeBuilder<City> builder)
     {
         builder.HasKey(c => c.Id);
-        builder.Property(u => u.Id)
+        builder.Property(c => c.Id)
             .HasColumnName("id")
             .HasDefaultValueSql("gen_random_uuid()")
             .ValueGeneratedOnAdd();
