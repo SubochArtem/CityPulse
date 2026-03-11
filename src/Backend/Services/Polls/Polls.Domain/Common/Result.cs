@@ -58,10 +58,4 @@ public class Result<T> : Result
         return Failure(errors);
     }
 
-    public TResult Match<TResult>(
-        Func<T, TResult> onSuccess,
-        Func<IReadOnlyList<Error>, TResult> onError)
-    {
-        return IsSuccess ? onSuccess(Value!) : onError(Errors);
-    }
 }
