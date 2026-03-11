@@ -1,6 +1,6 @@
 namespace Users.Presentation.Constants;
 
-public static class SwaggerConstants
+internal static class SwaggerConstants
 {
     internal const string SecurityDefinitionName = "oauth2";
     internal const string OpenIdScope = "openid";

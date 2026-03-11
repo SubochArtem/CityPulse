@@ -1,4 +1,4 @@
 namespace Users.Business.Exceptions;
 
-public class InvalidWebhookPayloadException(string message)
-    : Exception(message);
+public class InvalidWebhookPayloadException()
+    : Exception("Invalid webhook payload");

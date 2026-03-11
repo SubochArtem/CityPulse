@@ -14,50 +14,45 @@ public class UsersController(IUserService userService) : ControllerBase
 
     [HttpGet("{id:guid}")]
     [Authorize(Policy = Policies.ReadUser)]
-    public async Task<ActionResult<GetUserDto>> GetUserById(
+    public async Task<GetUserDto> GetUserById(
         Guid id,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
-        var user = await _userService.GetUserByIdAsync(id, cancellationToken);
-        return Ok(user);
+        return await _userService.GetUserByIdAsync(id, cancellationToken);
     }
 
     [HttpGet]
     [Authorize(Policy = Policies.ReadUser)]
-    public async Task<ActionResult<IEnumerable<GetUserDto>>> GetAllUsers(
-        CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<GetUserDto>> GetAllUsers(
+        CancellationToken cancellationToken)
     {
-        var users = await _userService.GetAllUsersAsync(cancellationToken);
-        return Ok(users);
+        return await _userService.GetAllUsersAsync(cancellationToken);
     }
 
     [HttpPost("{id:guid}/deactivate")]
     [Authorize(Policy = Policies.DeactivateUser)]
-    public async Task<ActionResult> DeactivateUser(
+    public async Task DeactivateUser(
         Guid id,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         await _userService.DeactivateUserAsync(id, cancellationToken);
-        return NoContent();
     }
 
     [HttpPost("{id:guid}/activate")]
     [Authorize(Policy = Policies.ActivateUser)]
-    public async Task<ActionResult> ActivateUser(
+    public async Task ActivateUser(
         Guid id,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         await _userService.ActivateUserAsync(id, cancellationToken);
-        return NoContent();
     }
 
     [HttpDelete("{id:guid}")]
     [Authorize(Policy = Policies.DeleteUser)]
-    public async Task<ActionResult> DeleteUser(
+    public async Task DeleteUser(
         Guid id,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken)
     {
         await _userService.DeleteUserAsync(id, cancellationToken);
-        return NoContent();
     }
 }

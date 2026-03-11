@@ -8,7 +8,7 @@ public interface IUserService
         CreateUserDto createUserDto,
         CancellationToken cancellationToken = default);
 
-    public Task<GetUserDto?> GetUserByIdAsync(
+    public Task<GetUserDto> GetUserByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default);
 
