@@ -13,9 +13,11 @@ public class IdeaRepository(ApplicationDbContext context)
         IdeaStatus? status = null,
         CancellationToken cancellationToken = default)
     {
-        return await _dbSet
-            .Where(i => i.PollId == pollId
-                        && (status == null || i.Status == status))
-            .ToListAsync(cancellationToken);
+        var query = _dbSet.Where(i => i.PollId == pollId);
+
+        if (status is not null)
+            query = query.Where(i => i.Status == status);
+
+        return await query.ToListAsync(cancellationToken);
     }
 }

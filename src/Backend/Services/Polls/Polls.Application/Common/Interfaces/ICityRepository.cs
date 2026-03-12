@@ -6,6 +6,6 @@ namespace Polls.Application.Common.Interfaces;
 public interface ICityRepository : IRepository<City>
 {
     Task<IEnumerable<City>> GetByStatusAsync(
-        CityStatus? status = null,
+        CityStatus status,
         CancellationToken cancellationToken = default);
 }

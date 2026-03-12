@@ -13,10 +13,14 @@ public class PollRepository(ApplicationDbContext context) : Repository<Poll>(con
         PollStatus? pollStatus = null,
         CancellationToken cancellationToken = default)
     {
-        return await _dbSet
-            .Where(p => p.CityId == cityId
-                        && (pollType == null || p.Type == pollType)
-                        && (pollStatus == null || p.Status == pollStatus))
-            .ToListAsync(cancellationToken);
+        var query = _dbSet.Where(p => p.CityId == cityId);
+
+        if (pollType is not null)
+            query = query.Where(p => p.Type == pollType);
+
+        if (pollStatus is not null)
+            query = query.Where(p => p.Status == pollStatus);
+
+        return await query.ToListAsync(cancellationToken);
     }
 }
