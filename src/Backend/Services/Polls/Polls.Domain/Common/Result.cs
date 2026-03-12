@@ -4,17 +4,17 @@ public abstract class Result
 {
     protected Result()
     {
-        IsSuccess = true;
+        Errors = [];
     }
 
     protected Result(IReadOnlyList<Error> errors)
     {
         Errors = errors;
-        IsSuccess = false;
     }
 
-    public IReadOnlyList<Error> Errors { get; } = [];
-    public bool IsSuccess { get; }
+    public IReadOnlyList<Error> Errors { get; }
+
+    public bool IsSuccess => Errors.Count == 0;
 }
 
 public class Result<T> : Result
@@ -57,5 +57,4 @@ public class Result<T> : Result
     {
         return Failure(errors);
     }
-
 }
