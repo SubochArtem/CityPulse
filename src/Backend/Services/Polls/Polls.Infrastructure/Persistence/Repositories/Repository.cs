@@ -6,7 +6,6 @@ namespace Polls.Infrastructure.Persistence.Repositories;
 
 public class Repository<TEntity>(ApplicationDbContext context) : IRepository<TEntity> where TEntity : EntityBase
 {
-    protected readonly ApplicationDbContext _context = context;
     protected readonly DbSet<TEntity> _dbSet = context.Set<TEntity>();
     
     public async Task<TEntity?> GetByIdAsync(
