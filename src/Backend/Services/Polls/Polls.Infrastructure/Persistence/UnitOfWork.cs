@@ -8,14 +8,12 @@ public sealed class UnitOfWork(
     IPollRepository pollRepository,
     IIdeaRepository ideaRepository) : IUnitOfWork
 {
-    private readonly ApplicationDbContext _context = context;
-
     public ICityRepository Cities { get; } = cityRepository;
     public IPollRepository Polls { get; } = pollRepository;
     public IIdeaRepository Ideas { get; } = ideaRepository;
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        return _context.SaveChangesAsync(cancellationToken);
+        return context.SaveChangesAsync(cancellationToken);
     }
 }
