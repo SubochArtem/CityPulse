@@ -43,6 +43,6 @@ public class IdeaConfiguration : IEntityTypeConfiguration<Idea>
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(i => i.PollId)
-            .HasDatabaseName("IX_Idea_PollId");
+            .HasDatabaseName("ix_idea_poll_id");
     }
 }

@@ -48,6 +48,6 @@ public class PollConfiguration : IEntityTypeConfiguration<Poll>
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(p => p.CityId)
-            .HasDatabaseName("IX_Poll_City_Id");
+            .HasDatabaseName("ix_poll_city_id");
     }
 }
