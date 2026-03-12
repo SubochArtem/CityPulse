@@ -9,5 +9,5 @@ public class Idea : EntityBase
     public Guid PollId { get; set; }
     public IdeaStatus Status { get; set; } = IdeaStatus.InPoll;
     public required string Title { get; set; }
-    public string Description { get; set; } =  string.Empty;
+    public string? Description { get; set; }
 }
