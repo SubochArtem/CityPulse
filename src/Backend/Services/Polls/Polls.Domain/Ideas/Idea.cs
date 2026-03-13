@@ -7,7 +7,7 @@ public class Idea : EntityBase
 {
     public Guid UserId { get; set; }
     public Guid PollId { get; set; }
-    public IdeaStatus Status { get; set; } = IdeaStatus.InPoll;
+    public IdeaStatus Status { get; set; } = IdeaStatus.Undefined;
     public required string Title { get; set; }
     public string? Description { get; set; }
 }
