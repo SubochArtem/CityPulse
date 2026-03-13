@@ -20,12 +20,10 @@ public class PollConfiguration : IEntityTypeConfiguration<Poll>
 
         builder.Property(p => p.Type)
             .HasColumnName("type")
-            .HasConversion<string>()
             .IsRequired();
 
         builder.Property(p => p.Status)
             .HasColumnName("status")
-            .HasConversion<string>()
             .IsRequired();
 
         builder.Property(p => p.EndsAt)

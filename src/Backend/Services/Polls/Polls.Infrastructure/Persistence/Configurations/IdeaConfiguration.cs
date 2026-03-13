@@ -24,7 +24,6 @@ public class IdeaConfiguration : IEntityTypeConfiguration<Idea>
 
         builder.Property(i => i.Status)
             .HasColumnName("status")
-            .HasConversion<string>()
             .IsRequired();
 
         builder.Property(i => i.CreatedAt)

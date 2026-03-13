@@ -34,7 +34,6 @@ public class CityConfiguration : IEntityTypeConfiguration<City>
 
         builder.Property(c => c.Status)
             .HasColumnName("status")
-            .HasConversion<string>()
             .IsRequired();
 
         builder.Property(c => c.CreatedAt)
