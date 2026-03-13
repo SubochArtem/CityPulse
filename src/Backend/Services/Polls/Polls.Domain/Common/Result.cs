@@ -7,7 +7,7 @@ public abstract class Result
         Errors = [];
     }
 
-    protected Result(IReadOnlyList<Error> errors)
+    protected Result(params Error[] errors)
     {
         Errors = errors;
     }
@@ -24,7 +24,7 @@ public class Result<T> : Result
         Value = value;
     }
 
-    private Result(IReadOnlyList<Error> errors) : base(errors){}
+    private Result(params Error[] errors) : base(errors){}
 
     public T? Value { get; }
 
@@ -33,12 +33,7 @@ public class Result<T> : Result
         return new Result<T>(value);
     }
 
-    public static Result<T> Failure(Error error)
-    {
-        return new Result<T>([error]);
-    }
-
-    public static Result<T> Failure(IReadOnlyList<Error> errors)
+    public static Result<T> Failure(params Error[] errors)
     {
         return new Result<T>(errors);
     }
@@ -51,10 +46,5 @@ public class Result<T> : Result
     public static implicit operator Result<T>(Error error)
     {
         return Failure(error);
-    }
-
-    public static implicit operator Result<T>(List<Error> errors)
-    {
-        return Failure(errors);
     }
 }

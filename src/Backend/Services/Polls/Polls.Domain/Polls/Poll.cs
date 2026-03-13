@@ -8,9 +8,7 @@ public class Poll : EntityBase
 {
     public Guid CityId { get; set; }
     public DateTimeOffset EndsAt { get; set; }
-    public PollType Type { get; set; }
+    public PollType Type { get; set; } =  PollType.Undefined;
     public decimal BudgetAmount { get; set; }
-    public PollStatus Status { get; set; } = PollStatus.Active;
-
-    public ICollection<Idea> Ideas { get; set; } = [];
+    public PollStatus Status { get; set; } = PollStatus.Undefined;
 }
