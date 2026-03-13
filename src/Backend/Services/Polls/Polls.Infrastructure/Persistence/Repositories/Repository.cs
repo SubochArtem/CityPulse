@@ -23,27 +23,24 @@ public class Repository<TEntity>(ApplicationDbContext context) : IRepository<TEn
             .ToListAsync(cancellationToken);
     }
 
-    public Task CreateAsync(
+    public void Create(
         TEntity entity,
         CancellationToken cancellationToken = default)
     {
         _dbSet.Add(entity);
-        return Task.CompletedTask;
     }
 
-    public Task UpdateAsync(
+    public void Update(
         TEntity entity,
         CancellationToken cancellationToken = default)
     {
         _dbSet.Update(entity);
-        return Task.CompletedTask;
     }
 
-    public Task DeleteAsync(
+    public void Delete(
         TEntity entity,
         CancellationToken cancellationToken = default)
     {
         _dbSet.Remove(entity);
-        return Task.CompletedTask;
     }
 }
