@@ -1,4 +1,5 @@
 using Polls.Domain.Common;
+using Polls.Domain.Ideas;
 using Polls.Domain.Polls.Enums;
 
 namespace Polls.Domain.Polls;
@@ -10,4 +11,6 @@ public class Poll : EntityBase
     public PollType Type { get; set; }
     public decimal BudgetAmount { get; set; }
     public PollStatus Status { get; set; } = PollStatus.Active;
+
+    public ICollection<Idea> Ideas { get; set; } = [];
 }

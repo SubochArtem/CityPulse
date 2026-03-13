@@ -8,4 +8,8 @@ public interface IIdeaRepository : IRepository<Idea>
     Task<PagedList<Idea>> GetFilteredAsync(
         IdeaFilter filter,
         CancellationToken cancellationToken = default);
+
+    Task<Idea?> GetWithPollAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
 }

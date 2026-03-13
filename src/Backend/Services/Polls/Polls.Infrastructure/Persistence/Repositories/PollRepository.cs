@@ -19,4 +19,13 @@ public class PollRepository(ApplicationDbContext context) : Repository<Poll>(con
             .Build()
             .ToPagedListAsync(filter.Page, filter.PageSize, cancellationToken);
     }
+
+    public async Task<Poll?> GetWithIdeasAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .Include(p => p.Ideas)
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+    }
 }

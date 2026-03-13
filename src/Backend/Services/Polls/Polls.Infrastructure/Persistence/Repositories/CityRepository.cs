@@ -18,4 +18,13 @@ public class CityRepository(ApplicationDbContext context) : Repository<City>(con
             .Build()
             .ToPagedListAsync(filter.Page, filter.PageSize, cancellationToken);
     }
+
+    public async Task<City?> GetWithPollsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .Include(c => c.Polls)
+            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+    }
 }
