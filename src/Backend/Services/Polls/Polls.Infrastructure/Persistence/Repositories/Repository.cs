@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Polls.Application.Common.Interfaces;
+using Polls.Application.Common.Models;
 using Polls.Domain.Common;
+using Polls.Infrastructure.Persistence.Extensions;
 
 namespace Polls.Infrastructure.Persistence.Repositories;
 
@@ -13,14 +15,6 @@ public class Repository<TEntity>(ApplicationDbContext context) : IRepository<TEn
         CancellationToken cancellationToken = default)
     {
         return await _dbSet.FindAsync([id], cancellationToken);
-    }
-
-    public async Task<IEnumerable<TEntity>> GetAllAsync(
-        CancellationToken cancellationToken = default)
-    {
-        return await _dbSet
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
     }
 
     public void Create(
@@ -42,5 +36,22 @@ public class Repository<TEntity>(ApplicationDbContext context) : IRepository<TEn
         CancellationToken cancellationToken = default)
     {
         _dbSet.Remove(entity);
+    }
+
+    public async Task<IEnumerable<TEntity>> GetAllAsync(
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<PagedList<TEntity>> GetAllPagedAsync(
+        BaseFilter filter,
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .AsNoTracking()
+            .ToPagedListAsync(filter.Page, filter.PageSize, cancellationToken);
     }
 }
