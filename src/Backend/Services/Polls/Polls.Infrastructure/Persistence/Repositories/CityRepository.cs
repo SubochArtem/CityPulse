@@ -1,19 +1,21 @@
 using Microsoft.EntityFrameworkCore;
 using Polls.Application.Common.Interfaces;
+using Polls.Application.Common.Models;
 using Polls.Domain.Cities;
-using Polls.Domain.Cities.Enums;
+using Polls.Infrastructure.Persistence.Extensions;
 
 namespace Polls.Infrastructure.Persistence.Repositories;
 
-public class CityRepository(ApplicationDbContext context)
-    : Repository<City>(context), ICityRepository
+public class CityRepository(ApplicationDbContext context) : Repository<City>(context), ICityRepository
 {
-    public async Task<IEnumerable<City>> GetByStatusAsync(
-        CityStatus status,
+    public async Task<PagedList<City>> GetFilteredAsync(
+        CityFilter filter,
         CancellationToken cancellationToken = default)
     {
-        return await _dbSet
-            .Where(c => c.Status == status)
-            .ToListAsync(cancellationToken);
+        return await new CityQueryBuilder(_dbSet.AsNoTracking())
+            .WithStatus(filter.Status)
+            .WithSearchTerm(filter.SearchTerm)
+            .Build()
+            .ToPagedListAsync(filter.Page, filter.PageSize, cancellationToken);
     }
 }
