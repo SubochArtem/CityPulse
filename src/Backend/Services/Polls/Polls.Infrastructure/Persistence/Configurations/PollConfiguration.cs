@@ -11,9 +11,7 @@ public class PollConfiguration : IEntityTypeConfiguration<Poll>
     {
         builder.HasKey(p => p.Id);
         builder.Property(u => u.Id)
-            .HasColumnName("id")
-            .HasDefaultValueSql("gen_random_uuid()")
-            .ValueGeneratedOnAdd();
+            .HasColumnName("id");
 
         builder.Property(p => p.BudgetAmount)
             .HasColumnName("budget_amount")

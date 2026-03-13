@@ -11,9 +11,7 @@ public class IdeaConfiguration : IEntityTypeConfiguration<Idea>
     {
         builder.HasKey(i => i.Id);
         builder.Property(i => i.Id)
-            .HasColumnName("id")
-            .HasDefaultValueSql("gen_random_uuid()")
-            .ValueGeneratedOnAdd();
+            .HasColumnName("id");
 
         builder.Property(i => i.Title)
             .HasColumnName("title")
