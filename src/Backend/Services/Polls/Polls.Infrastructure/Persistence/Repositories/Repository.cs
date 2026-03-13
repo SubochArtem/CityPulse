@@ -7,7 +7,7 @@ namespace Polls.Infrastructure.Persistence.Repositories;
 public class Repository<TEntity>(ApplicationDbContext context) : IRepository<TEntity> where TEntity : EntityBase
 {
     protected readonly DbSet<TEntity> _dbSet = context.Set<TEntity>();
-    
+
     public async Task<TEntity?> GetByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default)
@@ -18,7 +18,9 @@ public class Repository<TEntity>(ApplicationDbContext context) : IRepository<TEn
     public async Task<IEnumerable<TEntity>> GetAllAsync(
         CancellationToken cancellationToken = default)
     {
-        return await _dbSet.ToListAsync(cancellationToken);
+        return await _dbSet
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
     }
 
     public Task CreateAsync(
