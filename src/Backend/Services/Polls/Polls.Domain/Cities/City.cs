@@ -10,4 +10,5 @@ public class City : EntityBase
     public required Coordinates Coordinates { get; set; }
     public string? Description { get; set; }
     public CityStatus Status { get; set; } = CityStatus.Undefined;
+    public ICollection<Poll> Polls { get; set; } = [];
 }
