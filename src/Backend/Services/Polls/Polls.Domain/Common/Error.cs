@@ -1,0 +1,12 @@
+using Polls.Domain.Common.Enums;
+
+namespace Polls.Domain.Common;
+
+public record Error(string Description, ErrorType Type)
+{
+    public static Error NotFound(string description) =>
+        new(description, ErrorType.NotFound);
+    
+    public static Error Conflict(string description) =>
+        new(description, ErrorType.Conflict);
+}
