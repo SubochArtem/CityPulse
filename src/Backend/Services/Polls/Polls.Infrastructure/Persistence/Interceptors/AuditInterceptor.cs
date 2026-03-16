@@ -1,13 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using Microsoft.Extensions.Logging;
 using Polls.Domain.Common;
+using Serilog;
 
 namespace Polls.Infrastructure.Persistence.Interceptors;
 
-public sealed class AuditInterceptor(
-    ILogger<AuditInterceptor> logger) : SaveChangesInterceptor
+public sealed class AuditInterceptor : SaveChangesInterceptor
 {
+    private static readonly ILogger Logger = Log
+        .ForContext<AuditInterceptor>();
+
     public override InterceptionResult<int> SavingChanges(
         DbContextEventData eventData,
         InterceptionResult<int> result)
@@ -25,9 +27,9 @@ public sealed class AuditInterceptor(
         return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 
-    private void LogEntityChanges(DbContext? context)
+    private static void LogEntityChanges(DbContext? context)
     {
-        if (context is null || !logger.IsEnabled(LogLevel.Information))
+        if (context is null)
             return;
 
         var entries = context.ChangeTracker.Entries<EntityBase>()
@@ -36,7 +38,7 @@ public sealed class AuditInterceptor(
                 or EntityState.Deleted);
 
         foreach (var entry in entries)
-            logger.LogInformation(
+            Logger.Information(
                 "Entity: {Entity}, Id: {Id}, State: {State}",
                 entry.Metadata.ClrType.Name,
                 entry.Entity.Id,
