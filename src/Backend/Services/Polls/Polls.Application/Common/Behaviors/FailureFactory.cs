@@ -7,9 +7,10 @@ namespace Polls.Application.Common.Behaviors;
 internal static class FailureFactory<TResponse> where TResponse : Result
 {
     private const string ParameterName = "errors";
-    private static readonly Func<Error[], TResponse>? _create;
 
-    static FailureFactory()
+    public static Func<Error[], TResponse> Create { get; } = InitializeFactory();
+
+    private static Func<Error[], TResponse> InitializeFactory()
     {
         var responseType = typeof(TResponse);
 
@@ -22,12 +23,11 @@ internal static class FailureFactory<TResponse> where TResponse : Result
             {
                 var errorsParam = Expression.Parameter(typeof(Error[]), ParameterName);
                 var call = Expression.Call(method, errorsParam);
-                _create = Expression.Lambda<Func<Error[], TResponse>>(call, errorsParam).Compile();
+                return Expression.Lambda<Func<Error[], TResponse>>(call, errorsParam).Compile();
             }
         }
-    }
 
-    public static Func<Error[], TResponse> Create => _create
-                                                     ?? throw new InvalidOperationException(
-                                                         $"Type {typeof(TResponse).Name} is not a valid Result<T> for validation failures");
+        throw new InvalidOperationException(
+            $"Type {responseType.Name} is not a valid Result<T> for validation failures");
+    }
 }
