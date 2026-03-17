@@ -4,13 +4,13 @@ namespace Polls.Infrastructure.Persistence;
 
 public sealed class UnitOfWork(
     ApplicationDbContext context,
-    ICityRepository cityRepository,
-    IPollRepository pollRepository,
-    IIdeaRepository ideaRepository) : IUnitOfWork
+    Lazy<ICityRepository> cities,
+    Lazy<IPollRepository> polls,
+    Lazy<IIdeaRepository> ideas) : IUnitOfWork
 {
-    public ICityRepository Cities { get; } = cityRepository;
-    public IPollRepository Polls { get; } = pollRepository;
-    public IIdeaRepository Ideas { get; } = ideaRepository;
+    public ICityRepository Cities => cities.Value;
+    public IPollRepository Polls => polls.Value;
+    public IIdeaRepository Ideas => ideas.Value;
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
