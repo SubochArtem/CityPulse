@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Polls.Application.Common.Models;
 using Polls.Domain.Common;
 
@@ -13,6 +14,10 @@ public interface IRepository<TEntity> where TEntity : EntityBase
 
     Task<PagedList<TEntity>> GetAllPagedAsync(
         BaseFilter filter,
+        CancellationToken cancellationToken = default);
+
+    Task<TEntity?> FirstOrDefaultAsync(
+        Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default);
 
     void Create(TEntity entity);
