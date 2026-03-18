@@ -17,7 +17,9 @@ public static class DependencyInjection
         var connectionString = configuration.GetConnectionString("DefaultConnection")
                                ?? throw new InvalidOperationException(
                                    "Connection string 'DefaultConnection' is not configured.");
-        
+
+        services.AddTransient(typeof(Lazy<>), typeof(LazyResolver<>));
+
         services
             .AddScoped<SaveChangesInterceptor>()
             .AddScoped<AuditInterceptor>();
