@@ -18,22 +18,19 @@ public class Repository<TEntity>(ApplicationDbContext context) : IRepository<TEn
     }
 
     public void Create(
-        TEntity entity,
-        CancellationToken cancellationToken = default)
+        TEntity entity)
     {
         _dbSet.Add(entity);
     }
 
     public void Update(
-        TEntity entity,
-        CancellationToken cancellationToken = default)
+        TEntity entity)
     {
         _dbSet.Update(entity);
     }
 
     public void Delete(
-        TEntity entity,
-        CancellationToken cancellationToken = default)
+        TEntity entity)
     {
         _dbSet.Remove(entity);
     }
