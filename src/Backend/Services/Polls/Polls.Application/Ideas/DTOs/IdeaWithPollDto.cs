@@ -8,5 +8,5 @@ public record IdeaWithPollDto(
     Guid PollId,
     string Title,
     string? Description,
-    string Status,
+    int Status,
     PollDto Poll);

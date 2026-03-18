@@ -5,6 +5,6 @@ public record PollDto(
     Guid CityId,
     DateTime StartedAt,
     DateTime EndsAt,
-    string Type,
+    int Type,
     decimal BudgetAmount,
-    string Status);
+    int Status);

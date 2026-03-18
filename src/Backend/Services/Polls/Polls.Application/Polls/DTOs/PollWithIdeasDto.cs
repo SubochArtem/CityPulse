@@ -7,7 +7,7 @@ public record PollWithIdeasDto(
     Guid CityId,
     DateTime StartedAt,
     DateTime EndsAt,
-    string Type,
+    int Type,
     decimal BudgetAmount,
-    string Status,
+    int Status,
     IReadOnlyCollection<IdeaDto> Ideas);

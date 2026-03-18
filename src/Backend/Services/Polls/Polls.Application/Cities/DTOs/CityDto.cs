@@ -5,4 +5,4 @@ public record CityDto(
     string Name,
     CoordinatesDto Coordinates,
     string? Description,
-    string Status);
+    int Status);

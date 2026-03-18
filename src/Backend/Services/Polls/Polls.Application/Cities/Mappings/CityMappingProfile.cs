@@ -10,11 +10,9 @@ public class CityMappingProfile : Profile
     {
         CreateMap<Coordinates, CoordinatesDto>();
 
-        CreateMap<City, CityDto>()
-            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+        CreateMap<City, CityDto>();
 
         CreateMap<City, CityWithPollsDto>()
-            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
             .ForMember(dest => dest.Polls, opt => opt.MapFrom(src => src.Polls));
     }
 }

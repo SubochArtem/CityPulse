@@ -8,11 +8,9 @@ public sealed class IdeaMappingProfile : Profile
 {
     public IdeaMappingProfile()
     {
-        CreateMap<Idea, IdeaDto>()
-            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+        CreateMap<Idea, IdeaDto>();
 
         CreateMap<Idea, IdeaWithPollDto>()
-            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
             .ForMember(dest => dest.Poll, opt => opt.MapFrom(src => src.Poll));
     }
 }

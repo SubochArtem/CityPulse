@@ -8,5 +8,5 @@ public record CityWithPollsDto(
     double Latitude,
     double Longitude,
     string? Description,
-    string Status,
+    int Status,
     IReadOnlyCollection<PollDto> Polls);

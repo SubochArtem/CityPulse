@@ -8,13 +8,9 @@ public sealed class PollMappingProfile : Profile
 {
     public PollMappingProfile()
     {
-        CreateMap<Poll, PollDto>()
-            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.ToString()))
-            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
+        CreateMap<Poll, PollDto>();
 
         CreateMap<Poll, PollWithIdeasDto>()
-            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.ToString()))
-            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()))
             .ForMember(dest => dest.Ideas, opt => opt.MapFrom(src => src.Ideas));
     }
 }

@@ -6,4 +6,4 @@ public record IdeaDto(
     Guid PollId,
     string Title,
     string? Description,
-    string Status);
+    int Status);
