@@ -7,6 +7,7 @@ namespace Polls.Domain.Polls;
 public class Poll : EntityBase
 {
     public Guid CityId { get; set; }
+    public Guid CorrelationId { get; set; }
     public DateTimeOffset EndsAt { get; set; }
     public PollType Type { get; set; } = PollType.Undefined;
     public decimal BudgetAmount { get; set; }
