@@ -16,7 +16,7 @@ public interface IRepository<TEntity> where TEntity : EntityBase
         BaseFilter filter,
         CancellationToken cancellationToken = default);
 
-    Task<TEntity?> FirstOrDefaultAsync(
+    Task<TEntity?> GetFirstByPredicateAsync(
         Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default);
 

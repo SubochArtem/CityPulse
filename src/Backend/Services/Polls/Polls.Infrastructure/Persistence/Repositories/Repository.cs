@@ -53,7 +53,7 @@ public class Repository<TEntity>(ApplicationDbContext context) : IRepository<TEn
             .ToPagedListAsync(filter.Page, filter.PageSize, cancellationToken);
     }
 
-    public async Task<TEntity?> FirstOrDefaultAsync(
+    public async Task<TEntity?> GetFirstByPredicateAsync(
         Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken = default)
     {

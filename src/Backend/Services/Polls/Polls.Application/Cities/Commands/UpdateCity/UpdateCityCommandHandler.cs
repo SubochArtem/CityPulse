@@ -21,7 +21,7 @@ public sealed class UpdateCityCommandHandler(
         if (city is null)
             return CityErrors.NotFound(command.Id);
 
-        var isNameTaken = await unitOfWork.Cities.FirstOrDefaultAsync(
+        var isNameTaken = await unitOfWork.Cities.GetFirstByPredicateAsync(
             c => c.Name == command.Name
                  && c.Id != command.Id,
             cancellationToken) is not null;

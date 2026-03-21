@@ -17,7 +17,7 @@ public sealed class CreateCityCommandHandler(
         CreateCityCommand command,
         CancellationToken cancellationToken)
     {
-        var existingCity = await unitOfWork.Cities.FirstOrDefaultAsync(
+        var existingCity = await unitOfWork.Cities.GetFirstByPredicateAsync(
             с => с.Name == command.Name,
             cancellationToken);
 
