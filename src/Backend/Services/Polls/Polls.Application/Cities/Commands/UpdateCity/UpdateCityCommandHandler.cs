@@ -21,15 +21,14 @@ public sealed class UpdateCityCommandHandler(
         if (city is null)
             return CityErrors.NotFound(command.Id);
 
-        var isNameTaken = await unitOfWork.Cities.GetFirstByPredicateAsync(
-            c => c.Name == command.Name
-                 && c.Id != command.Id,
-            cancellationToken) is not null;
-
-        if (isNameTaken)
+        var existingCity = await unitOfWork.Cities.GetByTitleAsync(
+            command.Title,
+            cancellationToken);
+        
+        if (existingCity is not null && existingCity.Id != command.Id)
             return CityErrors.AlreadyExists;
 
-        city.Name = command.Name;
+        city.Title = command.Title;
         city.Coordinates = new Coordinates(
             command.Coordinates.Latitude,
             command.Coordinates.Longitude);

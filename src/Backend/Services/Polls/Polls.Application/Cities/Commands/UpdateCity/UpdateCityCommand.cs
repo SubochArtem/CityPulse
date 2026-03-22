@@ -5,6 +5,6 @@ namespace Polls.Application.Cities.Commands.UpdateCity;
 
 public record UpdateCityCommand(
     Guid Id,
-    string Name,
+    string Title,
     CoordinatesDto Coordinates,
     string? Description) : ICommand<CityDto>;

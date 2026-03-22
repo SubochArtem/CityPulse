@@ -17,16 +17,16 @@ public sealed class CreateCityCommandHandler(
         CreateCityCommand command,
         CancellationToken cancellationToken)
     {
-        var existingCity = await unitOfWork.Cities.GetFirstByPredicateAsync(
-            с => с.Name == command.Name,
+        var existingCity = await unitOfWork.Cities.GetByTitleAsync(
+            command.Title,
             cancellationToken);
-
+        
         if (existingCity is not null)
             return CityErrors.AlreadyExists;
 
         var city = new City
         {
-            Name = command.Name,
+            Title = command.Title,
             Coordinates = new Coordinates(
                 command.Coordinates.Latitude,
                 command.Coordinates.Longitude),

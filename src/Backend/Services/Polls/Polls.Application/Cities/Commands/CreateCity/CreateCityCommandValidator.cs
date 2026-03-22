@@ -8,11 +8,11 @@ public sealed class CreateCityCommandValidator : AbstractValidator<CreateCityCom
 {
     public CreateCityCommandValidator()
     {
-        RuleFor(x => x.Name)
+        RuleFor(x => x.Title)
             .NotEmpty()
-            .WithMessage(ValidationMessages.City.NameRequired)
-            .MaximumLength(ValidationMessages.City.MaxNameLength)
-            .WithMessage(ValidationMessages.City.NameTooLong);
+            .WithMessage(ValidationMessages.City.TitleRequired)
+            .MaximumLength(ValidationMessages.City.MaxTitleLength)
+            .WithMessage(ValidationMessages.City.TitleTooLong);
 
         RuleFor(x => x.Coordinates)
             .NotNull()

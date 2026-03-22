@@ -11,9 +11,9 @@ public sealed class UpdateCityCommandValidator : AbstractValidator<UpdateCityCom
         RuleFor(x => x.Id)
             .NotEmpty().WithMessage(ValidationMessages.City.IdRequired);
 
-        RuleFor(x => x.Name)
-            .NotEmpty().WithMessage(ValidationMessages.City.NameRequired)
-            .MaximumLength(ValidationMessages.City.MaxNameLength).WithMessage(ValidationMessages.City.NameTooLong);
+        RuleFor(x => x.Title)
+            .NotEmpty().WithMessage(ValidationMessages.City.TitleRequired)
+            .MaximumLength(ValidationMessages.City.MaxTitleLength).WithMessage(ValidationMessages.City.TitleTooLong);
 
         RuleFor(x => x.Coordinates)
             .NotNull().WithMessage(ValidationMessages.City.CoordinatesRequired)
