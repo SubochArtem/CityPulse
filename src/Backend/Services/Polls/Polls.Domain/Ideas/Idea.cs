@@ -10,6 +10,4 @@ public class Idea : EntityBase
     public Guid PollId { get; set; }
     public required Poll Poll { get; set; }
     public IdeaStatus Status { get; set; } = IdeaStatus.Undefined;
-    public required string Title { get; set; }
-    public string? Description { get; set; }
 }

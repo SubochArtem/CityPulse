@@ -21,7 +21,7 @@ public class CityQueryBuilder(IQueryable<City> query)
 
         var lower = searchTerm.ToLower();
         _query = _query.Where(c =>
-            c.Name.ToLower().Contains(lower)
+            c.Title.ToLower().Contains(lower)
             || (c.Description != null
                 && c.Description.ToLower().Contains(lower)));
         return this;
