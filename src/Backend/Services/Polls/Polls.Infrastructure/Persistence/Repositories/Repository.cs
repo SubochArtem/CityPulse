@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Polls.Application.Common.Interfaces;
 using Polls.Application.Common.Models;
@@ -53,10 +52,11 @@ public class Repository<TEntity>(ApplicationDbContext context) : IRepository<TEn
             .ToPagedListAsync(filter.Page, filter.PageSize, cancellationToken);
     }
 
-    public async Task<TEntity?> GetFirstByPredicateAsync(
-        Expression<Func<TEntity, bool>> predicate,
+    public async Task<TEntity?> GetByTitleAsync(
+        string title,
         CancellationToken cancellationToken = default)
     {
-        return await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
+        return await _dbSet
+            .FirstOrDefaultAsync(e => e.Title == title, cancellationToken);
     }
 }

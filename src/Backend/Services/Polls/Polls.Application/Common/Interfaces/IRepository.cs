@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using Polls.Application.Common.Models;
 using Polls.Domain.Common;
 
@@ -16,8 +15,8 @@ public interface IRepository<TEntity> where TEntity : EntityBase
         BaseFilter filter,
         CancellationToken cancellationToken = default);
 
-    Task<TEntity?> GetFirstByPredicateAsync(
-        Expression<Func<TEntity, bool>> predicate,
+    Task<TEntity?> GetByTitleAsync(
+        string title,
         CancellationToken cancellationToken = default);
 
     void Create(TEntity entity);
