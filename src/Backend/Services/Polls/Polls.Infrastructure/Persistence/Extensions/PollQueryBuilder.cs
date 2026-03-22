@@ -27,13 +27,6 @@ public class PollQueryBuilder(IQueryable<Poll> query)
             _query = _query.Where(p => p.Status == status);
         return this;
     }
-    
-    public PollQueryBuilder WithCorrelationId(Guid? correlationId)
-    {
-        if (correlationId is not null)
-            _query = _query.Where(p => p.CorrelationId == correlationId);
-        return this;
-    }
 
     public IQueryable<Poll> Build()
     {
