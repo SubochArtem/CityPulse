@@ -8,19 +8,19 @@ public sealed class CreateCityCommandValidator : AbstractValidator<CreateCityCom
 {
     public CreateCityCommandValidator()
     {
-        RuleFor(x => x.Title)
+        RuleFor(c => c.Title)
             .NotEmpty()
-            .WithMessage(ValidationMessages.City.TitleRequired)
-            .MaximumLength(ValidationMessages.City.MaxTitleLength)
-            .WithMessage(ValidationMessages.City.TitleTooLong);
+            .WithMessage(ValidationConstants.City.TitleRequired)
+            .MaximumLength(ValidationConstants.City.MaxTitleLength)
+            .WithMessage(ValidationConstants.City.TitleTooLong);
 
-        RuleFor(x => x.Coordinates)
+        RuleFor(c => c.Coordinates)
             .NotNull()
-            .WithMessage(ValidationMessages.City.CoordinatesRequired)
+            .WithMessage(ValidationConstants.City.CoordinatesRequired)
             .SetValidator(new CoordinatesDtoValidator());
 
-        RuleFor(x => x.Description)
-            .MaximumLength(ValidationMessages.City.MaxDescriptionLength)
-            .WithMessage(ValidationMessages.City.DescriptionTooLong);
+        RuleFor(c => c.Description)
+            .MaximumLength(ValidationConstants.City.MaxDescriptionLength)
+            .WithMessage(ValidationConstants.City.DescriptionTooLong);
     }
 }

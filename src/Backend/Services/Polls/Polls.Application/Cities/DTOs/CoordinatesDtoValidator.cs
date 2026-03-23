@@ -9,14 +9,14 @@ public sealed class CoordinatesDtoValidator : AbstractValidator<CoordinatesDto>
     {
         RuleFor(x => x.Latitude)
             .InclusiveBetween(
-                ValidationMessages.Coordinates.MinLatitude,
-                ValidationMessages.Coordinates.MaxLatitude)
-            .WithMessage(ValidationMessages.Coordinates.InvalidLatitude);
+                ValidationConstants.Coordinates.MinLatitude,
+                ValidationConstants.Coordinates.MaxLatitude)
+            .WithMessage(ValidationConstants.Coordinates.InvalidLatitude);
 
         RuleFor(x => x.Longitude)
             .InclusiveBetween(
-                ValidationMessages.Coordinates.MinLongitude,
-                ValidationMessages.Coordinates.MaxLongitude)
-            .WithMessage(ValidationMessages.Coordinates.InvalidLongitude);
+                ValidationConstants.Coordinates.MinLongitude,
+                ValidationConstants.Coordinates.MaxLongitude)
+            .WithMessage(ValidationConstants.Coordinates.InvalidLongitude);
     }
 }

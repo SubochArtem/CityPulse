@@ -49,7 +49,7 @@ public class IdeaConfiguration : IEntityTypeConfiguration<Idea>
         builder.HasOne<Poll>()
             .WithMany()
             .HasForeignKey(i => i.PollId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(i => i.PollId)
             .HasDatabaseName(PollIdIndexName);

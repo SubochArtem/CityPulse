@@ -7,8 +7,8 @@ public sealed class DeleteCityCommandValidator : AbstractValidator<DeleteCityCom
 {
     public DeleteCityCommandValidator()
     {
-        RuleFor(x => x.Id)
+        RuleFor(c => c.Id)
             .NotEmpty()
-            .WithMessage(ValidationMessages.City.IdRequired);
+            .WithMessage(ValidationConstants.City.IdRequired);
     }
 }

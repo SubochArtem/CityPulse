@@ -8,19 +8,19 @@ public sealed class UpdateCityCommandValidator : AbstractValidator<UpdateCityCom
 {
     public UpdateCityCommandValidator()
     {
-        RuleFor(x => x.Id)
-            .NotEmpty().WithMessage(ValidationMessages.City.IdRequired);
+        RuleFor(c => c.Id)
+            .NotEmpty().WithMessage(ValidationConstants.City.IdRequired);
 
-        RuleFor(x => x.Title)
-            .NotEmpty().WithMessage(ValidationMessages.City.TitleRequired)
-            .MaximumLength(ValidationMessages.City.MaxTitleLength).WithMessage(ValidationMessages.City.TitleTooLong);
+        RuleFor(c => c.Title)
+            .NotEmpty().WithMessage(ValidationConstants.City.TitleRequired)
+            .MaximumLength(ValidationConstants.City.MaxTitleLength).WithMessage(ValidationConstants.City.TitleTooLong);
 
-        RuleFor(x => x.Coordinates)
-            .NotNull().WithMessage(ValidationMessages.City.CoordinatesRequired)
+        RuleFor(c => c.Coordinates)
+            .NotNull().WithMessage(ValidationConstants.City.CoordinatesRequired)
             .SetValidator(new CoordinatesDtoValidator());
 
-        RuleFor(x => x.Description)
-            .MaximumLength(ValidationMessages.City.MaxDescriptionLength)
-            .WithMessage(ValidationMessages.City.DescriptionTooLong);
+        RuleFor(c => c.Description)
+            .MaximumLength(ValidationConstants.City.MaxDescriptionLength)
+            .WithMessage(ValidationConstants.City.DescriptionTooLong);
     }
 }
