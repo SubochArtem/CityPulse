@@ -16,8 +16,6 @@ public sealed class GetPollsQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
     {
         var polls = await unitOfWork.Polls.GetFilteredAsync(query.Filter, cancellationToken);
 
-        var mappedPolls = polls.Map(mapper.Map<PollDto>);
-
-        return mappedPolls;
+        return polls.Map(mapper.Map<PollDto>);
     }
 }

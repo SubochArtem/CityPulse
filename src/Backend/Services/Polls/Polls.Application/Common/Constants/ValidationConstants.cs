@@ -35,6 +35,7 @@ public static class ValidationConstants
         public const decimal MaxBudgetAmount = 100_000_000;
         public const int MaxTitleLength = 300;
         public const int MaxDescriptionLength = 2000;
+        public const int MaxSearchTermLength = 200;
 
         public static readonly string BudgetPositive = "Budget amount must be greater than zero";
         public static readonly string EndDateInFuture = "End date must be in the future";
@@ -45,7 +46,9 @@ public static class ValidationConstants
         public static readonly string TitleTooLong = $"Poll title must not exceed {MaxTitleLength} characters";
         public static readonly string TitleRequired = "Poll title is required";
         public static readonly string InvalidType = "The specified poll type is invalid";
+        public static readonly string InvalidStatus = "The specified poll status is invalid";
         public static readonly string IdRequired = "Poll ID is required";
+        public static readonly string SearchTermTooLong = $"Search term must not exceed {MaxSearchTermLength} characters";
     }
 
     public static class Pagination

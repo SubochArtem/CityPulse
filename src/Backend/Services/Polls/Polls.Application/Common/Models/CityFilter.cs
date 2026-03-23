@@ -5,5 +5,5 @@ namespace Polls.Application.Common.Models;
 public class CityFilter : BaseFilter
 {
     public CityStatus? Status { get; set; }
-    public string? SearchTerm { get; set; }
+ 
 }

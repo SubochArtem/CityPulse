@@ -6,5 +6,4 @@ public class IdeaFilter : BaseFilter
 {
     public Guid? PollId { get; set; }
     public IdeaStatus? Status { get; set; }
-    public string? SearchTerm { get; set; }
 }

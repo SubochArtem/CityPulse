@@ -26,5 +26,20 @@ public sealed class GetPollsQueryValidator : AbstractValidator<GetPollsQuery>
             .NotEmpty()
             .When(x => x.Filter.CityId.HasValue)
             .WithMessage(ValidationConstants.City.IdRequired);
+        
+        RuleFor(x => x.Filter.SearchTerm)
+            .MaximumLength(ValidationConstants.Poll.MaxSearchTermLength)
+            .When(x => !string.IsNullOrWhiteSpace(x.Filter.SearchTerm))
+            .WithMessage(ValidationConstants.Poll.SearchTermTooLong);
+        
+        RuleFor(x => x.Filter.Type)
+            .IsInEnum()
+            .When(x => x.Filter.Type.HasValue)
+            .WithMessage(ValidationConstants.Poll.InvalidType);
+
+        RuleFor(x => x.Filter.Status)
+            .IsInEnum()
+            .When(x => x.Filter.Status.HasValue)
+            .WithMessage(ValidationConstants.Poll.InvalidStatus);
     }
 }

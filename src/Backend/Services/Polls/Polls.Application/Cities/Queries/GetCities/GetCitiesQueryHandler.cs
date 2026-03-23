@@ -18,6 +18,6 @@ public sealed class GetCitiesQueryHandler(
     {
         var cities = await unitOfWork.Cities.GetFilteredAsync(query.Filter, cancellationToken);
 
-        return cities.Map(city => mapper.Map<CityDto>(city));
+        return cities.Map(mapper.Map<CityDto>);
     }
 }

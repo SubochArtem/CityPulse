@@ -16,6 +16,7 @@ public class PollRepository(ApplicationDbContext context) : Repository<Poll>(con
             .WithCityId(filter.CityId)
             .WithType(filter.Type)
             .WithStatus(filter.Status)
+            .WithSearchTerm(filter.SearchTerm)
             .Build()
             .ToPagedListAsync(filter.Page, filter.PageSize, cancellationToken);
     }
