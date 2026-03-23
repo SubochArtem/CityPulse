@@ -7,35 +7,46 @@ namespace Polls.Infrastructure.Persistence.Configurations;
 
 public class PollConfiguration : IEntityTypeConfiguration<Poll>
 {
+    private const string IdColumnName = "id";
+    private const string BudgetAmountColumnName = "budget_amount";
+    private const string BudgetAmountColumnType = "decimal(18,2)";
+    private const string TypeColumnName = "type";
+    private const string StatusColumnName = "status";
+    private const string EndsAtColumnName = "ends_at";
+    private const string CreatedAtColumnName = "created_at";
+    private const string UpdatedAtColumnName = "updated_at";
+    private const string CityIdIndexName = "ix_poll_city_id";
+
     public void Configure(EntityTypeBuilder<Poll> builder)
     {
         builder.HasKey(p => p.Id);
-        builder.Property(u => u.Id)
-            .HasColumnName("id");
+        
+        builder.Property(p => p.Id)
+            .HasColumnName(IdColumnName);
 
         builder.Property(p => p.BudgetAmount)
-            .HasColumnName("budget_amount")
-            .HasColumnType("decimal(18,2)")
+            .HasColumnName(BudgetAmountColumnName)
+            .HasColumnType(BudgetAmountColumnType)
             .IsRequired();
 
         builder.Property(p => p.Type)
-            .HasColumnName("type")
+            .HasColumnName(TypeColumnName)
             .IsRequired();
 
         builder.Property(p => p.Status)
-            .HasColumnName("status")
+            .HasColumnName(StatusColumnName)
             .IsRequired();
 
         builder.Property(p => p.EndsAt)
-            .HasColumnName("ends_at")
+            .HasColumnName(EndsAtColumnName)
             .IsRequired();
 
         builder.Property(p => p.CreatedAt)
-            .HasColumnName("created_at")
+            .HasColumnName(CreatedAtColumnName)
             .IsRequired();
 
         builder.Property(p => p.UpdatedAt)
-            .HasColumnName("updated_at")
+            .HasColumnName(UpdatedAtColumnName)
             .IsRequired();
 
         builder.HasOne<City>()
@@ -44,6 +55,6 @@ public class PollConfiguration : IEntityTypeConfiguration<Poll>
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(p => p.CityId)
-            .HasDatabaseName("ix_poll_city_id");
+            .HasDatabaseName(CityIdIndexName);
     }
 }
