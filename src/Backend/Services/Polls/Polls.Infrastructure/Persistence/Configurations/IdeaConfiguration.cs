@@ -7,31 +7,43 @@ namespace Polls.Infrastructure.Persistence.Configurations;
 
 public class IdeaConfiguration : IEntityTypeConfiguration<Idea>
 {
+    private const string IdColumnName = "id";
+    private const string TitleColumnName = "title";
+    private const string DescriptionColumnName = "description";
+    private const string StatusColumnName = "status";
+    private const string CreatedAtColumnName = "created_at";
+    private const string UpdatedAtColumnName = "updated_at";
+    private const string PollIdIndexName = "ix_idea_poll_id";
+    
+    private const int TitleMaxLength = 200;
+    private const int DescriptionMaxLength = 1000;
+
     public void Configure(EntityTypeBuilder<Idea> builder)
     {
         builder.HasKey(i => i.Id);
+        
         builder.Property(i => i.Id)
-            .HasColumnName("id");
+            .HasColumnName(IdColumnName);
 
         builder.Property(i => i.Title)
-            .HasColumnName("title")
+            .HasColumnName(TitleColumnName)
             .IsRequired()
-            .HasMaxLength(200);
+            .HasMaxLength(TitleMaxLength);
 
         builder.Property(i => i.Description)
-            .HasColumnName("description")
-            .HasMaxLength(1000);
+            .HasColumnName(DescriptionColumnName)
+            .HasMaxLength(DescriptionMaxLength);
 
         builder.Property(i => i.Status)
-            .HasColumnName("status")
+            .HasColumnName(StatusColumnName)
             .IsRequired();
 
         builder.Property(i => i.CreatedAt)
-            .HasColumnName("created_at")
+            .HasColumnName(CreatedAtColumnName)
             .IsRequired();
 
         builder.Property(i => i.UpdatedAt)
-            .HasColumnName("updated_at")
+            .HasColumnName(UpdatedAtColumnName)
             .IsRequired();
 
         builder.HasOne<Poll>()
@@ -40,6 +52,6 @@ public class IdeaConfiguration : IEntityTypeConfiguration<Idea>
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasIndex(i => i.PollId)
-            .HasDatabaseName("ix_idea_poll_id");
+            .HasDatabaseName(PollIdIndexName);
     }
 }
