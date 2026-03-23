@@ -5,10 +5,9 @@ namespace Polls.Application.Common.Extensions;
 
 public static class PollExtensions
 {
-    public static void EnsureStatusConsistency(this Poll poll)
+    public static bool IsOpen(this Poll poll)
     {
-        if (poll.Status == PollStatus.Active
-            && poll.EndsAt <= DateTimeOffset.UtcNow)
-            poll.Status = PollStatus.Finished;
+        return poll.Status == PollStatus.Active 
+               && poll.EndsAt > DateTimeOffset.UtcNow;
     }
 }

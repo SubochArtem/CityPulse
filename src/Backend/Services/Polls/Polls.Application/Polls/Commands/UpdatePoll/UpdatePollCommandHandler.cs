@@ -23,10 +23,8 @@ public sealed class UpdatePollCommandHandler(
 
         if (poll is null)
             return PollErrors.NotFound(command.Id);
-
-        poll.EnsureStatusConsistency();
-
-        if (poll.Status == PollStatus.Finished)
+        
+        if (!poll.IsOpen())
             return PollErrors.AlreadyFinished(command.Id);
 
         var totalDurationFromStart = command.EndsAt - poll.CreatedAt;
