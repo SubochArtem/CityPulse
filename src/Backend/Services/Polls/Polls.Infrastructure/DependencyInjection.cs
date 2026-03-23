@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Polls.Application.Common.Interfaces;
 using Polls.Infrastructure.Persistence;
 using Polls.Infrastructure.Persistence.Interceptors;
+using Polls.Infrastructure.Persistence.Options;
 using Polls.Infrastructure.Persistence.Repositories;
 
 namespace Polls.Infrastructure;
@@ -14,9 +16,10 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var connectionString = configuration.GetConnectionString("DefaultConnection")
-                               ?? throw new InvalidOperationException(
-                                   "Connection string 'DefaultConnection' is not configured.");
+        services.AddOptions<DatabaseOptions>()
+            .Bind(configuration.GetSection(DatabaseOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
         services.AddTransient(typeof(Lazy<>), typeof(LazyResolver<>));
 
@@ -26,17 +29,19 @@ public static class DependencyInjection
 
         services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
         {
+            var dbOptions = serviceProvider.GetRequiredService<IOptions<DatabaseOptions>>().Value;
+
             var updateTimestampsInterceptor =
                 serviceProvider.GetRequiredService<SaveChangesInterceptor>();
             var auditInterceptor =
                 serviceProvider.GetRequiredService<AuditInterceptor>();
 
             options
-                .UseNpgsql(connectionString, npgsqlOptions =>
+                .UseNpgsql(dbOptions.ConnectionString, npgsqlOptions =>
                 {
                     npgsqlOptions.EnableRetryOnFailure(
-                        5,
-                        TimeSpan.FromSeconds(30),
+                        dbOptions.MaxRetryCount,
+                        TimeSpan.FromSeconds(dbOptions.MaxRetryDelaySeconds),
                         null);
                 })
                 .AddInterceptors(
