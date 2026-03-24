@@ -52,7 +52,7 @@ public class PollConfiguration : IEntityTypeConfiguration<Poll>
         builder.HasOne<City>()
             .WithMany()
             .HasForeignKey(p => p.CityId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasIndex(p => p.CityId)
             .HasDatabaseName(CityIdIndexName);
