@@ -13,7 +13,6 @@ public static class PollErrors
     public static Error AlreadyExists(Guid cityId) =>
         Error.Conflict($"Active poll in city '{cityId}' was already created");
     
-
     public static Error MaxDurationExceeded(int maxDays) =>
         Error.Conflict($"Poll duration cannot exceed {maxDays} days from its creation date");
 }
