@@ -4,6 +4,8 @@ namespace Polls.Application.Polls.DTOs;
 
 public record PollWithIdeasDto(
     Guid Id,
+    string Title,
+    string? Description,
     Guid CityId,
     DateTime StartedAt,
     DateTime EndsAt,
