@@ -8,38 +8,8 @@ public sealed class GetPollsQueryValidator : AbstractValidator<GetPollsQuery>
     public GetPollsQueryValidator()
     {
         RuleFor(x => x.Filter)
-            .Cascade(CascadeMode.Stop)
             .NotNull()
-            .WithMessage(ValidationConstants.Pagination.FilterRequired);
-
-        RuleFor(x => x.Filter.Page)
-            .GreaterThanOrEqualTo(ValidationConstants.Pagination.MinPage)
-            .WithMessage(ValidationConstants.Pagination.PageInvalid);
-
-        RuleFor(x => x.Filter.PageSize)
-            .GreaterThanOrEqualTo(ValidationConstants.Pagination.MinPageSize)
-            .WithMessage(ValidationConstants.Pagination.PageSizeTooSmall)
-            .LessThanOrEqualTo(ValidationConstants.Pagination.MaxPageSize)
-            .WithMessage(ValidationConstants.Pagination.PageSizeTooLarge);
-
-        RuleFor(x => x.Filter.CityId)
-            .NotEmpty()
-            .When(x => x.Filter.CityId.HasValue)
-            .WithMessage(ValidationConstants.City.IdRequired);
-        
-        RuleFor(x => x.Filter.SearchTerm)
-            .MaximumLength(ValidationConstants.Poll.MaxSearchTermLength)
-            .When(x => !string.IsNullOrWhiteSpace(x.Filter.SearchTerm))
-            .WithMessage(ValidationConstants.Poll.SearchTermTooLong);
-        
-        RuleFor(x => x.Filter.Type)
-            .IsInEnum()
-            .When(x => x.Filter.Type.HasValue)
-            .WithMessage(ValidationConstants.Poll.InvalidType);
-
-        RuleFor(x => x.Filter.Status)
-            .IsInEnum()
-            .When(x => x.Filter.Status.HasValue)
-            .WithMessage(ValidationConstants.Poll.InvalidStatus);
+            .WithMessage(ValidationConstants.Pagination.FilterRequired)
+            .SetValidator(new PollFilterValidator());
     }
 }
