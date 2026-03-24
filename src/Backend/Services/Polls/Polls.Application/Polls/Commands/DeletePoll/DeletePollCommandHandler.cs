@@ -1,4 +1,5 @@
 using MediatR;
+using Polls.Application.Common.Extensions;
 using Polls.Application.Common.Interfaces;
 using Polls.Domain.Common;
 using Polls.Domain.Polls;
@@ -15,6 +16,9 @@ public sealed class DeletePollCommandHandler(IUnitOfWork unitOfWork)
         var poll = await unitOfWork.Polls.GetByIdAsync(command.Id, cancellationToken);
         if (poll is null)
             return PollErrors.NotFound(command.Id);
+
+        if (!poll.IsOpen())
+            return PollErrors.AlreadyFinished(command.Id);
 
         unitOfWork.Polls.Delete(poll);
         await unitOfWork.SaveChangesAsync(cancellationToken);

@@ -13,8 +13,12 @@ public static class ValidationConstants
         public static readonly string TitleTooLong = $"City title must not exceed {MaxTitleLength} characters";
         public static readonly string CoordinatesRequired = "Coordinates are required";
         public static readonly string InvalidStatus = "The specified city status is invalid";
-        public static readonly string SearchTermTooLong = $"Search term must not exceed {MaxSearchTermLength} characters";
-        public static readonly string DescriptionTooLong = $"Description must not exceed {MaxDescriptionLength} characters";
+
+        public static readonly string SearchTermTooLong =
+            $"Search term must not exceed {MaxSearchTermLength} characters";
+
+        public static readonly string DescriptionTooLong =
+            $"Description must not exceed {MaxDescriptionLength} characters";
     }
 
     public static class Coordinates
@@ -24,8 +28,11 @@ public static class ValidationConstants
         public const double MinLongitude = -180;
         public const double MaxLongitude = 180;
 
-        public static readonly string InvalidLatitude = $"Latitude must be between {MinLatitude} and {MaxLatitude} degrees";
-        public static readonly string InvalidLongitude = $"Longitude must be between {MinLongitude} and {MaxLongitude} degrees";
+        public static readonly string InvalidLatitude =
+            $"Latitude must be between {MinLatitude} and {MaxLatitude} degrees";
+
+        public static readonly string InvalidLongitude =
+            $"Longitude must be between {MinLongitude} and {MaxLongitude} degrees";
     }
 
     public static class Poll
@@ -42,13 +49,31 @@ public static class ValidationConstants
         public static readonly string TooLongDuration = $"Poll duration cannot exceed {MaxDurationDays} days";
         public static readonly string TooShortDuration = $"Poll duration must be at least {MinDurationDays} days";
         public static readonly string BudgetTooHigh = $"Budget amount cannot exceed {MaxBudgetAmount:N0}";
-        public static readonly string DescriptionTooLong = $"Description must not exceed {MaxDescriptionLength} characters";
+
+        public static readonly string DescriptionTooLong =
+            $"Description must not exceed {MaxDescriptionLength} characters";
+
         public static readonly string TitleTooLong = $"Poll title must not exceed {MaxTitleLength} characters";
         public static readonly string TitleRequired = "Poll title is required";
         public static readonly string InvalidType = "The specified poll type is invalid";
         public static readonly string InvalidStatus = "The specified poll status is invalid";
         public static readonly string IdRequired = "Poll ID is required";
-        public static readonly string SearchTermTooLong = $"Search term must not exceed {MaxSearchTermLength} characters";
+
+        public static readonly string SearchTermTooLong =
+            $"Search term must not exceed {MaxSearchTermLength} characters";
+    }
+
+    public static class Idea
+    {
+        public const int MaxTitleLength = 200;
+        public const int MaxDescriptionLength = 1000;
+
+        public static readonly string TitleRequired = "Idea title is required";
+        public static readonly string TitleTooLong = $"Idea title must not exceed {MaxTitleLength} characters";
+        public static readonly string DescriptionTooLong = $"Description must not exceed {MaxDescriptionLength} characters";
+        public static readonly string UserIdRequired = "User ID is required";
+        public static readonly string IdRequired = "Idea ID is required";
+        public static readonly string InvalidStatus = "The specified Idea status is invalid";
     }
 
     public static class Pagination
