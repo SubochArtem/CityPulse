@@ -15,4 +15,7 @@ public static class PollErrors
     
     public static Error MaxDurationExceeded(int maxDays) =>
         Error.Conflict($"Poll duration cannot exceed {maxDays} days from its creation date");
+    
+    public static Error UpdatePeriodExpired(int maxDays) =>
+        Error.Conflict($"The editing period for this poll ({maxDays} day(s)) has expired");
 }
