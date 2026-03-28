@@ -1,5 +1,6 @@
 using FluentValidation;
 using Polls.Application.Common.Constants;
+using Polls.Application.Polls.Guards;
 
 namespace Polls.Application.Polls.Commands.CreatePoll;
 
@@ -12,20 +13,11 @@ public sealed class CreatePollCommandValidator : AbstractValidator<CreatePollCom
             .WithMessage(ValidationConstants.City.IdRequired);
 
         RuleFor(p => p.Title)
-            .NotEmpty()
-            .WithMessage(ValidationConstants.Poll.TitleRequired)
-            .MaximumLength(ValidationConstants.Poll.MaxTitleLength)
-            .WithMessage(ValidationConstants.Poll.TitleTooLong);
-
+            .ApplyTitleRules();
         RuleFor(p => p.Description)
-            .MaximumLength(ValidationConstants.Poll.MaxDescriptionLength)
-            .WithMessage(ValidationConstants.Poll.DescriptionTooLong);
-
+            .ApplyDescriptionRules();
         RuleFor(p => p.BudgetAmount)
-            .GreaterThan(0)
-            .WithMessage(ValidationConstants.Poll.BudgetPositive)
-            .LessThanOrEqualTo(ValidationConstants.Poll.MaxBudgetAmount)
-            .WithMessage(ValidationConstants.Poll.BudgetTooHigh);
+            .ApplyBudgetRules();
 
         RuleFor(p => p.EndsAt)
             .GreaterThan(DateTimeOffset.UtcNow)

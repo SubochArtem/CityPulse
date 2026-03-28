@@ -1,5 +1,6 @@
 using FluentValidation;
 using Polls.Application.Common.Constants;
+using Polls.Application.Polls.Guards;
 
 namespace Polls.Application.Polls.Commands.UpdatePoll;
 
@@ -7,28 +8,17 @@ public sealed class UpdatePollCommandValidator : AbstractValidator<UpdatePollCom
 {
     public UpdatePollCommandValidator()
     {
+        RuleFor(p => p.Id)
+            .NotEmpty().WithMessage(ValidationConstants.Poll.IdRequired);
+
         RuleFor(p => p.Title)
-            .NotEmpty()
-            .WithMessage(ValidationConstants.Poll.TitleRequired)
-            .MaximumLength(ValidationConstants.Poll.MaxTitleLength)
-            .WithMessage(ValidationConstants.Poll.TitleTooLong);
-
+            .ApplyTitleRules();
         RuleFor(p => p.Description)
-            .MaximumLength(ValidationConstants.Poll.MaxDescriptionLength)
-            .WithMessage(ValidationConstants.Poll.DescriptionTooLong);
-
+            .ApplyDescriptionRules();
         RuleFor(p => p.BudgetAmount)
-            .GreaterThan(0)
-            .WithMessage(ValidationConstants.Poll.BudgetPositive)
-            .LessThanOrEqualTo(ValidationConstants.Poll.MaxBudgetAmount)
-            .WithMessage(ValidationConstants.Poll.BudgetTooHigh);
+            .ApplyBudgetRules();
 
         RuleFor(p => p.EndsAt)
-            .GreaterThan(DateTimeOffset.UtcNow)
-            .WithMessage(ValidationConstants.Poll.EndDateInFuture);
-
-        RuleFor(p => p.Id)
-            .NotEmpty()
-            .WithMessage(ValidationConstants.Poll.IdRequired);
+            .GreaterThan(DateTimeOffset.UtcNow).WithMessage(ValidationConstants.Poll.EndDateInFuture);
     }
 }
