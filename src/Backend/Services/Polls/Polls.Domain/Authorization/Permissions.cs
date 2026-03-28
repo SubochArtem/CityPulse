@@ -2,6 +2,8 @@ namespace Polls.Domain.Authorization;
 
 public static class Permissions
 {
+    public const string ClaimType = "permissions";
+
     public static class Cities
     {
         public const string ReadAny = "cities.read.any";
