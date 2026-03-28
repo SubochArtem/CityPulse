@@ -13,8 +13,10 @@ public sealed class UpdatePollCommandValidator : AbstractValidator<UpdatePollCom
 
         RuleFor(p => p.Title)
             .ApplyTitleRules();
+        
         RuleFor(p => p.Description)
             .ApplyDescriptionRules();
+        
         RuleFor(p => p.BudgetAmount)
             .ApplyBudgetRules();
 
