@@ -15,4 +15,7 @@ public record Error(string Description, ErrorType Type)
     
     public static Error Failure(string description) =>
         new(description, ErrorType.Failure);
+    
+    public static Error Forbidden(string description) =>
+        new(description, ErrorType.Forbidden);
 }
