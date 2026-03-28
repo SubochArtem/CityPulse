@@ -1,6 +1,7 @@
 using AutoMapper;
 using MediatR;
 using Polls.Application.Common.Interfaces;
+using Polls.Application.Common.Security;
 using Polls.Application.Ideas.DTOs;
 using Polls.Application.Polls.Guards;
 using Polls.Domain.Authorization;
@@ -14,7 +15,8 @@ namespace Polls.Application.Ideas.Commands.CreateIdea;
 public sealed class CreateIdeaCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
-    IUserContextService userContext)
+    IUserContextService userContext,
+    CityAccessPolicy cityAccessPolicy)
     : IRequestHandler<CreateIdeaCommand, Result<IdeaDto>>
 {
     public async Task<Result<IdeaDto>> Handle(
@@ -29,9 +31,10 @@ public sealed class CreateIdeaCommandHandler(
 
         if (!canCreateAny)
         {
-            if (poll.CityId != userContext.UserId)
-                return PollErrors.NotFound(command.PollId);
-            
+            var accessResult = cityAccessPolicy.Check(poll.CityId);
+            if (!accessResult.IsSuccess)
+                return accessResult.Errors[0];
+
             var guardResult = PollGuard.For(poll)
                 .IsNotFinished()
                 .Validate();
@@ -42,7 +45,7 @@ public sealed class CreateIdeaCommandHandler(
 
         var idea = new Idea
         {
-            UserId = command.UserId,
+            UserId = userContext.UserId,
             PollId = command.PollId,
             Title = command.Title,
             Description = command.Description,
