@@ -19,6 +19,7 @@ public static class Permissions
         public const string CreateAny = "poll.create.any";
         public const string UpdateCity = "poll.update.city";
         public const string UpdateAny = "poll.update.any";
+        public const string DeleteAny = "poll.delete.any";
         public const string VoteCity = "poll.vote.city";
         public const string VoteAny = "poll.vote.any";
     }
@@ -27,7 +28,7 @@ public static class Permissions
     {
         public const string CreateAny = "ideas.create.any";
         public const string CreateUserVoting = "ideas.create.user-voting";
-        public const string CreateFinalVoting = "ideas.create.final-voting";
+        public const string CreateManagerVoting = "ideas.create.manager-voting";
         public const string ReadAny = "ideas.read.any";
         public const string UpdateAny = "ideas.update.any";
         public const string UpdateCity = "ideas.update.city";

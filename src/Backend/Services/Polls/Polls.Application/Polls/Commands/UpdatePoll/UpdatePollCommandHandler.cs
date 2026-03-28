@@ -1,18 +1,18 @@
 using AutoMapper;
 using MediatR;
-using Polls.Application.Common.Constants;
-using Polls.Application.Common.Extensions;
 using Polls.Application.Common.Interfaces;
 using Polls.Application.Polls.DTOs;
+using Polls.Application.Polls.Guards;
+using Polls.Domain.Authorization;
 using Polls.Domain.Common;
 using Polls.Domain.Polls;
-using Polls.Domain.Polls.Enums;
 
 namespace Polls.Application.Polls.Commands.UpdatePoll;
 
 public sealed class UpdatePollCommandHandler(
     IUnitOfWork unitOfWork,
-    IMapper mapper)
+    IMapper mapper,
+    IUserContextService userContext)
     : IRequestHandler<UpdatePollCommand, Result<PollDto>>
 {
     public async Task<Result<PollDto>> Handle(
@@ -23,14 +23,19 @@ public sealed class UpdatePollCommandHandler(
 
         if (poll is null)
             return PollErrors.NotFound(command.Id);
-        
-        if (!poll.IsOpen())
-            return PollErrors.AlreadyFinished(command.Id);
 
-        var totalDurationFromStart = command.EndsAt - poll.CreatedAt;
+        var canUpdateAny = userContext.UserPermissions.Contains(Permissions.Polls.UpdateAny);
 
-        if (totalDurationFromStart.TotalDays > ValidationConstants.Poll.MaxDurationDays)
-            return PollErrors.MaxDurationExceeded(ValidationConstants.Poll.MaxDurationDays);
+        if (!canUpdateAny)
+        {
+            var guardResult = PollGuard.For(poll)
+                .IsNotFinished()
+                .EditWindowNotExpired()
+                .DurationIsValid(command.EndsAt)
+                .Validate();
+
+            if (!guardResult.IsSuccess) return guardResult.Errors[0];
+        }
 
         poll.Title = command.Title;
         poll.Description = command.Description;
