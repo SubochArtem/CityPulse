@@ -1,5 +1,6 @@
 using MediatR;
 using Polls.Application.Common.Interfaces;
+using Polls.Application.Common.Security;
 using Polls.Application.Polls.Guards;
 using Polls.Domain.Authorization;
 using Polls.Domain.Common;
@@ -9,7 +10,8 @@ namespace Polls.Application.Polls.Commands.DeletePoll;
 
 public sealed class DeletePollCommandHandler(
     IUnitOfWork unitOfWork,
-    IUserContextService userContext)
+    IUserContextService userContext,
+    CityAccessPolicy cityAccessPolicy)
     : IRequestHandler<DeletePollCommand, Result<Unit>>
 {
     public async Task<Result<Unit>> Handle(
@@ -25,8 +27,11 @@ public sealed class DeletePollCommandHandler(
 
         if (!canDeleteAny)
         {
+            var accessResult = cityAccessPolicy.Check(poll.CityId);
+            if (!accessResult.IsSuccess)
+                return accessResult.Errors[0];
+            
             var guardResult = PollGuard.For(poll)
-                .SameCity(userContext.CityId)
                 .IsNotFinished()
                 .EditWindowNotExpired()
                 .Validate();

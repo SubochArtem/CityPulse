@@ -2,6 +2,7 @@ using AutoMapper;
 using MediatR;
 using Polls.Application.Common.Interfaces;
 using Polls.Application.Common.Models;
+using Polls.Application.Common.Security;
 using Polls.Application.Polls.DTOs;
 using Polls.Domain.Authorization;
 using Polls.Domain.Cities;
@@ -14,7 +15,8 @@ namespace Polls.Application.Polls.Commands.CreatePoll;
 public sealed class CreatePollCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
-    IUserContextService userContext)
+    IUserContextService userContext,
+    CityAccessPolicy cityAccessPolicy)
     : IRequestHandler<CreatePollCommand, Result<PollDto>>
 {
     public async Task<Result<PollDto>> Handle(
@@ -23,9 +25,11 @@ public sealed class CreatePollCommandHandler(
     {
         var canCreateAny = userContext.UserPermissions.Contains(Permissions.Polls.CreateAny);
 
-        if (!canCreateAny && command.CityId != userContext.CityId)
+        if (!canCreateAny)
         {
-            return PollErrors.NotFromUserCity();
+            var accessResult = cityAccessPolicy.Check(command.CityId);
+            if (!accessResult.IsSuccess)
+                return accessResult.Errors[0];
         }
         
         var city = await unitOfWork.Cities.GetByIdAsync(

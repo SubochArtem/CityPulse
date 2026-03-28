@@ -1,6 +1,7 @@
 using AutoMapper;
 using MediatR;
 using Polls.Application.Common.Interfaces;
+using Polls.Application.Common.Security;
 using Polls.Application.Polls.DTOs;
 using Polls.Application.Polls.Guards;
 using Polls.Domain.Authorization;
@@ -12,7 +13,8 @@ namespace Polls.Application.Polls.Commands.UpdatePoll;
 public sealed class UpdatePollCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
-    IUserContextService userContext)
+    IUserContextService userContext,
+    CityAccessPolicy cityAccessPolicy)
     : IRequestHandler<UpdatePollCommand, Result<PollDto>>
 {
     public async Task<Result<PollDto>> Handle(
@@ -28,8 +30,11 @@ public sealed class UpdatePollCommandHandler(
 
         if (!canUpdateAny)
         {
+            var accessResult = cityAccessPolicy.Check(poll.CityId);
+            if (!accessResult.IsSuccess)
+                return accessResult.Errors[0];
+            
             var guardResult = PollGuard.For(poll)
-                .SameCity(userContext.CityId)
                 .IsNotFinished()
                 .EditWindowNotExpired()
                 .DurationIsValid(command.EndsAt)

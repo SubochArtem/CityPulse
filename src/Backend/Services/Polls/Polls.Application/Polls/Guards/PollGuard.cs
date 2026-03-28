@@ -45,15 +45,7 @@ public sealed class PollGuard(Poll poll)
 
         return this;
     }
-
-    public PollGuard SameCity(Guid userCityId)
-    {
-        if (_error is null && userCityId != poll.CityId)
-                _error = PollErrors.NotFromUserCity(poll.Id);
-
-        return this;
-    }
-
+    
     public Result<Unit> Validate()
     {
         if (_error is not null) return _error;
