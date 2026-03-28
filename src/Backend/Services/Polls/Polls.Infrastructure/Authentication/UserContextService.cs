@@ -8,6 +8,7 @@ namespace Polls.Infrastructure.Authentication;
 public sealed class UserContextService(IHttpContextAccessor httpContextAccessor) : IUserContextService
 {
     private IReadOnlySet<string>? _userPermissions;
+    private const string CityIdClaim = "https://citypulse.com/city_id";
 
     public Guid UserId
     {
@@ -17,6 +18,15 @@ public sealed class UserContextService(IHttpContextAccessor httpContextAccessor)
             return Guid.TryParse(userIdClaim, out var userId)
                 ? userId
                 : Guid.Empty;
+        }
+    }
+    
+    public Guid CityId
+    {
+        get
+        {
+            var cityIdClaim = httpContextAccessor.HttpContext?.User.FindFirstValue(CityIdClaim);
+            return Guid.TryParse(cityIdClaim, out var cityId) ? cityId : Guid.Empty;
         }
     }
 

@@ -29,6 +29,7 @@ public sealed class UpdatePollCommandHandler(
         if (!canUpdateAny)
         {
             var guardResult = PollGuard.For(poll)
+                .SameCity(userContext.CityId)
                 .IsNotFinished()
                 .EditWindowNotExpired()
                 .DurationIsValid(command.EndsAt)

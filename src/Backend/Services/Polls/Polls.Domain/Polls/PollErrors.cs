@@ -18,4 +18,7 @@ public static class PollErrors
     
     public static Error UpdatePeriodExpired(int maxDays) =>
         Error.Conflict($"The editing period for this poll ({maxDays} day(s)) has expired");
+    
+    public static Error NotFromUserCity(Guid? pollId = null) =>
+        Error.Forbidden($"Cannot interact with poll '{pollId}' because it belongs to a different city");
 }

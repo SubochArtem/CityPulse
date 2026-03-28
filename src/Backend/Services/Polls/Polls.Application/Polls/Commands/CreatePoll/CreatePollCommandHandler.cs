@@ -3,6 +3,7 @@ using MediatR;
 using Polls.Application.Common.Interfaces;
 using Polls.Application.Common.Models;
 using Polls.Application.Polls.DTOs;
+using Polls.Domain.Authorization;
 using Polls.Domain.Cities;
 using Polls.Domain.Common;
 using Polls.Domain.Polls;
@@ -12,20 +13,28 @@ namespace Polls.Application.Polls.Commands.CreatePoll;
 
 public sealed class CreatePollCommandHandler(
     IUnitOfWork unitOfWork,
-    IMapper mapper)
+    IMapper mapper,
+    IUserContextService userContext)
     : IRequestHandler<CreatePollCommand, Result<PollDto>>
 {
     public async Task<Result<PollDto>> Handle(
         CreatePollCommand command,
         CancellationToken cancellationToken)
     {
+        var canCreateAny = userContext.UserPermissions.Contains(Permissions.Polls.CreateAny);
+
+        if (!canCreateAny && command.CityId != userContext.CityId)
+        {
+            return PollErrors.NotFromUserCity();
+        }
+        
         var city = await unitOfWork.Cities.GetByIdAsync(
             command.CityId,
             cancellationToken);
 
         if (city is null)
             return CityErrors.NotFound(command.CityId);
-
+        
         var filter = new PollFilter
         {
             CityId = command.CityId,

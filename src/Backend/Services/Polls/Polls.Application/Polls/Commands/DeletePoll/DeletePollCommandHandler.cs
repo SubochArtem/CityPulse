@@ -26,6 +26,7 @@ public sealed class DeletePollCommandHandler(
         if (!canDeleteAny)
         {
             var guardResult = PollGuard.For(poll)
+                .SameCity(userContext.CityId)
                 .IsNotFinished()
                 .EditWindowNotExpired()
                 .Validate();
