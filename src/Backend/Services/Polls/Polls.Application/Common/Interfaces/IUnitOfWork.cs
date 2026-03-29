@@ -6,4 +6,5 @@ public interface IUnitOfWork
     IPollRepository Polls { get; }
     IIdeaRepository Ideas { get; }
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
+    Task<IUnitOfWorkTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
 }
