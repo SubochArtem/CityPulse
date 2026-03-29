@@ -9,4 +9,7 @@ public record Error(string Description, ErrorType Type)
     
     public static Error Conflict(string description) =>
         new(description, ErrorType.Conflict);
+    
+    public static Error Failure(string description) =>
+        new(description, ErrorType.Failure);
 }
