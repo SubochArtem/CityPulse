@@ -6,5 +6,6 @@ public enum IdeaStatus
     InPoll = 1,
     Approved = 2,
     Rejected = 3,
-    Expired = 4
+    Expired = 4,
+    Suspended = 5
 }
