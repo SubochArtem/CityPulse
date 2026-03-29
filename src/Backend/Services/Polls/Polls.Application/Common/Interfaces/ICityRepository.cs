@@ -14,4 +14,12 @@ public interface ICityRepository : IRepository<City>
         Guid id,
         PollStatus? status,
         CancellationToken cancellationToken = default);
+
+    Task SuspendContentAsync(
+        Guid cityId,
+        CancellationToken cancellationToken = default);
+
+    Task ActivateContentAsync(
+        Guid cityId,
+        CancellationToken cancellationToken = default);
 }
