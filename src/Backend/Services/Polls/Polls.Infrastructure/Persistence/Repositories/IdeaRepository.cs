@@ -45,4 +45,19 @@ public class IdeaRepository(ApplicationDbContext context)
                     .SetProperty(i => i.UpdatedAt, updatedAt),
                 cancellationToken);
     }
+    
+    public async Task UpdateStatusByPollIdAsync(
+        Guid pollId,
+        IdeaStatus sourceStatus,
+        IdeaStatus targetStatus,
+        DateTimeOffset updatedAt,
+        CancellationToken cancellationToken)
+    {
+        await _context.Ideas
+            .Where(i => i.PollId == pollId && i.Status == sourceStatus)
+            .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(i => i.Status, targetStatus)
+                    .SetProperty(i => i.UpdatedAt, updatedAt), 
+                cancellationToken);
+    }
 }

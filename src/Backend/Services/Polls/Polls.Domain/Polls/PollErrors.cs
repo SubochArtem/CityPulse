@@ -1,4 +1,5 @@
 using Polls.Domain.Common;
+using Polls.Domain.Polls.Enums;
 
 namespace Polls.Domain.Polls;
 
@@ -21,4 +22,7 @@ public static class PollErrors
     
     public static Error NotFromUserCity(Guid? pollId = null) =>
         Error.Forbidden($"Cannot interact with poll '{pollId}' because it belongs to a different city");
+    
+    public static Error InvalidStatus(PollStatus status) =>
+        Error.Conflict($"Status '{status}' is not supported.");
 }
