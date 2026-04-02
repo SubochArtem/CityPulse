@@ -3,6 +3,7 @@ using MediatR;
 using Polls.Application.Cities.DTOs;
 using Polls.Application.Common.Interfaces;
 using Polls.Application.Common.Models;
+using Polls.Domain.Cities.Enums;
 using Polls.Domain.Common;
 
 namespace Polls.Application.Cities.Queries.GetCities;
@@ -16,6 +17,11 @@ public sealed class GetCitiesQueryHandler(
         GetCitiesQuery query,
         CancellationToken cancellationToken)
     {
+        if (query.IncludeOnlyActive)
+        {
+            query.Filter.Status = CityStatus.Active;
+        }
+        
         var cities = await unitOfWork.Cities.GetFilteredAsync(query.Filter, cancellationToken);
 
         return cities.Map(mapper.Map<CityDto>);
