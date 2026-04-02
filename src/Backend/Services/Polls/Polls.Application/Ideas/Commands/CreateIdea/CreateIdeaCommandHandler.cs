@@ -49,7 +49,7 @@ public sealed class CreateIdeaCommandHandler(
             PollId = command.PollId,
             Title = command.Title,
             Description = command.Description,
-            Status = IdeaStatus.InPoll
+            Status = IdeaStatus.Active
         };
 
         unitOfWork.Ideas.Create(idea);
