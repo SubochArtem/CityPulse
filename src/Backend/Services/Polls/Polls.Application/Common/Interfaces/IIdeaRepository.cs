@@ -20,4 +20,11 @@ public interface IIdeaRepository : IRepository<Idea>
         IdeaStatus target,
         DateTimeOffset updatedAt,
         CancellationToken cancellationToken = default);
+
+    Task UpdateStatusByPollIdAsync(
+        Guid pollId,
+        IdeaStatus sourceStatus,
+        IdeaStatus targetStatus,
+        DateTimeOffset updatedAt,
+        CancellationToken cancellationToken);
 }
