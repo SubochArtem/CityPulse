@@ -14,8 +14,6 @@ public sealed class ChangeCityStatusCommandHandler(
     ILogger<ChangeCityStatusCommandHandler> logger) 
     : IRequestHandler<ChangeCityStatusCommand, Result<Unit>>
 {
-    private const string UnsupportedTransitionErrorMessage = "Unsupported status transition.";
-
     public async Task<Result<Unit>> Handle(
         ChangeCityStatusCommand command, 
         CancellationToken cancellationToken)
@@ -27,9 +25,17 @@ public sealed class ChangeCityStatusCommandHandler(
         if (city.Status == command.NewStatus)
             return Unit.Value;
 
-        var (sPoll, tPoll, sIdea, tIdea) = GetStatusMap(command.NewStatus);
-        var utcNow = DateTimeOffset.UtcNow;
+        var transition = GetStatusTransition(command.NewStatus);
+        if (transition is null)
+        {
+            logger.LogWarning(
+                "Unsupported city status transition {CityId}: {Status}", 
+                command.Id, 
+                command.NewStatus);
+            return CityErrors.InvalidStatus(command.NewStatus);
+        }
 
+        var utcNow = DateTimeOffset.UtcNow;
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
         
         try
@@ -39,40 +45,48 @@ public sealed class ChangeCityStatusCommandHandler(
             await unitOfWork.SaveChangesAsync(cancellationToken);
             
             await unitOfWork.Polls.UpdateStatusByCityAsync(
-                city.Id, sPoll, tPoll, utcNow, cancellationToken);
+                city.Id, 
+                transition.Value.SourcePoll, 
+                transition.Value.TargetPoll, 
+                utcNow, 
+                cancellationToken);
                 
             await unitOfWork.Ideas.UpdateStatusByCityAsync(
-                city.Id, sIdea, tIdea, utcNow, cancellationToken);
+                city.Id, 
+                transition.Value.SourceIdea, 
+                transition.Value.TargetIdea, 
+                utcNow, 
+                cancellationToken);
             
             await transaction.CommitAsync(cancellationToken);
-            
             return Unit.Value;
         }
         catch (Exception ex)
         {
             logger.LogError(
                 ex, 
-                "An error occurred while changing status for City {CityId} to {NewStatus}", 
+                "Error changing city {CityId} status to {Status}", 
                 command.Id, 
                 command.NewStatus);
 
             await transaction.RollbackAsync(cancellationToken);
-            
             return CommonErrors.DatabaseError;
         }
     }
 
-    private static (PollStatus sPoll, PollStatus tPoll, IdeaStatus sIdea, IdeaStatus tIdea) 
-        GetStatusMap(CityStatus newStatus) => newStatus switch
+    private static (
+        PollStatus SourcePoll, PollStatus TargetPoll,
+        IdeaStatus SourceIdea, IdeaStatus TargetIdea)? 
+        GetStatusTransition(CityStatus newStatus) => newStatus switch
     {
         CityStatus.Active => (
-            PollStatus.Suspended, PollStatus.Active, 
+            PollStatus.Suspended, PollStatus.Active,
             IdeaStatus.Suspended, IdeaStatus.Active),
             
         CityStatus.Inactive => (
-            PollStatus.Active, PollStatus.Suspended, 
+            PollStatus.Active, PollStatus.Suspended,
             IdeaStatus.Active, IdeaStatus.Suspended),
         
-        _ => throw new ArgumentOutOfRangeException(nameof(newStatus), UnsupportedTransitionErrorMessage)
+        _ => null
     };
 }
