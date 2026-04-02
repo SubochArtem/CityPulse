@@ -15,6 +15,8 @@ public abstract class Result
     public IReadOnlyList<Error> Errors { get; }
 
     public bool IsSuccess => Errors.Count == 0;
+    
+    public Error Error => Errors.Count > 0 ? Errors[0] : Error.Undefined;
 }
 
 public class Result<T> : Result
