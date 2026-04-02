@@ -32,7 +32,7 @@ public sealed class UpdatePollCommandHandler(
         {
             var accessResult = cityAccessPolicy.Check(poll.CityId);
             if (!accessResult.IsSuccess)
-                return accessResult.Errors[0];
+                return accessResult.Error;
             
             var guardResult = PollGuard.For(poll)
                 .SameCity(userContext.CityId)
@@ -42,7 +42,7 @@ public sealed class UpdatePollCommandHandler(
                 .Validate();
 
             if (!guardResult.IsSuccess)
-                return guardResult.Errors[0];
+                return guardResult.Error;
         }
 
         poll.Title = command.Title;

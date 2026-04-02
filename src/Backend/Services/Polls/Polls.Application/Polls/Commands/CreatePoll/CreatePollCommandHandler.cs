@@ -29,7 +29,7 @@ public sealed class CreatePollCommandHandler(
         {
             var accessResult = cityAccessPolicy.Check(command.CityId);
             if (!accessResult.IsSuccess)
-                return accessResult.Errors[0];
+                return accessResult.Error;
         }
         
         var city = await unitOfWork.Cities.GetByIdAsync(
