@@ -3,4 +3,4 @@ using Polls.Application.Common.CQRS;
 
 namespace Polls.Application.Cities.Queries.GetCityById;
 
-public record GetCityByIdQuery(Guid Id) : IQuery<CityDto>;
+public record GetCityByIdQuery(Guid Id, bool IncludeOnlyActive = true) : IQuery<CityDto>;
