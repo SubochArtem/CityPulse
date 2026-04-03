@@ -1,4 +1,5 @@
 using Polls.Application.Common.Models;
+using Polls.Domain.Ideas.Enums;
 using Polls.Domain.Polls;
 using Polls.Domain.Polls.Enums;
 
@@ -12,6 +13,7 @@ public interface IPollRepository : IRepository<Poll>
 
     Task<Poll?> GetWithIdeasAsync(
         Guid id,
+        IdeaStatus? ideaStatus,
         CancellationToken cancellationToken = default);
 
     Task UpdateStatusByCityAsync(

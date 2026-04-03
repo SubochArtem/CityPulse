@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Polls.Application.Common.Interfaces;
 using Polls.Application.Common.Models;
+using Polls.Domain.Ideas.Enums;
 using Polls.Domain.Polls;
 using Polls.Domain.Polls.Enums;
 using Polls.Infrastructure.Persistence.Extensions;
@@ -24,10 +25,13 @@ public class PollRepository(ApplicationDbContext context) : Repository<Poll>(con
 
     public async Task<Poll?> GetWithIdeasAsync(
         Guid id,
+        IdeaStatus? ideaStatus,
         CancellationToken cancellationToken = default)
     {
         return await _dbSet
-            .Include(p => p.Ideas)
+            .Include(p => new IdeaQueryBuilder(p.Ideas.AsQueryable())
+                .WithStatus(ideaStatus)
+                .Build())
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
     

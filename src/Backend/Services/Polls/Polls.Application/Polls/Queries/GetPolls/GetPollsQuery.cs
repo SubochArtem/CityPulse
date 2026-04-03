@@ -4,4 +4,4 @@ using Polls.Application.Polls.DTOs;
 
 namespace Polls.Application.Polls.Queries.GetPolls;
 
-public record GetPollsQuery(PollFilter Filter) : IQuery<PagedList<PollDto>>;
+public record GetPollsQuery(PollFilter Filter, bool IncludeOnlyActive = true) : IQuery<PagedList<PollDto>>;
