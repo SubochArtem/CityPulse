@@ -8,4 +8,6 @@ public record UpdatePollCommand(
     string Title,
     string? Description,
     DateTimeOffset EndsAt,
-    decimal BudgetAmount) : ICommand<PollDto>;
+    decimal BudgetAmount,
+    Guid UserCityId = default,
+    bool BypassRestrictions = false) : ICommand<PollDto>;

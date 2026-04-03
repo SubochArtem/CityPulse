@@ -10,4 +10,6 @@ public record CreatePollCommand(
     string? Description,
     PollType Type,
     DateTimeOffset EndsAt,
-    decimal BudgetAmount) : ICommand<PollDto>;
+    decimal BudgetAmount,
+    Guid UserCityId = default,
+    bool BypassRestrictions = false) : ICommand<PollDto>;

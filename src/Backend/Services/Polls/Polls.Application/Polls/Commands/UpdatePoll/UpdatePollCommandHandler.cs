@@ -4,7 +4,6 @@ using Polls.Application.Common.Interfaces;
 using Polls.Application.Common.Security;
 using Polls.Application.Polls.DTOs;
 using Polls.Application.Polls.Guards;
-using Polls.Domain.Authorization;
 using Polls.Domain.Common;
 using Polls.Domain.Polls;
 
@@ -12,9 +11,7 @@ namespace Polls.Application.Polls.Commands.UpdatePoll;
 
 public sealed class UpdatePollCommandHandler(
     IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IUserContextService userContext,
-    CityAccessPolicy cityAccessPolicy)
+    IMapper mapper)
     : IRequestHandler<UpdatePollCommand, Result<PollDto>>
 {
     public async Task<Result<PollDto>> Handle(
@@ -22,18 +19,15 @@ public sealed class UpdatePollCommandHandler(
         CancellationToken cancellationToken)
     {
         var poll = await unitOfWork.Polls.GetByIdAsync(command.Id, cancellationToken);
-
         if (poll is null)
             return PollErrors.NotFound(command.Id);
 
-        var canUpdateAny = userContext.UserPermissions.Contains(Permissions.Polls.UpdateAny);
-
-        if (!canUpdateAny)
+        if (!command.BypassRestrictions)
         {
-            var accessResult = cityAccessPolicy.Check(poll.CityId);
+            var accessResult = CityAccessPolicy.Check(command.UserCityId, poll.CityId);
             if (!accessResult.IsSuccess)
                 return accessResult.Error;
-            
+
             var guardResult = PollGuard.For(poll)
                 .IsNotFinished()
                 .EditWindowNotExpired()

@@ -1,16 +1,16 @@
-using Polls.Application.Common.Interfaces;
+using MediatR;
 using Polls.Domain.Common;
 using Polls.Domain.Polls;
-using MediatR;
+
 namespace Polls.Application.Common.Security;
 
-public sealed class CityAccessPolicy(IUserContextService userContext)
+public static class CityAccessPolicy
 {
-    public Result<Unit> Check(Guid targetCityId)
+    public static Result<Unit> Check(Guid userCityId, Guid targetCityId)
     {
-        if (userContext.CityId != targetCityId)
+        if (userCityId != targetCityId)
             return PollErrors.NotFromUserCity(targetCityId);
 
-        return Unit.Value; 
+        return Unit.Value;
     }
 }
