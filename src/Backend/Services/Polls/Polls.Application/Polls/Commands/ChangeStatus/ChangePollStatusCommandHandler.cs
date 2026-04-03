@@ -62,8 +62,8 @@ public sealed class ChangePollStatusCommandHandler(
         PollStatus newStatus) =>
         newStatus switch
         {
-            PollStatus.Active    => (IdeaStatus.Suspended, IdeaStatus.Active),
-            PollStatus.Suspended => (IdeaStatus.Active,    IdeaStatus.Suspended),
-            _                    => null
+            PollStatus.Active => (IdeaStatus.Suspended, IdeaStatus.Active),
+            PollStatus.Suspended => (IdeaStatus.Active, IdeaStatus.Suspended),
+            _=> null
         };
 }
