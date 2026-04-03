@@ -22,5 +22,4 @@ public interface IPollRepository : IRepository<Poll>
         PollStatus target,
         DateTimeOffset updatedAt,
         CancellationToken cancellationToken = default);
-    
 }
