@@ -6,4 +6,6 @@ namespace Polls.Application.Ideas.Commands.UpdateIdea;
 public record UpdateIdeaCommand(
     Guid Id,
     string Title,
-    string? Description) : ICommand<IdeaDto>;
+    string? Description,
+    Guid UserId = default,
+    bool BypassRestrictions = false) : ICommand<IdeaDto>;

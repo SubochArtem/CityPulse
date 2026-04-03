@@ -4,7 +4,6 @@ using Polls.Application.Common.Interfaces;
 using Polls.Application.Common.Security;
 using Polls.Application.Ideas.DTOs;
 using Polls.Application.Polls.Guards;
-using Polls.Domain.Authorization;
 using Polls.Domain.Common;
 using Polls.Domain.Ideas;
 using Polls.Domain.Ideas.Enums;
@@ -14,9 +13,7 @@ namespace Polls.Application.Ideas.Commands.CreateIdea;
 
 public sealed class CreateIdeaCommandHandler(
     IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IUserContextService userContext,
-    CityAccessPolicy cityAccessPolicy)
+    IMapper mapper)
     : IRequestHandler<CreateIdeaCommand, Result<IdeaDto>>
 {
     public async Task<Result<IdeaDto>> Handle(
@@ -27,25 +24,23 @@ public sealed class CreateIdeaCommandHandler(
         if (poll is null)
             return PollErrors.NotFound(command.PollId);
 
-        var canCreateAny = userContext.UserPermissions.Contains(Permissions.Ideas.CreateAny);
-
-        if (!canCreateAny)
+        if (!command.BypassRestrictions)
         {
-            var accessResult = cityAccessPolicy.Check(poll.CityId);
+            var accessResult = CityAccessPolicy.Check(command.UserCityId, poll.CityId);
             if (!accessResult.IsSuccess)
-                return accessResult.Errors[0];
+                return accessResult.Error;
 
             var guardResult = PollGuard.For(poll)
                 .IsNotFinished()
                 .Validate();
 
             if (!guardResult.IsSuccess)
-                return guardResult.Errors[0];
+                return guardResult.Error;
         }
 
         var idea = new Idea
         {
-            UserId = userContext.UserId,
+            UserId = command.UserId,
             PollId = command.PollId,
             Title = command.Title,
             Description = command.Description,

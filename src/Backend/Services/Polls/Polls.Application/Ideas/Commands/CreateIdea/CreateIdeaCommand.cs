@@ -7,4 +7,6 @@ public record CreateIdeaCommand(
     Guid UserId,
     Guid PollId,
     string Title,
-    string? Description) : ICommand<IdeaDto>;
+    string? Description,
+    Guid UserCityId = default,
+    bool BypassRestrictions = false) : ICommand<IdeaDto>;

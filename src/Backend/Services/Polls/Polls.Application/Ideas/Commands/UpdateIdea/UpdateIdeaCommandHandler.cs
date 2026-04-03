@@ -1,11 +1,9 @@
 using AutoMapper;
 using MediatR;
 using Polls.Application.Common.Interfaces;
-using Polls.Application.Common.Security;
 using Polls.Application.Ideas.DTOs;
 using Polls.Application.Ideas.Guards;
 using Polls.Application.Polls.Guards;
-using Polls.Domain.Authorization;
 using Polls.Domain.Common;
 using Polls.Domain.Ideas;
 
@@ -13,9 +11,7 @@ namespace Polls.Application.Ideas.Commands.UpdateIdea;
 
 public sealed class UpdateIdeaCommandHandler(
     IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IUserContextService userContext,
-    CityAccessPolicy cityAccessPolicy)
+    IMapper mapper)
     : IRequestHandler<UpdateIdeaCommand, Result<IdeaDto>>
 {
     public async Task<Result<IdeaDto>> Handle(
@@ -26,26 +22,20 @@ public sealed class UpdateIdeaCommandHandler(
         if (idea is null)
             return IdeaErrors.NotFound(command.Id);
 
-        var canUpdateAny = userContext.UserPermissions.Contains(Permissions.Ideas.UpdateAny);
-
-        if (!canUpdateAny)
+        if (!command.BypassRestrictions)
         {
-            var accessResult = cityAccessPolicy.Check(idea.Poll.CityId);
-            if (!accessResult.IsSuccess)
-                return accessResult.Errors[0];
-
             var ideaGuard = IdeaGuard.For(idea)
-                .IsOwner(userContext.UserId)
+                .IsOwner(command.UserId)
                 .IsNotApproved()
                 .Validate();
-            if (!ideaGuard.IsSuccess) 
-                return ideaGuard.Errors[0];
+            if (!ideaGuard.IsSuccess)
+                return ideaGuard.Error;
 
             var guardResult = PollGuard.For(idea.Poll)
                 .IsNotFinished()
                 .Validate();
             if (!guardResult.IsSuccess)
-                return guardResult.Errors[0];
+                return guardResult.Error;
         }
 
         idea.Title = command.Title;

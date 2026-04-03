@@ -1,20 +1,14 @@
 using MediatR;
-using Polls.Application.Common.Extensions;
 using Polls.Application.Common.Interfaces;
-using Polls.Application.Common.Security;
 using Polls.Application.Ideas.Guards;
 using Polls.Application.Polls.Guards;
-using Polls.Domain.Authorization;
 using Polls.Domain.Common;
 using Polls.Domain.Ideas;
-using Polls.Domain.Polls;
 
 namespace Polls.Application.Ideas.Commands.DeleteIdea;
 
 public sealed class DeleteIdeaCommandHandler(
-    IUnitOfWork unitOfWork, 
-    IUserContextService userContext,
-    CityAccessPolicy cityAccessPolicy)
+    IUnitOfWork unitOfWork)
     : IRequestHandler<DeleteIdeaCommand, Result<Unit>>
 {
     public async Task<Result<Unit>> Handle(
@@ -25,26 +19,20 @@ public sealed class DeleteIdeaCommandHandler(
         if (idea is null)
             return IdeaErrors.NotFound(command.Id);
 
-        var canDeleteAny = userContext.UserPermissions.Contains(Permissions.Ideas.DeleteAny);
-
-        if (!canDeleteAny)
+        if (!command.BypassRestrictions)
         {
-            var accessResult = cityAccessPolicy.Check(idea.Poll.CityId);
-            if (!accessResult.IsSuccess)
-                return accessResult.Errors[0];
-
             var ideaGuard = IdeaGuard.For(idea)
-                .IsOwner(userContext.UserId)
+                .IsOwner(command.UserId)
                 .IsNotApproved()
                 .Validate();
-            if (!ideaGuard.IsSuccess) 
-                return ideaGuard.Errors[0];
+            if (!ideaGuard.IsSuccess)
+                return ideaGuard.Error;
 
             var guardResult = PollGuard.For(idea.Poll)
                 .IsNotFinished()
                 .Validate();
             if (!guardResult.IsSuccess)
-                return guardResult.Errors[0];
+                return guardResult.Error;
         }
 
         unitOfWork.Ideas.Delete(idea);
