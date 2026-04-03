@@ -22,11 +22,5 @@ public interface IPollRepository : IRepository<Poll>
         PollStatus target,
         DateTimeOffset updatedAt,
         CancellationToken cancellationToken = default);
-
-    Task UpdateStatusByCityAsync(
-        Guid cityId,
-        PollStatus source,
-        PollStatus target,
-        DateTimeOffset updatedAt,
-        CancellationToken cancellationToken = default);
+    
 }
