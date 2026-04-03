@@ -4,7 +4,6 @@ using Polls.Application.Common.Interfaces;
 using Polls.Application.Common.Models;
 using Polls.Application.Common.Security;
 using Polls.Application.Polls.DTOs;
-using Polls.Domain.Authorization;
 using Polls.Domain.Cities;
 using Polls.Domain.Common;
 using Polls.Domain.Polls;
@@ -14,24 +13,20 @@ namespace Polls.Application.Polls.Commands.CreatePoll;
 
 public sealed class CreatePollCommandHandler(
     IUnitOfWork unitOfWork,
-    IMapper mapper,
-    IUserContextService userContext,
-    CityAccessPolicy cityAccessPolicy)
+    IMapper mapper)
     : IRequestHandler<CreatePollCommand, Result<PollDto>>
 {
     public async Task<Result<PollDto>> Handle(
         CreatePollCommand command,
         CancellationToken cancellationToken)
     {
-        var canCreateAny = userContext.UserPermissions.Contains(Permissions.Polls.CreateAny);
-
-        if (!canCreateAny)
+        if (!command.BypassRestrictions)
         {
-            var accessResult = cityAccessPolicy.Check(command.CityId);
+            var accessResult = CityAccessPolicy.Check(command.UserCityId, command.CityId);
             if (!accessResult.IsSuccess)
                 return accessResult.Error;
         }
-        
+
         var city = await unitOfWork.Cities.GetByIdAsync(
             command.CityId,
             cancellationToken);
@@ -65,7 +60,6 @@ public sealed class CreatePollCommandHandler(
         };
 
         unitOfWork.Polls.Create(poll);
-
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return mapper.Map<PollDto>(poll);
