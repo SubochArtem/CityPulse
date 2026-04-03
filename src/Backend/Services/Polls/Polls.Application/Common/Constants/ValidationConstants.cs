@@ -32,7 +32,7 @@ public static class ValidationConstants
         public const int MinDurationDays = 3;
         public const int MaxUpdatePeriodDays = 1;
         public const decimal MaxBudgetAmount = 100_000_000;
-        public const decimal MinBudgetAmount = 100_000_000;
+        public const decimal MinBudgetAmount = 0;
         public const int MaxTitleLength = 300;
         public const int MaxDescriptionLength = 2000;
 
