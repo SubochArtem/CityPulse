@@ -1,7 +1,6 @@
 using MediatR;
 using Polls.Application.Common.Interfaces;
 using Polls.Application.Ideas.Guards;
-using Polls.Application.Polls.Guards;
 using Polls.Domain.Common;
 using Polls.Domain.Ideas;
 
@@ -21,18 +20,9 @@ public sealed class DeleteIdeaCommandHandler(
 
         if (!command.BypassRestrictions)
         {
-            var ideaGuard = IdeaGuard.For(idea)
-                .IsOwner(command.UserId)
-                .IsNotApproved()
-                .Validate();
-            if (!ideaGuard.IsSuccess)
-                return ideaGuard.Error;
-
-            var guardResult = PollGuard.For(idea.Poll)
-                .IsNotFinished()
-                .Validate();
-            if (!guardResult.IsSuccess)
-                return guardResult.Error;
+            var validationResult = idea.ValidateIdeaAccess(command.UserId);
+            if (!validationResult.IsSuccess)
+                return validationResult.Error;
         }
 
         unitOfWork.Ideas.Delete(idea);
