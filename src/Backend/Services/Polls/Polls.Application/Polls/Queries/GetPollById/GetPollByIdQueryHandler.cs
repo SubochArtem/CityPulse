@@ -4,6 +4,7 @@ using Polls.Application.Common.Interfaces;
 using Polls.Application.Polls.DTOs;
 using Polls.Domain.Common;
 using Polls.Domain.Polls;
+using Polls.Domain.Polls.Enums;
 
 namespace Polls.Application.Polls.Queries.GetPollById;
 
@@ -15,7 +16,7 @@ public sealed class GetPollByIdQueryHandler(IUnitOfWork unitOfWork, IMapper mapp
         CancellationToken cancellationToken)
     {
         var poll = await unitOfWork.Polls.GetByIdAsync(query.Id, cancellationToken);
-        if (poll is null)
+        if (poll is null || (poll.Status != PollStatus.Active && query.IncludeOnlyActive))
             return PollErrors.NotFound(query.Id);
 
         return mapper.Map<PollDto>(poll);
