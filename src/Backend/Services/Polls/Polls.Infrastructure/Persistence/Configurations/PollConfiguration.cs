@@ -70,7 +70,7 @@ public class PollConfiguration : IEntityTypeConfiguration<Poll>
             .IsRequired();
 
         builder.HasOne<City>()
-            .WithMany()
+            .WithMany(c => c.Polls)
             .HasForeignKey(p => p.CityId)
             .OnDelete(DeleteBehavior.Cascade);
 

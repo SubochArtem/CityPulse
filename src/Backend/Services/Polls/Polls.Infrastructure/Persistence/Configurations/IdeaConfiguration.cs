@@ -55,8 +55,8 @@ public class IdeaConfiguration : IEntityTypeConfiguration<Idea>
             .HasColumnName(UpdatedAtColumnName)
             .IsRequired();
 
-        builder.HasOne<Poll>()
-            .WithMany()
+        builder.HasOne<Poll>(i => i.Poll)
+            .WithMany(p => p.Ideas)
             .HasForeignKey(i => i.PollId)
             .OnDelete(DeleteBehavior.Cascade);
 
