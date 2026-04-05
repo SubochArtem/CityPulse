@@ -13,6 +13,7 @@ public class CityMappingProfile : Profile
         CreateMap<City, CityDto>();
 
         CreateMap<City, CityWithPollsDto>()
+            .ForMember(dest => dest.Coordinates, opt => opt.MapFrom(src => src.Coordinates))
             .ForMember(dest => dest.Polls, opt => opt.MapFrom(src => src.Polls));
     }
 }
