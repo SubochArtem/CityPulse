@@ -29,11 +29,11 @@ public class AdminIdeasController(ISender sender) : ControllerBase
         [FromQuery] IdeaFilter filter,
         CancellationToken cancellationToken)
     {
-        var command = new GetIdeasQuery(
+        var query = new GetIdeasQuery(
             Filter: filter,
             IncludeOnlyActive: false);
         
-        return await sender.Send(command, cancellationToken);
+        return await sender.Send(query, cancellationToken);
     }
 
     [HttpGet("{id:guid}")]
@@ -42,11 +42,11 @@ public class AdminIdeasController(ISender sender) : ControllerBase
         Guid id,
         CancellationToken cancellationToken)
     {
-        var command = new GetIdeaByIdQuery(
+        var query = new GetIdeaByIdQuery(
             Id: id,
             IncludeOnlyActive: false);
         
-        return await sender.Send(command, cancellationToken);
+        return await sender.Send(query, cancellationToken);
     }
 
     [HttpGet("{id:guid}/poll")]
@@ -55,11 +55,11 @@ public class AdminIdeasController(ISender sender) : ControllerBase
         Guid id,
         CancellationToken cancellationToken)
     {
-        var command = new GetIdeaWithPollQuery(
+        var query = new GetIdeaWithPollQuery(
             Id: id,
             IncludeOnlyActive: false);
         
-        return await sender.Send(command, cancellationToken);
+        return await sender.Send(query, cancellationToken);
     }
     
     [HttpPost("{pollId:guid}")]

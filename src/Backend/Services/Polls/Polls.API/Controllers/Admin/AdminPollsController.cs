@@ -28,11 +28,11 @@ public class AdminPollsController(ISender sender) : ControllerBase
         [FromQuery] PollFilter filter,
         CancellationToken cancellationToken)
     {
-        var command = new GetPollsQuery(
+        var query = new GetPollsQuery(
             Filter: filter,
             IncludeOnlyActive: false);
         
-        return await sender.Send(command, cancellationToken);
+        return await sender.Send(query, cancellationToken);
     }
 
     [HttpGet("{id:guid}")]
@@ -41,11 +41,11 @@ public class AdminPollsController(ISender sender) : ControllerBase
         Guid id,
         CancellationToken cancellationToken)
     {
-        var command = new GetPollByIdQuery(
+        var query = new GetPollByIdQuery(
             Id: id,
             IncludeOnlyActive: false);
         
-        return await sender.Send(command, cancellationToken);
+        return await sender.Send(query, cancellationToken);
     }
 
     [HttpGet("{id:guid}/ideas")]
@@ -54,11 +54,11 @@ public class AdminPollsController(ISender sender) : ControllerBase
         Guid id,
         CancellationToken cancellationToken)
     {
-        var command = new GetPollWithIdeasQuery(
+        var query = new GetPollWithIdeasQuery(
             Id: id,
             IncludeOnlyActive: false);
         
-        return await sender.Send(command, cancellationToken);
+        return await sender.Send(query, cancellationToken);
     }
 
     [HttpPost("cities/{cityId:guid}")]

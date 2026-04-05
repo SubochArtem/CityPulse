@@ -28,11 +28,11 @@ public class AdminCitiesController(ISender sender) : ControllerBase
         Guid id,
         CancellationToken cancellationToken)
     {
-        var command = new GetCityWithPollsQuery(
+        var query = new GetCityWithPollsQuery(
             Id: id,
             IncludeOnlyActive: false);
         
-        return await sender.Send(command, cancellationToken);
+        return await sender.Send(query, cancellationToken);
     }
 
     [HttpGet]
@@ -41,11 +41,11 @@ public class AdminCitiesController(ISender sender) : ControllerBase
         [FromQuery] CityFilter filter,
         CancellationToken cancellationToken)
     {
-        var command = new GetCitiesQuery(
+        var query = new GetCitiesQuery(
             Filter: filter,
             IncludeOnlyActive: false);
         
-        return await sender.Send(command, cancellationToken);
+        return await sender.Send(query, cancellationToken);
     }
 
     [HttpGet("{id:guid}")]
@@ -54,11 +54,11 @@ public class AdminCitiesController(ISender sender) : ControllerBase
         Guid id,
         CancellationToken cancellationToken)
     {
-        var command = new GetCityByIdQuery(
+        var query = new GetCityByIdQuery(
             Id: id,
             IncludeOnlyActive: false);
         
-        return await sender.Send(command, cancellationToken);
+        return await sender.Send(query, cancellationToken);
     }
 
     [HttpPost]
