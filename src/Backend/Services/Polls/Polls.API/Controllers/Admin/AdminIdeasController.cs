@@ -108,16 +108,16 @@ public class AdminIdeasController(ISender sender) : ControllerBase
         return await sender.Send(command, cancellationToken);
     }
 
-    [HttpPost("{id:guid}/status")]
+    [HttpPatch("{id:guid}/status")]
     [Authorize(Policy = Permissions.Ideas.ChangeStatusAny)]
     public async Task<Result<Unit>> ChangeStatus(
         Guid id,
-        [FromBody] IdeaStatus newStatus,
+        ChangeIdeaStatusRequest request,
         CancellationToken cancellationToken)
     {
         var command = new ChangeIdeaStatusCommand(
             Id: id,
-            NewStatus: newStatus);
+            NewStatus: request.NewStatus);
         
         return await sender.Send(command, cancellationToken);
     }

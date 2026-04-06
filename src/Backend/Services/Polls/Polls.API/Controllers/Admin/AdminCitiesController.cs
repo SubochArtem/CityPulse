@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Polls.API.Requests.Cities;
+using Polls.API.Requests.Ideas;
 using Polls.Application.Cities.Commands.ChangeStatus;
 using Polls.Application.Cities.Commands.CreateCity;
 using Polls.Application.Cities.Commands.DeleteCity;
@@ -22,19 +23,6 @@ namespace Polls.API.Controllers.Admin;
 [Authorize]
 public class AdminCitiesController(ISender sender) : ControllerBase
 {
-    [HttpGet("{id:guid}/polls")]
-    [Authorize(Policy = Permissions.Cities.ReadAny)]
-    public async Task<Result<CityWithPollsDto>> GetCityWithPolls(
-        Guid id,
-        CancellationToken cancellationToken)
-    {
-        var query = new GetCityWithPollsQuery(
-            Id: id,
-            IncludeOnlyActive: false);
-        
-        return await sender.Send(query, cancellationToken);
-    }
-
     [HttpGet]
     [Authorize(Policy = Permissions.Cities.ReadAny)]
     public async Task<Result<PagedList<CityDto>>> GetCities(
@@ -47,7 +35,7 @@ public class AdminCitiesController(ISender sender) : ControllerBase
         
         return await sender.Send(query, cancellationToken);
     }
-
+    
     [HttpGet("{id:guid}")]
     [Authorize(Policy = Permissions.Cities.ReadAny)]
     public async Task<Result<CityDto>> GetCityById(
@@ -60,7 +48,20 @@ public class AdminCitiesController(ISender sender) : ControllerBase
         
         return await sender.Send(query, cancellationToken);
     }
-
+    
+    [HttpGet("{id:guid}/polls")]
+    [Authorize(Policy = Permissions.Cities.ReadAny)]
+    public async Task<Result<CityWithPollsDto>> GetCityWithPolls(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetCityWithPollsQuery(
+            Id: id,
+            IncludeOnlyActive: false);
+        
+        return await sender.Send(query, cancellationToken);
+    }
+    
     [HttpPost]
     [Authorize(Policy = Permissions.Cities.CreateAny)]
     public async Task<Result<CityDto>> CreateCity(
@@ -103,16 +104,16 @@ public class AdminCitiesController(ISender sender) : ControllerBase
         return await sender.Send(command, cancellationToken);
     }
 
-    [HttpPost("{id:guid}/status")]
+    [HttpPatch("{id:guid}/status")]
     [Authorize(Policy = Permissions.Cities.ChangeStatusAny)]
     public async Task<Result<Unit>> ChangeStatus(
         Guid id,
-        [FromBody] CityStatus newStatus,
+        ChangeCityStatusRequest request,
         CancellationToken cancellationToken)
     {
         var command = new ChangeCityStatusCommand(
             Id: id,
-            NewStatus: newStatus);
+            NewStatus: request.NewStatus);
         
         return await sender.Send(command, cancellationToken);
     }

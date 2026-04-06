@@ -111,16 +111,16 @@ public class AdminPollsController(ISender sender) : ControllerBase
         return await sender.Send(command, cancellationToken);
     }
 
-    [HttpPost("{id:guid}/status")]
+    [HttpPatch("{id:guid}/status")]
     [Authorize(Policy = Permissions.Polls.ChangeStatusAny)]
     public async Task<Result<Unit>> ChangeStatus(
         Guid id,
-        [FromBody] PollStatus newStatus,
+        ChangePollStatusRequest request,
         CancellationToken cancellationToken)
     {
         var command = new ChangePollStatusCommand(
             Id: id,
-            NewStatus: newStatus);
+            NewStatus: request.NewStatus);
         
         return await sender.Send(command, cancellationToken);
     }
