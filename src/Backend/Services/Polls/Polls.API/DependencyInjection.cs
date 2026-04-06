@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Polls.API.Authorization;
+using Polls.API.Common.Extensions.Swagger;
 using Polls.API.Common.Filters;
 using Polls.API.Common.Middleware;
 
@@ -17,7 +18,7 @@ public static class DependencyInjection
         services.AddControllers(options =>
             options.Filters.Add<ResultFilter>());
 
-        services.Configure<Auth0Settings>(configuration.GetSection("Auth0"));
+        services.Configure<Auth0Settings>(configuration.GetSection(Auth0Settings.SectionName));
 
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -29,7 +30,7 @@ public static class DependencyInjection
         services.AddAuthorization();
 
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
+        services.AddSwaggerConfiguration();
 
         return services;
     }
@@ -37,13 +38,7 @@ public static class DependencyInjection
     public static void UsePresentation(this WebApplication app)
     {
         app.UseMiddleware<ExceptionHandlerMiddleware>();
-
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
-
+        app.UseSwaggerConfiguration();
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
