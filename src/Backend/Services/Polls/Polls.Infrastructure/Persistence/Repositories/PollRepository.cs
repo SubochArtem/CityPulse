@@ -29,9 +29,7 @@ public class PollRepository(ApplicationDbContext context) : Repository<Poll>(con
         CancellationToken cancellationToken = default)
     {
         return await _dbSet
-            .Include(p => new IdeaQueryBuilder(p.Ideas.AsQueryable())
-                .WithStatus(ideaStatus)
-                .Build())
+            .Include(p => p.Ideas.Where(i => ideaStatus == null || i.Status == ideaStatus))
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
     
