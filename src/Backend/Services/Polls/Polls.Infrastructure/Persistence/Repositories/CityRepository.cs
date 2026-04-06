@@ -26,9 +26,7 @@ public class CityRepository(ApplicationDbContext context) : Repository<City>(con
         CancellationToken cancellationToken = default)
     {
         return await _dbSet
-            .Include(c => new PollQueryBuilder(c.Polls.AsQueryable()) 
-                .WithStatus(status)                               
-                .Build())                       
+            .Include(c => c.Polls.Where(p => status == null || p.Status == status))
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
     }
 }
