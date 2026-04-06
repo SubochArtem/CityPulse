@@ -7,6 +7,8 @@ namespace Polls.API.Common.Filters;
 
 public class ResultFilter : IActionFilter
 {
+    private const string ErrorsExtensionKey = "errors";
+    
     public void OnActionExecuting(ActionExecutingContext context) { }
 
     public void OnActionExecuted(ActionExecutedContext context)
@@ -19,13 +21,20 @@ public class ResultFilter : IActionFilter
 
         var statusCode = GetStatusCode(result.Error.Type);
 
-        context.Result = new ObjectResult(new ProblemDetails
+        var problemDetails = new ProblemDetails
         {
             Status = statusCode,
             Title = result.Error.Type.ToString(),
             Detail = result.Error.Description,
             Instance = context.HttpContext.Request.Path
-        })
+        };
+
+        if (result.Errors.Count > 1)
+            problemDetails.Extensions[ErrorsExtensionKey] = result.Errors
+                .Select(e => e.Description)
+                .ToArray();
+
+        context.Result = new ObjectResult(problemDetails)
         {
             StatusCode = statusCode
         };

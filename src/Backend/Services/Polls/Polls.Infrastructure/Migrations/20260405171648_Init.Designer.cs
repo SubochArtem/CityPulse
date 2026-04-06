@@ -12,7 +12,7 @@ using Polls.Infrastructure.Persistence;
 namespace Polls.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260405091427_Init")]
+    [Migration("20260405171648_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -77,10 +77,8 @@ namespace Polls.Infrastructure.Migrations
                         .HasColumnName("description");
 
                     b.Property<Guid>("PollId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("PollId1")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("poll_id");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer")
@@ -97,14 +95,13 @@ namespace Polls.Infrastructure.Migrations
                         .HasColumnName("updated_at");
 
                     b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
 
                     b.HasKey("Id");
 
                     b.HasIndex("PollId")
                         .HasDatabaseName("ix_idea_poll_id");
-
-                    b.HasIndex("PollId1");
 
                     b.ToTable("Ideas");
                 });
@@ -121,17 +118,17 @@ namespace Polls.Infrastructure.Migrations
                         .HasColumnName("budget_amount");
 
                     b.Property<Guid>("CityId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid?>("CityId1")
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasColumnName("city_id");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("description");
 
                     b.Property<DateTimeOffset>("EndsAt")
                         .HasColumnType("timestamp with time zone")
@@ -143,7 +140,9 @@ namespace Polls.Infrastructure.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer")
@@ -157,8 +156,6 @@ namespace Polls.Infrastructure.Migrations
 
                     b.HasIndex("CityId")
                         .HasDatabaseName("ix_poll_city_id");
-
-                    b.HasIndex("CityId1");
 
                     b.ToTable("Polls");
                 });
@@ -192,15 +189,9 @@ namespace Polls.Infrastructure.Migrations
 
             modelBuilder.Entity("Polls.Domain.Ideas.Idea", b =>
                 {
-                    b.HasOne("Polls.Domain.Polls.Poll", null)
-                        .WithMany()
-                        .HasForeignKey("PollId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Polls.Domain.Polls.Poll", "Poll")
                         .WithMany("Ideas")
-                        .HasForeignKey("PollId1")
+                        .HasForeignKey("PollId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -210,14 +201,10 @@ namespace Polls.Infrastructure.Migrations
             modelBuilder.Entity("Polls.Domain.Polls.Poll", b =>
                 {
                     b.HasOne("Polls.Domain.Cities.City", null)
-                        .WithMany()
+                        .WithMany("Polls")
                         .HasForeignKey("CityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Polls.Domain.Cities.City", null)
-                        .WithMany("Polls")
-                        .HasForeignKey("CityId1");
                 });
 
             modelBuilder.Entity("Polls.Domain.Cities.City", b =>

@@ -34,31 +34,25 @@ namespace Polls.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    CityId = table.Column<Guid>(type: "uuid", nullable: false),
+                    city_id = table.Column<Guid>(type: "uuid", nullable: false),
                     ends_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     type = table.Column<int>(type: "integer", nullable: false),
                     budget_amount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
                     status = table.Column<int>(type: "integer", nullable: false),
-                    CityId1 = table.Column<Guid>(type: "uuid", nullable: true),
                     created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    Title = table.Column<string>(type: "text", nullable: false),
-                    Description = table.Column<string>(type: "text", nullable: true)
+                    title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Polls", x => x.id);
                     table.ForeignKey(
-                        name: "FK_Polls_Cities_CityId",
-                        column: x => x.CityId,
+                        name: "FK_Polls_Cities_city_id",
+                        column: x => x.city_id,
                         principalTable: "Cities",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Polls_Cities_CityId1",
-                        column: x => x.CityId1,
-                        principalTable: "Cities",
-                        principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
@@ -66,9 +60,8 @@ namespace Polls.Infrastructure.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    PollId = table.Column<Guid>(type: "uuid", nullable: false),
-                    PollId1 = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    poll_id = table.Column<Guid>(type: "uuid", nullable: false),
                     status = table.Column<int>(type: "integer", nullable: false),
                     created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -79,14 +72,8 @@ namespace Polls.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Ideas", x => x.id);
                     table.ForeignKey(
-                        name: "FK_Ideas_Polls_PollId",
-                        column: x => x.PollId,
-                        principalTable: "Polls",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Ideas_Polls_PollId1",
-                        column: x => x.PollId1,
+                        name: "FK_Ideas_Polls_poll_id",
+                        column: x => x.poll_id,
                         principalTable: "Polls",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -95,22 +82,12 @@ namespace Polls.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "ix_idea_poll_id",
                 table: "Ideas",
-                column: "PollId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Ideas_PollId1",
-                table: "Ideas",
-                column: "PollId1");
+                column: "poll_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_poll_city_id",
                 table: "Polls",
-                column: "CityId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Polls_CityId1",
-                table: "Polls",
-                column: "CityId1");
+                column: "city_id");
         }
 
         /// <inheritdoc />
