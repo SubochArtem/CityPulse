@@ -6,12 +6,14 @@ using Polls.Application.Polls.DTOs;
 using Polls.Application.Polls.Guards;
 using Polls.Domain.Common;
 using Polls.Domain.Polls;
+using Polls.Domain.Polls.Enums;
 
 namespace Polls.Application.Polls.Commands.UpdatePoll;
 
 public sealed class UpdatePollCommandHandler(
     IUnitOfWork unitOfWork,
-    IMapper mapper)
+    IMapper mapper,
+    IPollScheduler pollScheduler) 
     : IRequestHandler<UpdatePollCommand, Result<PollDto>>
 {
     public async Task<Result<PollDto>> Handle(
@@ -38,6 +40,8 @@ public sealed class UpdatePollCommandHandler(
                 return guardResult.Error;
         }
 
+        var endsAtChanged = poll.EndsAt != command.EndsAt; 
+
         poll.Title = command.Title;
         poll.Description = command.Description;
         poll.EndsAt = command.EndsAt;
@@ -45,6 +49,9 @@ public sealed class UpdatePollCommandHandler(
 
         unitOfWork.Polls.Update(poll);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        if (endsAtChanged && poll.Status == PollStatus.Active) 
+            await pollScheduler.ScheduleAsync(poll.Id, poll.EndsAt, cancellationToken);
 
         return mapper.Map<PollDto>(poll);
     }
