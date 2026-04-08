@@ -1,9 +1,8 @@
-using MediatR;
-using Polls.Domain.Common;
+using Polls.Application.Common.CQRS;
 using Polls.Domain.Polls.Enums;
 
 namespace Polls.Application.Polls.Commands.ChangeStatus;
 
 public sealed record ChangePollStatusCommand(
     Guid Id, 
-    PollStatus NewStatus) : IRequest<Result<Unit>>;
+    PollStatus NewStatus) : ICommand;
