@@ -1,5 +1,7 @@
 namespace Polls.API.Requests.Ideas;
 
-public record CreateIdeaRequest(
-    string Title,
-    string? Description);
+public record CreateIdeaRequest
+{
+    public required string Title { get; init; }
+    public string? Description { get; init; }
+}
