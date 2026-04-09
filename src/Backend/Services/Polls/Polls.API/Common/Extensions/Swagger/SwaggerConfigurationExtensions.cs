@@ -57,6 +57,7 @@ public static class SwaggerConfigurationExtensions
         var auth0 = app.Services.GetRequiredService<IOptions<Auth0Settings>>().Value;
 
         app.UseSwagger();
+        
         app.UseSwaggerUI(options =>
         {
             options.SwaggerEndpoint(SwaggerEndpointUrl, SwaggerEndpointName);
