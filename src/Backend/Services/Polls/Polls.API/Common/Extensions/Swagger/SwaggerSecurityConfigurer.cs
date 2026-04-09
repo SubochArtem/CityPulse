@@ -12,11 +12,15 @@ public class SwaggerSecurityConfigurer(
     private const string OpenIdScopeDescription = "OpenID";
     private const string ProfileScopeDescription = "Profile";
     private const string EmailScopeDescription = "Email";
+    private const string AuthorizationEndpoint = "authorize";
+    private const string TokenEndpoint = "oauth/token";
 
     private readonly Auth0Settings _auth0 = auth0.Value;
 
     public void Configure(SwaggerGenOptions options)
     {
+        var auth0AuthorityUri = new Uri(_auth0.Authority);
+
         options.AddSecurityDefinition(
             SwaggerConstants.SecurityDefinitionName,
             new OpenApiSecurityScheme
@@ -26,8 +30,9 @@ public class SwaggerSecurityConfigurer(
                 {
                     AuthorizationCode = new OpenApiOAuthFlow
                     {
-                        AuthorizationUrl = new Uri($"https://{_auth0.Domain}/authorize"),
-                        TokenUrl = new Uri($"https://{_auth0.Domain}/oauth/token"),
+                        AuthorizationUrl = new Uri(auth0AuthorityUri, AuthorizationEndpoint),
+                        TokenUrl = new Uri(auth0AuthorityUri, TokenEndpoint),
+                    
                         Scopes = new Dictionary<string, string>
                         {
                             { SwaggerConstants.OpenIdScope, OpenIdScopeDescription },
