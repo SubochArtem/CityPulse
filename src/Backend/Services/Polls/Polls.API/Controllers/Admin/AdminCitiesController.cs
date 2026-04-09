@@ -2,7 +2,6 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Polls.API.Requests.Cities;
-using Polls.API.Requests.Ideas;
 using Polls.Application.Cities.Commands.ChangeStatus;
 using Polls.Application.Cities.Commands.CreateCity;
 using Polls.Application.Cities.Commands.DeleteCity;
@@ -13,7 +12,6 @@ using Polls.Application.Cities.Queries.GetCityById;
 using Polls.Application.Cities.Queries.GetCityWithPolls;
 using Polls.Application.Common.Models;
 using Polls.Domain.Authorization;
-using Polls.Domain.Cities.Enums;
 using Polls.Domain.Common;
 
 namespace Polls.API.Controllers.Admin;

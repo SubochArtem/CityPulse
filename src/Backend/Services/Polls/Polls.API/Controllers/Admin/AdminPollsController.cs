@@ -13,7 +13,6 @@ using Polls.Application.Polls.Queries.GetPolls;
 using Polls.Application.Polls.Queries.GetPollWithIdeas;
 using Polls.Domain.Authorization;
 using Polls.Domain.Common;
-using Polls.Domain.Polls.Enums;
 
 namespace Polls.API.Controllers.Admin;
 

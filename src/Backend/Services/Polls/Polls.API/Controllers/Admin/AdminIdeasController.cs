@@ -14,7 +14,6 @@ using Polls.Application.Ideas.Queries.GetIdeas;
 using Polls.Application.Ideas.Queries.GetIdeaWithPoll;
 using Polls.Domain.Authorization;
 using Polls.Domain.Common;
-using Polls.Domain.Ideas.Enums;
 
 namespace Polls.API.Controllers.Admin;
 
