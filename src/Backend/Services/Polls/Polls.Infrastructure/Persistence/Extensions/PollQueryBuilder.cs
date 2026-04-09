@@ -27,6 +27,19 @@ public class PollQueryBuilder(IQueryable<Poll> query)
             _query = _query.Where(p => p.Status == status);
         return this;
     }
+    
+    public PollQueryBuilder WithSearchTerm(string? searchTerm)
+    {
+        if (searchTerm is null)
+            return this;
+
+        var lower = searchTerm.ToLower();
+        _query = _query.Where(p =>
+            p.Title.ToLower().Contains(lower)
+            || (p.Description != null
+                && p.Description.ToLower().Contains(lower)));
+        return this;
+    }
 
     public IQueryable<Poll> Build()
     {

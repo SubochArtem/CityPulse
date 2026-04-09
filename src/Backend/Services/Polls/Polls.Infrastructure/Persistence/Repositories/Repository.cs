@@ -8,6 +8,7 @@ namespace Polls.Infrastructure.Persistence.Repositories;
 
 public class Repository<TEntity>(ApplicationDbContext context) : IRepository<TEntity> where TEntity : EntityBase
 {
+    protected readonly ApplicationDbContext _context = context;
     protected readonly DbSet<TEntity> _dbSet = context.Set<TEntity>();
 
     public async Task<TEntity?> GetByIdAsync(
@@ -50,5 +51,13 @@ public class Repository<TEntity>(ApplicationDbContext context) : IRepository<TEn
         return await _dbSet
             .AsNoTracking()
             .ToPagedListAsync(filter.Page, filter.PageSize, cancellationToken);
+    }
+
+    public async Task<TEntity?> GetByTitleAsync(
+        string title,
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .FirstOrDefaultAsync(e => e.Title == title, cancellationToken);
     }
 }

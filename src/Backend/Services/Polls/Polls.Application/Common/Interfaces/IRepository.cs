@@ -15,6 +15,10 @@ public interface IRepository<TEntity> where TEntity : EntityBase
         BaseFilter filter,
         CancellationToken cancellationToken = default);
 
+    Task<TEntity?> GetByTitleAsync(
+        string title,
+        CancellationToken cancellationToken = default);
+
     void Create(TEntity entity);
 
     void Update(TEntity entity);

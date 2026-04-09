@@ -25,7 +25,7 @@ public class CityConfiguration : IEntityTypeConfiguration<City>
         builder.Property(c => c.Id)
             .HasColumnName(IdColumnName);
 
-        builder.Property(c => c.Name)
+        builder.Property(c => c.Title)
             .HasColumnName(NameColumnName)
             .IsRequired()
             .HasMaxLength(NameMaxLength);

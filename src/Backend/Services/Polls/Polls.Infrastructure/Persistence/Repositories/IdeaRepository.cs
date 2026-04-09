@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Polls.Application.Common.Interfaces;
 using Polls.Application.Common.Models;
 using Polls.Domain.Ideas;
+using Polls.Domain.Ideas.Enums;
 using Polls.Infrastructure.Persistence.Extensions;
 
 namespace Polls.Infrastructure.Persistence.Repositories;
@@ -28,5 +29,20 @@ public class IdeaRepository(ApplicationDbContext context)
         return await _dbSet
             .Include(i => i.Poll)
             .FirstOrDefaultAsync(i => i.Id == id, cancellationToken);
+    }
+    
+    public async Task UpdateStatusByCityAsync(
+        Guid cityId, 
+        IdeaStatus source, 
+        IdeaStatus target, 
+        DateTimeOffset updatedAt,
+        CancellationToken cancellationToken = default)
+    {
+        await _dbSet
+            .Where(i => i.Poll.CityId == cityId && i.Status == source)
+            .ExecuteUpdateAsync(s => s
+                    .SetProperty(i => i.Status, target)
+                    .SetProperty(i => i.UpdatedAt, updatedAt),
+                cancellationToken);
     }
 }

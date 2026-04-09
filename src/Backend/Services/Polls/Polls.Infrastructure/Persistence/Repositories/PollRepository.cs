@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Polls.Application.Common.Interfaces;
 using Polls.Application.Common.Models;
 using Polls.Domain.Polls;
+using Polls.Domain.Polls.Enums;
 using Polls.Infrastructure.Persistence.Extensions;
 
 namespace Polls.Infrastructure.Persistence.Repositories;
@@ -16,6 +17,7 @@ public class PollRepository(ApplicationDbContext context) : Repository<Poll>(con
             .WithCityId(filter.CityId)
             .WithType(filter.Type)
             .WithStatus(filter.Status)
+            .WithSearchTerm(filter.SearchTerm)
             .Build()
             .ToPagedListAsync(filter.Page, filter.PageSize, cancellationToken);
     }
@@ -27,5 +29,20 @@ public class PollRepository(ApplicationDbContext context) : Repository<Poll>(con
         return await _dbSet
             .Include(p => p.Ideas)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+    }
+    
+    public async Task UpdateStatusByCityAsync(
+        Guid cityId, 
+        PollStatus source, 
+        PollStatus target, 
+        DateTimeOffset updatedAt,
+        CancellationToken cancellationToken = default)
+    {
+        await _dbSet
+            .Where(p => p.CityId == cityId && p.Status == source)
+            .ExecuteUpdateAsync(s => s
+                    .SetProperty(p => p.Status, target)
+                    .SetProperty(p => p.UpdatedAt, updatedAt),
+                cancellationToken);
     }
 }

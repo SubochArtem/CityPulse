@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore.Storage;
 using Polls.Application.Common.Interfaces;
 
 namespace Polls.Infrastructure.Persistence;
@@ -15,5 +16,11 @@ public sealed class UnitOfWork(
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         return context.SaveChangesAsync(cancellationToken);
+    }
+    
+    public async Task<IUnitOfWorkTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+    {
+        var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+        return new UnitOfWorkTransaction(transaction);
     }
 }
