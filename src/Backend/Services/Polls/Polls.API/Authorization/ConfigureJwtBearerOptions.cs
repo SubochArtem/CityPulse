@@ -10,7 +10,7 @@ public class ConfigureJwtBearerOptions(
 
     public void Configure(string? name, JwtBearerOptions options)
     {
-        options.Authority = $"https://{_auth0Settings.Domain}/";
+        options.Authority = _auth0Settings.Authority;
         options.Audience = _auth0Settings.Audience;
     }
 
