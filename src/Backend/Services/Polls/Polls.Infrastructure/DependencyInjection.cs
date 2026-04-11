@@ -80,10 +80,11 @@ public static class DependencyInjection
     
     public static void UseInfrastructure(this WebApplication app)
     {
+        const string hangfireDashboardPath = "/hangfire";
         const string pollCleanupJobId = "poll-cleanup";
         
         if (app.Environment.IsDevelopment())
-            app.UseHangfireDashboard("/hangfire");
+            app.UseHangfireDashboard(hangfireDashboardPath);
         
         var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
         recurringJobManager.AddOrUpdate<PollCleanupJob>(
