@@ -1,4 +1,4 @@
-namespace Polls.Infrastructure.Persistence.Entities;
+namespace Polls.Domain.PollScheduleJob;
 
 public class PollScheduleJob
 {

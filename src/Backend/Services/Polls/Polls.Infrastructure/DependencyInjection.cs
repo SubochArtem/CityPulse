@@ -53,6 +53,7 @@ public static class DependencyInjection
             .AddScoped<ICityRepository, CityRepository>()
             .AddScoped<IPollRepository, PollRepository>()
             .AddScoped<IIdeaRepository, IdeaRepository>()
+            .AddScoped<IPollScheduleJobRepository, PollScheduleJobRepository>()
             .AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;
