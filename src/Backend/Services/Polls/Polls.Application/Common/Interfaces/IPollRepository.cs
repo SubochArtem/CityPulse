@@ -22,4 +22,8 @@ public interface IPollRepository : IRepository<Poll>
         PollStatus target,
         DateTimeOffset updatedAt,
         CancellationToken cancellationToken = default);
+    
+    Task<IReadOnlyList<Poll>> GetExpiredAsync(
+        int batchSize = 100, 
+        CancellationToken cancellationToken =  default);
 }
