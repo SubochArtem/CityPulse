@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Polls.Domain.Polls;
 using Polls.Domain.PollScheduleJob;
 
 namespace Polls.Infrastructure.Persistence.Configurations;
@@ -35,5 +36,10 @@ public class PollScheduleJobConfiguration : IEntityTypeConfiguration<PollSchedul
         builder.HasIndex(x => x.PollId)
             .HasDatabaseName(PollIdIndexName)
             .IsUnique();
+        
+        builder.HasOne<Poll>()
+            .WithOne()
+            .HasForeignKey<PollScheduleJob>(x => x.PollId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
