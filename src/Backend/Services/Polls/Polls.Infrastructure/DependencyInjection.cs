@@ -1,8 +1,10 @@
 using Hangfire;
 using Hangfire.PostgreSql;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Polls.Application.Common.Interfaces;
 using Polls.Infrastructure.Jobs;
@@ -74,5 +76,19 @@ public static class DependencyInjection
             .AddScoped<PollStatusJob>();
 
         return services;
+    }
+    
+    public static void UseInfrastructure(this WebApplication app)
+    {
+        const string pollCleanupJobId = "poll-cleanup";
+        
+        if (app.Environment.IsDevelopment())
+            app.UseHangfireDashboard("/hangfire");
+        
+        var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
+        recurringJobManager.AddOrUpdate<PollCleanupJob>(
+            pollCleanupJobId,
+            job => job.ExecuteAsync(),
+            Cron.Hourly);
     }
 }
