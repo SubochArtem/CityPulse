@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using Polls.Application.Common.Interfaces;
 using Polls.Domain.Polls.Enums;
 
@@ -10,10 +9,11 @@ public class PollCleanupJob(
     public async Task ExecuteAsync()
     {
         int processed;
+        const int batchSize = 100;
 
         do
         {
-            var expiredPolls = await unitOfWork.Polls.GetExpiredAsync();
+            var expiredPolls = await unitOfWork.Polls.GetExpiredAsync(batchSize);
             processed = expiredPolls.Count;
 
             if (processed == 0)
