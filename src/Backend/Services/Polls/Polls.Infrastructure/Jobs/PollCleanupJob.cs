@@ -8,16 +8,13 @@ public class PollCleanupJob(
 {
     public async Task ExecuteAsync()
     {
-        int processed;
         const int batchSize = 100;
+        var hasMore = true;
 
-        do
+        while (hasMore)
         {
             var expiredPolls = await unitOfWork.Polls.GetExpiredAsync(batchSize);
-            processed = expiredPolls.Count;
-
-            if (processed == 0)
-                break;
+            hasMore = expiredPolls.Count == batchSize;
 
             foreach (var poll in expiredPolls)
             {
@@ -25,8 +22,8 @@ public class PollCleanupJob(
                 unitOfWork.Polls.Update(poll);
             }
 
-            await unitOfWork.SaveChangesAsync();
-
-        } while (processed > 0);
+            if (expiredPolls.Count > 0)
+                await unitOfWork.SaveChangesAsync();
+        }
     }
 }
