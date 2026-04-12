@@ -51,13 +51,13 @@ public class PollRepository(ApplicationDbContext context) : Repository<Poll>(con
 
     public async Task<IReadOnlyList<Poll>> GetExpiredAsync(
         int batchSize = 100,
-        CancellationToken ct = default)
+        CancellationToken cancellationToken = default)
     {
         return await new PollQueryBuilder(_dbSet)
             .WithStatus(PollStatus.Active)
             .WithEndsAtBefore(DateTimeOffset.UtcNow)
             .Build()
             .Take(batchSize)
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
     }
 }

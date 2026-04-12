@@ -8,10 +8,10 @@ public class PollScheduleJobRepository(ApplicationDbContext db) : IPollScheduleJ
 {
     public async Task<PollScheduleJob?> GetByPollIdAsync(
         Guid pollId,
-        CancellationToken ct = default)
+        CancellationToken cancellationToken = default)
     {
         return await db.PollScheduleJobs
-            .FirstOrDefaultAsync(j => j.PollId == pollId, ct);
+            .FirstOrDefaultAsync(j => j.PollId == pollId, cancellationToken);
     }
 
     public void Add(PollScheduleJob job)
