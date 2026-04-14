@@ -10,6 +10,7 @@ namespace Polls.Application.Polls.Commands.ChangeStatus;
 
 public sealed class ChangePollStatusCommandHandler(
     IUnitOfWork unitOfWork,
+    IDateTimeProvider dateTimeProvider,
     ILogger<ChangePollStatusCommandHandler> logger) 
     : IRequestHandler<ChangePollStatusCommand, Result<Unit>>
 {
@@ -31,7 +32,8 @@ public sealed class ChangePollStatusCommandHandler(
             return PollErrors.InvalidStatus(command.NewStatus);
         }
 
-        var utcNow = DateTimeOffset.UtcNow;
+        var utcNow = dateTimeProvider.UtcNow;
+        
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
         
         try
