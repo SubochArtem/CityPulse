@@ -13,10 +13,7 @@ public class ResultFilter : IActionFilter
 
     public void OnActionExecuted(ActionExecutedContext context)
     {
-        if (context.Result is not ObjectResult { Value: Result result })
-            return;
-
-        if (result.IsSuccess)
+        if (context.Result is not ObjectResult { Value: Result { IsSuccess: false } result })
             return;
 
         var statusCode = GetStatusCode(result.Error.Type);
@@ -46,6 +43,7 @@ public class ResultFilter : IActionFilter
         ErrorType.Conflict => StatusCodes.Status409Conflict,
         ErrorType.Forbidden => StatusCodes.Status403Forbidden,
         ErrorType.Validation => StatusCodes.Status400BadRequest,
+        
         _=> StatusCodes.Status400BadRequest
     };
 }
