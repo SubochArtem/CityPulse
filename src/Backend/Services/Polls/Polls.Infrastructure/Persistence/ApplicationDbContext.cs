@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Polls.Domain.Cities;
 using Polls.Domain.Ideas;
+using Polls.Domain.Images;
 using Polls.Domain.Polls;
 using Polls.Domain.PollScheduleJob;
 
@@ -11,6 +12,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<City> Cities => Set<City>();
     public DbSet<Poll> Polls => Set<Poll>();
     public DbSet<Idea> Ideas => Set<Idea>();
+    public DbSet<CityImage> CityImages => Set<CityImage>();
+    public DbSet<PollImage> PollImages => Set<PollImage>();
+    public DbSet<IdeaImage> IdeaImages => Set<IdeaImage>();
+    public DbSet<DeletedImage> DeletedImages => Set<DeletedImage>();
     public DbSet<PollScheduleJob> PollScheduleJobs => Set<PollScheduleJob>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
