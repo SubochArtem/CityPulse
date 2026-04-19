@@ -1,6 +1,6 @@
 namespace Polls.Domain.Images;
 
-public class PollImage
+public class PollImage : Image
 {
-    
+    public Guid PollId { get; set; }
 }
