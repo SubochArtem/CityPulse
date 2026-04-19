@@ -6,14 +6,16 @@ namespace Polls.Infrastructure.Jobs;
 public class PollCleanupJob(
     IUnitOfWork unitOfWork)
 {
-    public async Task ExecuteAsync()
+    public async Task ExecuteAsync(CancellationToken cancellationToken = default)
     {
         const int batchSize = 100;
         var hasMore = true;
 
         while (hasMore)
         {
-            var expiredPolls = await unitOfWork.Polls.GetExpiredAsync(batchSize);
+            var expiredPolls = await unitOfWork.Polls.GetExpiredAsync(
+                batchSize, 
+                cancellationToken);
             hasMore = expiredPolls.Count == batchSize;
 
             foreach (var poll in expiredPolls)
@@ -23,7 +25,7 @@ public class PollCleanupJob(
             }
 
             if (expiredPolls.Count > 0)
-                await unitOfWork.SaveChangesAsync();
+                await unitOfWork.SaveChangesAsync(cancellationToken);
         }
     }
 }

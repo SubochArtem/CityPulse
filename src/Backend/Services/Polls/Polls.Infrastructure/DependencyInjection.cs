@@ -89,7 +89,7 @@ public static class DependencyInjection
         var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
         recurringJobManager.AddOrUpdate<PollCleanupJob>(
             pollCleanupJobId,
-            job => job.ExecuteAsync(),
+            job => job.ExecuteAsync(CancellationToken.None),
             Cron.Hourly);
     }
 }
