@@ -79,4 +79,12 @@ public static class ValidationConstants
         public static readonly string PageSizeTooSmall = $"Page size must be at least {MinPageSize}";
         public static readonly string PageSizeTooLarge = $"Page size must not exceed {MaxPageSize}";
     }
+    
+    public static class Image
+    {
+        public const int MaxCount = 5;
+        public const int MaxFileSizeMb = 5;
+        public const long MaxFileSizeBytes = MaxFileSizeMb * 1024L * 1024L;
+        public static readonly string[] AllowedFormats = ["jpg", "jpeg", "png", "webp"];
+    }
 }
