@@ -2,9 +2,10 @@ namespace Polls.Domain.Common.Enums;
 
 public enum ErrorType
 {
-    Unknown = 0,
+    Undefined = 0,
     NotFound = 1,
     Conflict = 2,
     Validation = 3,
-    Failure = 4
+    Forbidden = 4,
+    Failure = 5
 }
