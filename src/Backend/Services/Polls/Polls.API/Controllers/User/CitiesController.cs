@@ -15,7 +15,6 @@ namespace Polls.API.Controllers.User;
 public class CitiesController(ISender sender) : ControllerBase
 {
     [HttpGet]
-    [AllowAnonymous]
     public async Task<Result<PagedList<CityDto>>> GetCities(
         [FromQuery] CityFilter filter,
         CancellationToken cancellationToken)
