@@ -18,6 +18,7 @@ public class IdeaRepository(ApplicationDbContext context)
             .WithPollId(filter.PollId)
             .WithStatus(filter.Status)
             .WithSearchTerm(filter.SearchTerm)
+            .IncludeImages(filter.IncludeImages)
             .Build()
             .ToPagedListAsync(filter.Page, filter.PageSize, cancellationToken);
     }
@@ -27,7 +28,20 @@ public class IdeaRepository(ApplicationDbContext context)
         CancellationToken cancellationToken = default)
     {
         return await _dbSet
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Include(i => i.Images)
             .Include(i => i.Poll)
+            .ThenInclude(p => p.Images)
+            .FirstOrDefaultAsync(i => i.Id == id, cancellationToken);
+    }
+    
+    public async Task<Idea?> GetByIdWithImagesAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .Include(i => i.Images)
             .FirstOrDefaultAsync(i => i.Id == id, cancellationToken);
     }
     

@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Polls.Domain.Ideas;
 using Polls.Domain.Ideas.Enums;
 
@@ -31,6 +32,15 @@ public class IdeaQueryBuilder(IQueryable<Idea> query)
             i.Title.ToLower().Contains(lower)
             || (i.Description != null
                 && i.Description.ToLower().Contains(lower)));
+        return this;
+    }
+    
+    public IdeaQueryBuilder IncludeImages(bool include)
+    {
+        if (include)
+        {
+            _query = _query.Include(i => i.Images);
+        }
         return this;
     }
 
