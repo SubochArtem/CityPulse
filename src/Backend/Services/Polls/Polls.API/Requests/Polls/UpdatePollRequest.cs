@@ -6,4 +6,6 @@ public record UpdatePollRequest
     public string? Description { get; init; }
     public required DateTimeOffset EndsAt { get; init; }
     public required decimal BudgetAmount { get; init; }
+    public IFormFileCollection? ImagesToAdd { get; init; } 
+    public List<Guid>? ImagesToDelete { get; init; }
 }
