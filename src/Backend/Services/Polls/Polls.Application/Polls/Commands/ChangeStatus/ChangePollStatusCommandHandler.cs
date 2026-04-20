@@ -25,10 +25,12 @@ public sealed class ChangePollStatusCommandHandler(
         if (poll.Status == command.NewStatus)
             return Result<Unit>.Success(Unit.Value);
         
-        var transition = GetIdeaStatusTransition(command.NewStatus);
-        if (transition is null)
+        var (sourceStatus, targetStatus) = GetIdeaStatusTransition(command.NewStatus);
+        
+        if (sourceStatus == IdeaStatus.Undefined || targetStatus == IdeaStatus.Undefined)
         {
-            logger.LogWarning("Unsupported poll status {PollId}: {Status}", command.Id, command.NewStatus);
+            logger.LogWarning("Unsupported poll status transition for {PollId}: {Status}", 
+                command.Id, command.NewStatus);
             return PollErrors.InvalidStatus(command.NewStatus);
         }
 
@@ -44,8 +46,8 @@ public sealed class ChangePollStatusCommandHandler(
             
             await unitOfWork.Ideas.UpdateStatusByPollIdAsync(
                 poll.Id, 
-                transition.Value.Source,
-                transition.Value.Target,
+                sourceStatus,
+                targetStatus,
                 utcNow, 
                 cancellationToken);
             
@@ -60,12 +62,12 @@ public sealed class ChangePollStatusCommandHandler(
         }
     }
 
-    private static (IdeaStatus Source, IdeaStatus Target)? GetIdeaStatusTransition(
+    private static (IdeaStatus Source, IdeaStatus Target) GetIdeaStatusTransition(
         PollStatus newStatus) =>
         newStatus switch
         {
             PollStatus.Active => (IdeaStatus.Suspended, IdeaStatus.Active),
             PollStatus.Suspended => (IdeaStatus.Active, IdeaStatus.Suspended),
-            _=> null
+            _=> (IdeaStatus.Undefined, IdeaStatus.Undefined)
         };
 }
