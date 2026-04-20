@@ -48,16 +48,7 @@ public sealed class CreatePollCommandHandler(
         if (activePolls.TotalCount > 0)
             return PollErrors.AlreadyExists(command.CityId);
 
-        var poll = new Poll
-        {
-            CityId = command.CityId,
-            Title = command.Title,
-            Description = command.Description,
-            EndsAt = command.EndsAt,
-            Type = command.Type,
-            BudgetAmount = command.BudgetAmount,
-            Status = PollStatus.Active
-        };
+        var poll = mapper.Map<Poll>(command);
 
         unitOfWork.Polls.Create(poll);
         await unitOfWork.SaveChangesAsync(cancellationToken);
