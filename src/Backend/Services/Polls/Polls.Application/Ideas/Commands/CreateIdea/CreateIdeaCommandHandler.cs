@@ -1,19 +1,24 @@
 using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Polls.Application.Common.Interfaces;
 using Polls.Application.Common.Security;
 using Polls.Application.Ideas.DTOs;
+using Polls.Application.Images.Helpers;
 using Polls.Application.Polls.Guards;
 using Polls.Domain.Common;
 using Polls.Domain.Ideas;
 using Polls.Domain.Ideas.Enums;
+using Polls.Domain.Images;
 using Polls.Domain.Polls;
 
 namespace Polls.Application.Ideas.Commands.CreateIdea;
 
 public sealed class CreateIdeaCommandHandler(
     IUnitOfWork unitOfWork,
-    IMapper mapper)
+    IMapper mapper,
+    IImageStorageService storageService,
+    ILogger<CreateIdeaCommandHandler> logger)
     : IRequestHandler<CreateIdeaCommand, Result<IdeaDto>>
 {
     public async Task<Result<IdeaDto>> Handle(
@@ -48,6 +53,24 @@ public sealed class CreateIdeaCommandHandler(
         };
 
         unitOfWork.Ideas.Create(idea);
+
+        var imageResult = await ImageProcessingHelper.ProcessChangesAsync<IdeaImage>(
+            currentImages: idea.Images,
+            unitOfWork: unitOfWork,
+            storageService: storageService,
+            logger: logger,
+            createImageFactory: (fileName, order) => new IdeaImage
+            {
+                FileName = fileName,
+                IdeaId = idea.Id,
+                Order = order
+            },
+            imagesToAdd: command.Images,
+            cancellationToken: cancellationToken);
+
+        if (!imageResult.IsSuccess)
+            return imageResult.Error;
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return mapper.Map<IdeaDto>(idea);
