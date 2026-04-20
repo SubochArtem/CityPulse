@@ -20,6 +20,7 @@ public class PollRepository(ApplicationDbContext context) : Repository<Poll>(con
             .WithStatus(filter.Status)
             .WithSearchTerm(filter.SearchTerm)
             .WithEndsAtBefore(filter.EndsAtBefore)
+            .IncludeImages(filter.IncludeImages)
             .Build()
             .ToPagedListAsync(filter.Page, filter.PageSize, cancellationToken);
     }
@@ -30,7 +31,20 @@ public class PollRepository(ApplicationDbContext context) : Repository<Poll>(con
         CancellationToken cancellationToken = default)
     {
         return await _dbSet
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Include(p => p.Images)
             .Include(p => p.Ideas.Where(i => ideaStatus == null || i.Status == ideaStatus))
+            .ThenInclude(i => i.Images)
+            .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+    }
+    
+    public async Task<Poll?> GetByIdWithImagesAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .Include(p => p.Images)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
     
