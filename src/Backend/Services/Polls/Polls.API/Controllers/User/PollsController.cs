@@ -18,7 +18,6 @@ namespace Polls.API.Controllers.User;
 
 [ApiController]
 [Route("api/v1/polls")]
-[Authorize]
 public class PollsController(ISender sender) : ControllerBase
 {
     [HttpGet]
