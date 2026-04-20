@@ -64,7 +64,7 @@ public class PollsController(ISender sender) : ControllerBase
     [Authorize(Policy = Permissions.Polls.CreateCity)]
     public async Task<Result<PollDto>> CreatePoll(
         Guid cityId,
-        CreatePollRequest request,
+        [FromForm] CreatePollRequest request, 
         CancellationToken cancellationToken)
     {
         var command = new CreatePollCommand(
@@ -74,6 +74,7 @@ public class PollsController(ISender sender) : ControllerBase
             Type: request.Type,
             EndsAt: request.EndsAt,
             BudgetAmount: request.BudgetAmount,
+            Images: request.Images.ToImageFiles(),
             UserCityId: User.GetCityId(),
             BypassRestrictions: false);
 
@@ -84,7 +85,7 @@ public class PollsController(ISender sender) : ControllerBase
     [Authorize(Policy = Permissions.Polls.UpdateCity)]
     public async Task<Result<PollDto>> UpdatePoll(
         Guid id,
-        UpdatePollRequest request,
+        [FromForm] UpdatePollRequest request,
         CancellationToken cancellationToken)
     {
         var command = new UpdatePollCommand(
@@ -93,6 +94,8 @@ public class PollsController(ISender sender) : ControllerBase
             Description: request.Description,
             EndsAt: request.EndsAt,
             BudgetAmount: request.BudgetAmount,
+            ImagesToAdd: request.ImagesToAdd.ToImageFiles(),
+            ImagesToDelete: request.ImagesToDelete,        
             UserCityId: User.GetCityId(),
             BypassRestrictions: false);
 
