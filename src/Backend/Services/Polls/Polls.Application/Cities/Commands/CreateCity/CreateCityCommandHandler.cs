@@ -1,16 +1,21 @@
 using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Polls.Application.Cities.DTOs;
 using Polls.Application.Common.Interfaces;
+using Polls.Application.Images.Helpers;
 using Polls.Domain.Cities;
 using Polls.Domain.Cities.Enums;
 using Polls.Domain.Common;
+using Polls.Domain.Images;
 
 namespace Polls.Application.Cities.Commands.CreateCity;
 
 public sealed class CreateCityCommandHandler(
     IUnitOfWork unitOfWork,
-    IMapper mapper)
+    IMapper mapper,
+    IImageStorageService storageService,
+    ILogger<CreateCityCommandHandler> logger)
     : IRequestHandler<CreateCityCommand, Result<CityDto>>
 {
     public async Task<Result<CityDto>> Handle(
@@ -20,7 +25,7 @@ public sealed class CreateCityCommandHandler(
         var existingCity = await unitOfWork.Cities.GetByTitleAsync(
             command.Title,
             cancellationToken);
-        
+
         if (existingCity is not null)
             return CityErrors.AlreadyExists;
 
@@ -35,6 +40,24 @@ public sealed class CreateCityCommandHandler(
         };
 
         unitOfWork.Cities.Create(city);
+
+        var imageResult = await ImageProcessingHelper.ProcessChangesAsync<CityImage>(
+            currentImages: city.Images,
+            unitOfWork: unitOfWork,
+            storageService: storageService,
+            logger: logger,
+            createImageFactory: (fileName, order) => new CityImage
+            {
+                FileName = fileName,
+                CityId = city.Id,
+                Order = order
+            },
+            imagesToAdd: command.Images,
+            cancellationToken: cancellationToken);
+
+        if (!imageResult.IsSuccess)
+            return imageResult.Error;
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return mapper.Map<CityDto>(city);
