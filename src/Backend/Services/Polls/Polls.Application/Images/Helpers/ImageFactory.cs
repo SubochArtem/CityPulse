@@ -1,3 +1,3 @@
 namespace Polls.Application.Images.Helpers;
 
-public delegate TImage ImageFactory<TImage>(string fileName, int order);
+public delegate TImage ImageFactory<out TImage>(string fileName, int order);
