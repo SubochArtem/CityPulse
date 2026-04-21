@@ -2,6 +2,7 @@ using AutoMapper;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Polls.Application.Common.Interfaces;
+using Polls.Application.Common.Models;
 using Polls.Application.Common.Security;
 using Polls.Application.Ideas.DTOs;
 using Polls.Application.Images.Helpers;
@@ -53,6 +54,8 @@ public sealed class CreateIdeaCommandHandler(
         };
 
         unitOfWork.Ideas.Create(idea);
+        
+        var imageChanges = new ImageChanges(ToAdd: command.Images);
 
         var imageResult = await ImageProcessingHelper.ProcessChangesAsync<IdeaImage>(
             currentImages: idea.Images,
@@ -65,7 +68,7 @@ public sealed class CreateIdeaCommandHandler(
                 IdeaId = idea.Id,
                 Order = order
             },
-            imagesToAdd: command.Images,
+            imageChanges: imageChanges,
             cancellationToken: cancellationToken);
 
         if (!imageResult.IsSuccess)

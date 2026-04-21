@@ -63,6 +63,8 @@ public sealed class CreatePollCommandHandler(
         };
 
         unitOfWork.Polls.Create(poll);
+        
+        var imageChanges = new ImageChanges(ToAdd: command.Images);
 
         var imageResult = await ImageProcessingHelper.ProcessChangesAsync<PollImage>(
             currentImages: poll.Images,
@@ -75,7 +77,7 @@ public sealed class CreatePollCommandHandler(
                 PollId = poll.Id,
                 Order = order
             },
-            imagesToAdd: command.Images,
+            imageChanges: imageChanges,
             cancellationToken: cancellationToken);
 
         if (!imageResult.IsSuccess)

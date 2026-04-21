@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Polls.Application.Cities.DTOs;
 using Polls.Application.Common.Interfaces;
+using Polls.Application.Common.Models;
 using Polls.Application.Images.Helpers;
 using Polls.Domain.Cities;
 using Polls.Domain.Common;
@@ -37,7 +38,12 @@ public sealed class UpdateCityCommandHandler(
             command.Coordinates.Latitude,
             command.Coordinates.Longitude);
         city.Description = command.Description;
+        
         unitOfWork.Cities.Update(city);
+        
+        var imageChanges = new ImageChanges(
+            ToAdd: command.ImagesToAdd, 
+            ToDeleteIds: command.ImagesToDelete);
 
         var imageResult = await ImageProcessingHelper.ProcessChangesAsync<CityImage>(
             currentImages: city.Images,
@@ -50,8 +56,7 @@ public sealed class UpdateCityCommandHandler(
                 CityId = city.Id,
                 Order = order
             },
-            imagesToAdd: command.ImagesToAdd,
-            imagesToDeleteIds: command.ImagesToDelete,
+            imageChanges: imageChanges,
             cancellationToken: cancellationToken);
 
         if (!imageResult.IsSuccess)
