@@ -2,6 +2,7 @@ using AutoMapper;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Polls.Application.Common.Interfaces;
+using Polls.Application.Common.Models;
 using Polls.Application.Common.Security;
 using Polls.Application.Images.Helpers;
 using Polls.Application.Polls.DTOs;
@@ -54,6 +55,10 @@ public sealed class UpdatePollCommandHandler(
 
         unitOfWork.Polls.Update(poll);
         
+        var imageChanges = new ImageChanges(
+            ToAdd: command.ImagesToAdd, 
+            ToDeleteIds: command.ImagesToDelete);
+        
         var imageResult = await ImageProcessingHelper.ProcessChangesAsync<PollImage>(
             currentImages: poll.Images,
             unitOfWork: unitOfWork,
@@ -65,8 +70,7 @@ public sealed class UpdatePollCommandHandler(
                 PollId = poll.Id,
                 Order = order
             },
-            imagesToAdd: command.ImagesToAdd,
-            imagesToDeleteIds: command.ImagesToDelete,
+            imageChanges: imageChanges,
             cancellationToken: cancellationToken);
 
         if (!imageResult.IsSuccess)
