@@ -5,23 +5,16 @@ namespace Polls.Infrastructure.Persistence;
 
 public sealed class UnitOfWork(
     ApplicationDbContext context,
-    Lazy<ICityRepository> cities,
-    Lazy<IPollRepository> polls,
-    Lazy<IPollScheduleJobRepository> pollScheduleJobs,
-    Lazy<IIdeaRepository> ideas,
-    Lazy<IImageRepository<CityImage>> cityImages,
-    Lazy<IImageRepository<PollImage>> pollImages,
-    Lazy<IImageRepository<IdeaImage>> ideaImages,
-    Lazy<IDeletedImageRepository> deletedImages) : IUnitOfWork
+    RepositoryCollection repositories) : IUnitOfWork
 {
-    public ICityRepository Cities => cities.Value;
-    public IPollRepository Polls => polls.Value;
-    public IIdeaRepository Ideas => ideas.Value;
-    public IPollScheduleJobRepository PollScheduleJobs => pollScheduleJobs.Value;
-    public IImageRepository<CityImage> CityImages => cityImages.Value;
-    public IImageRepository<PollImage> PollImages => pollImages.Value;
-    public IImageRepository<IdeaImage> IdeaImages => ideaImages.Value;
-    public IDeletedImageRepository DeletedImages => deletedImages.Value;
+    public ICityRepository Cities => repositories.Cities.Value;
+    public IPollRepository Polls => repositories.Polls.Value;
+    public IIdeaRepository Ideas => repositories.Ideas.Value;
+    public IPollScheduleJobRepository PollScheduleJobs => repositories.PollScheduleJobs.Value;
+    public IImageRepository<CityImage> CityImages => repositories.CityImages.Value;
+    public IImageRepository<PollImage> PollImages => repositories.PollImages.Value;
+    public IImageRepository<IdeaImage> IdeaImages => repositories.IdeaImages.Value;
+    public IDeletedImageRepository DeletedImages => repositories.DeletedImages.Value;
 
     public Task SaveChangesAsync(CancellationToken cancellationToken = default)
     {
