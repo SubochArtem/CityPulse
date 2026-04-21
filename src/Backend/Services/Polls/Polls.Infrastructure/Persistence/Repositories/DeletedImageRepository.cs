@@ -8,12 +8,12 @@ public class DeletedImageRepository(ApplicationDbContext db) : IDeletedImageRepo
 {
     public async Task<IReadOnlyList<DeletedImage>> GetBatchAsync(
         int batchSize,
-        CancellationToken ct = default)
+        CancellationToken cancellationToken = default)
     {
         return await db.DeletedImages
             .OrderBy(x => x.QueuedAt)
             .Take(batchSize)
-            .ToListAsync(ct);
+            .ToListAsync(cancellationToken);
     }
 
     public void AddRange(IEnumerable<DeletedImage> images)
