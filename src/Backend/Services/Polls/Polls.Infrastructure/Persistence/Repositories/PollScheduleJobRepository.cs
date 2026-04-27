@@ -14,12 +14,12 @@ public class PollScheduleJobRepository(ApplicationDbContext db) : IPollScheduleJ
             .FirstOrDefaultAsync(j => j.PollId == pollId, cancellationToken);
     }
 
-    public void Add(PollScheduleJob job)
+    public void Create(PollScheduleJob job)
     {
         db.PollScheduleJobs.Add(job);
     }
 
-    public void Remove(PollScheduleJob job)
+    public void Delete(PollScheduleJob job)
     {
         db.PollScheduleJobs.Remove(job);
     }

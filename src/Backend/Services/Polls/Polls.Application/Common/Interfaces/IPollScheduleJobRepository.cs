@@ -8,7 +8,7 @@ public interface IPollScheduleJobRepository
         Guid pollId,
         CancellationToken cancellationToken = default);
 
-    void Add(PollScheduleJob job);
+    void Create(PollScheduleJob job);
 
-    void Remove(PollScheduleJob job);
+    void Delete(PollScheduleJob job);
 }
