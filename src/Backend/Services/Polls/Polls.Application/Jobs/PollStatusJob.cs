@@ -1,7 +1,7 @@
 using Polls.Application.Common.Interfaces;
 using Polls.Domain.Polls.Enums;
 
-namespace Polls.Infrastructure.Jobs;
+namespace Polls.Application.Jobs;
 
 public class PollStatusJob(
     IUnitOfWork unitOfWork)
