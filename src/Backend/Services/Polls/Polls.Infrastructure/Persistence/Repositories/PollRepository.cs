@@ -19,7 +19,7 @@ public class PollRepository(ApplicationDbContext context) : Repository<Poll>(con
             .WithType(filter.Type)
             .WithStatus(filter.Status)
             .WithSearchTerm(filter.SearchTerm)
-            .WithEndsAtBefore(filter.EndsAtBefore)
+            .WithEndsAtBefore(filter.EndsBefore)
             .Build()
             .ToPagedListAsync(filter.Page, filter.PageSize, cancellationToken);
     }
