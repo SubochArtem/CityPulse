@@ -40,6 +40,13 @@ public class PollQueryBuilder(IQueryable<Poll> query)
                 && p.Description.ToLower().Contains(lower)));
         return this;
     }
+    
+    public PollQueryBuilder WithEndsAtBefore(DateTimeOffset? date)
+    {
+        if (date is not null)
+            _query = _query.Where(p => p.EndsAt <= date);
+        return this;
+    }
 
     public IQueryable<Poll> Build()
     {

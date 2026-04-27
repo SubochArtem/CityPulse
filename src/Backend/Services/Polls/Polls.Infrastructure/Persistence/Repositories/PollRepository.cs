@@ -19,6 +19,7 @@ public class PollRepository(ApplicationDbContext context) : Repository<Poll>(con
             .WithType(filter.Type)
             .WithStatus(filter.Status)
             .WithSearchTerm(filter.SearchTerm)
+            .WithEndsAtBefore(filter.EndsBefore)
             .Build()
             .ToPagedListAsync(filter.Page, filter.PageSize, cancellationToken);
     }
@@ -46,5 +47,17 @@ public class PollRepository(ApplicationDbContext context) : Repository<Poll>(con
                     .SetProperty(p => p.Status, target)
                     .SetProperty(p => p.UpdatedAt, updatedAt),
                 cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<Poll>> GetExpiredAsync(
+        int batchSize = 100,
+        CancellationToken cancellationToken = default)
+    {
+        return await new PollQueryBuilder(_dbSet)
+            .WithStatus(PollStatus.Active)
+            .WithEndsAtBefore(DateTimeOffset.UtcNow)
+            .Build()
+            .Take(batchSize)
+            .ToListAsync(cancellationToken);
     }
 }
