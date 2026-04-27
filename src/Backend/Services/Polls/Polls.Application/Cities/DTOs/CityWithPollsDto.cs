@@ -2,11 +2,12 @@ using Polls.Application.Polls.DTOs;
 
 namespace Polls.Application.Cities.DTOs;
 
-public record CityWithPollsDto(
-    Guid Id,
-    string Name,
-    double Latitude,
-    double Longitude,
-    string? Description,
-    int Status,
-    IReadOnlyCollection<PollDto> Polls);
+public class CityWithPollsDto
+{
+    public Guid Id { get; init; }
+    public required string Title { get; init; }
+    public required CoordinatesDto Coordinates { get; init; }
+    public string? Description { get; init; }
+    public int Status { get; init; }
+    public required IReadOnlyCollection<PollDto> Polls { get; init; }
+}

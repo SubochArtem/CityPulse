@@ -14,7 +14,8 @@ public class IdeaConfiguration : IEntityTypeConfiguration<Idea>
     private const string CreatedAtColumnName = "created_at";
     private const string UpdatedAtColumnName = "updated_at";
     private const string PollIdIndexName = "ix_idea_poll_id";
-    
+    private const string UserIdColumnName = "user_id";
+    private const string PollIdColumnName = "poll_id";
     private const int TitleMaxLength = 200;
     private const int DescriptionMaxLength = 1000;
 
@@ -24,6 +25,14 @@ public class IdeaConfiguration : IEntityTypeConfiguration<Idea>
         
         builder.Property(i => i.Id)
             .HasColumnName(IdColumnName);
+        
+        builder.Property(i => i.UserId)
+            .HasColumnName(UserIdColumnName)
+            .IsRequired();
+        
+        builder.Property(i => i.PollId)
+            .HasColumnName(PollIdColumnName)
+            .IsRequired();
 
         builder.Property(i => i.Title)
             .HasColumnName(TitleColumnName)
@@ -46,8 +55,8 @@ public class IdeaConfiguration : IEntityTypeConfiguration<Idea>
             .HasColumnName(UpdatedAtColumnName)
             .IsRequired();
 
-        builder.HasOne<Poll>()
-            .WithMany()
+        builder.HasOne<Poll>(i => i.Poll)
+            .WithMany(p => p.Ideas)
             .HasForeignKey(i => i.PollId)
             .OnDelete(DeleteBehavior.Cascade);
 

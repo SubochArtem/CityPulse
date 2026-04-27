@@ -1,8 +1,10 @@
 namespace Polls.Application.Cities.DTOs;
 
-public record CityDto(
-    Guid Id,
-    string Name,
-    CoordinatesDto Coordinates,
-    string? Description,
-    int Status);
+public class CityDto
+{
+    public Guid Id { get; init; }
+    public required string Title { get; init; }
+    public required CoordinatesDto Coordinates { get; init; }
+    public string? Description { get; init; }
+    public int Status { get; init; }
+}
