@@ -1,5 +1,6 @@
 using Hangfire;
 using Polls.Application.Common.Interfaces;
+using Polls.Application.Jobs;
 using Polls.Domain.PollScheduleJob;
 
 namespace Polls.Infrastructure.Jobs;
