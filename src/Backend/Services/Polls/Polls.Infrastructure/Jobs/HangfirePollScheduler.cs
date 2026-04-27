@@ -23,7 +23,7 @@ public class HangfirePollScheduler(
             job => job.ExecuteAsync(pollId),
             delay);
 
-        unitOfWork.PollScheduleJobs.Add(new PollScheduleJob
+        unitOfWork.PollScheduleJobs.Create(new PollScheduleJob
         {
             PollId = pollId,
             HangfireJobId = jobId
@@ -39,7 +39,7 @@ public class HangfirePollScheduler(
             return;
 
         backgroundJobClient.Delete(existing.HangfireJobId);
-        unitOfWork.PollScheduleJobs.Remove(existing);
+        unitOfWork.PollScheduleJobs.Delete(existing);
         await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }
