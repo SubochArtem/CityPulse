@@ -20,7 +20,7 @@ public class PollStatusJob(
 
         var scheduleEntry = await unitOfWork.PollScheduleJobs.GetByPollIdAsync(pollId);
         if (scheduleEntry is not null)
-            unitOfWork.PollScheduleJobs.Remove(scheduleEntry);
+            unitOfWork.PollScheduleJobs.Delete(scheduleEntry);
 
         await unitOfWork.SaveChangesAsync();
     }
