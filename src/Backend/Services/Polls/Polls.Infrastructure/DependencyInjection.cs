@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Minio;
 using Polls.Application.Common.Interfaces;
+using Polls.Application.Jobs;
 using Polls.Domain.Images;
 using Polls.Infrastructure.Jobs;
 using Polls.Infrastructure.Persistence;
@@ -68,6 +69,7 @@ public static class DependencyInjection
             .AddScoped<IImageRepository<PollImage>, ImageRepository<PollImage>>()
             .AddScoped<IImageRepository<IdeaImage>, ImageRepository<IdeaImage>>()
             .AddScoped<IDeletedImageRepository, DeletedImageRepository>()
+            .AddScoped<RepositoryCollection>()
             .AddScoped<IUnitOfWork, UnitOfWork>();
 
         var storageOptions = configuration
