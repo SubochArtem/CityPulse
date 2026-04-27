@@ -65,7 +65,7 @@ public class AdminIdeasController(ISender sender) : ControllerBase
     [Authorize(Policy = Permissions.Ideas.CreateAny)]
     public async Task<Result<IdeaDto>> CreateIdea(
         Guid pollId,
-        CreateIdeaRequest request,
+        [FromForm] CreateIdeaRequest request,
         CancellationToken cancellationToken)
     {
         var command = new CreateIdeaCommand(
@@ -73,6 +73,7 @@ public class AdminIdeasController(ISender sender) : ControllerBase
             PollId: pollId,
             Title: request.Title,
             Description: request.Description,
+            Images: request.Images.ToImageFiles(), 
             BypassRestrictions: true);
         
         return await sender.Send(command, cancellationToken);
@@ -82,13 +83,15 @@ public class AdminIdeasController(ISender sender) : ControllerBase
     [Authorize(Policy = Permissions.Ideas.UpdateAny)]
     public async Task<Result<IdeaDto>> UpdateIdea(
         Guid id,
-        UpdateIdeaRequest request,
+        [FromForm] UpdateIdeaRequest request,
         CancellationToken cancellationToken)
     {
         var command = new UpdateIdeaCommand(
             Id: id,
             Title: request.Title,
             Description: request.Description,
+            ImagesToAdd: request.ImagesToAdd.ToImageFiles(), 
+            ImagesToDelete: request.ImagesToDelete,
             BypassRestrictions: true);
 
         return await sender.Send(command, cancellationToken);
