@@ -1,3 +1,5 @@
+using Polls.Application.Images.DTOs;
+
 namespace Polls.Application.Polls.DTOs;
 
 public class PollDto
@@ -10,4 +12,5 @@ public class PollDto
     public int Type { get; init; }
     public decimal BudgetAmount { get; init; }
     public int Status { get; init; }
+    public IReadOnlyList<ImageDto> Images { get; init; } = [];
 }

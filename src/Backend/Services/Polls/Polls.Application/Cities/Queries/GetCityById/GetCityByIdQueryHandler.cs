@@ -17,7 +17,7 @@ public sealed class GetCityByIdQueryHandler(
         GetCityByIdQuery query,
         CancellationToken cancellationToken)
     {
-        var city = await unitOfWork.Cities.GetByIdAsync(query.Id, cancellationToken);
+        var city = await unitOfWork.Cities.GetByIdWithImagesAsync(query.Id, cancellationToken);
         if (city is null || (city.Status != CityStatus.Active && query.IncludeOnlyActive))
             return CityErrors.NotFound(query.Id);
 

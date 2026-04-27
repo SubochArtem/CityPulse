@@ -1,4 +1,5 @@
 using Polls.Application.Common.CQRS;
+using Polls.Application.Common.Models;
 using Polls.Application.Polls.DTOs;
 using Polls.Domain.Polls.Enums;
 
@@ -12,4 +13,5 @@ public record CreatePollCommand(
     DateTimeOffset EndsAt,
     decimal BudgetAmount,
     Guid UserCityId = default,
-    bool BypassRestrictions = false) : ICommand<PollDto>;
+    bool BypassRestrictions = false,
+    IReadOnlyList<ImageFile>? Images = null) : ICommand<PollDto>;

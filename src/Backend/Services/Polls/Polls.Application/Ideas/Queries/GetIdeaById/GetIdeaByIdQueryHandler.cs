@@ -15,7 +15,7 @@ public sealed class GetIdeaByIdQueryHandler(IUnitOfWork unitOfWork, IMapper mapp
         GetIdeaByIdQuery query,
         CancellationToken cancellationToken)
     {
-        var idea = await unitOfWork.Ideas.GetByIdAsync(query.Id, cancellationToken);
+        var idea = await unitOfWork.Ideas.GetByIdWithImagesAsync(query.Id, cancellationToken);
         if (idea is null || (idea.Status != IdeaStatus.Active && query.IncludeOnlyActive))
             return IdeaErrors.NotFound(query.Id);
 

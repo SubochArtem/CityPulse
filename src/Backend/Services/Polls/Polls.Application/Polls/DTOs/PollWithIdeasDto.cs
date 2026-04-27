@@ -1,4 +1,5 @@
 using Polls.Application.Ideas.DTOs;
+using Polls.Application.Images.DTOs;
 
 namespace Polls.Application.Polls.DTOs;
 
@@ -13,4 +14,5 @@ public class PollWithIdeasDto
     public decimal BudgetAmount { get; init; }
     public int Status { get; init; }
     public required IReadOnlyCollection<IdeaDto> Ideas { get; init; }
+    public IReadOnlyList<ImageDto> Images { get; init; } = [];
 }
