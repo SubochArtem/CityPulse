@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Polls.Application.Common.Interfaces;
+using Polls.Application.Jobs;
 using Polls.Infrastructure.Jobs;
 using Polls.Infrastructure.Persistence;
 using Polls.Infrastructure.Persistence.Interceptors;
@@ -73,7 +74,8 @@ public static class DependencyInjection
 
         services
             .AddScoped<IPollScheduler, HangfirePollScheduler>()
-            .AddScoped<PollStatusJob>();
+            .AddScoped<PollStatusJob>()
+            .AddScoped<PollCleanupJob>();
 
         return services;
     }
