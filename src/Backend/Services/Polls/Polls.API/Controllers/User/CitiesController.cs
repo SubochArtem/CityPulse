@@ -1,5 +1,4 @@
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Polls.Application.Cities.DTOs;
 using Polls.Application.Cities.Queries.GetCities;
@@ -27,7 +26,6 @@ public class CitiesController(ISender sender) : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    [AllowAnonymous]
     public async Task<Result<CityDto>> GetCityById(
         Guid id,
         CancellationToken cancellationToken)
@@ -40,7 +38,6 @@ public class CitiesController(ISender sender) : ControllerBase
     }
 
     [HttpGet("{id:guid}/polls")]
-    [AllowAnonymous]
     public async Task<Result<CityWithPollsDto>> GetCityWithPolls(
         Guid id,
         CancellationToken cancellationToken)

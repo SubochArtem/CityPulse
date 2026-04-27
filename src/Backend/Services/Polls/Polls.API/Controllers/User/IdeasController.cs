@@ -21,7 +21,6 @@ namespace Polls.API.Controllers.User;
 public class IdeasController(ISender sender) : ControllerBase
 {
     [HttpGet]
-    [AllowAnonymous]
     public async Task<Result<PagedList<IdeaDto>>> GetIdeas(
         [FromQuery] IdeaFilter filter,
         CancellationToken cancellationToken)
@@ -34,7 +33,6 @@ public class IdeasController(ISender sender) : ControllerBase
     }
 
     [HttpGet("{id:guid}")]
-    [AllowAnonymous]
     public async Task<Result<IdeaDto>> GetIdeaById(
         Guid id,
         CancellationToken cancellationToken)
@@ -47,7 +45,6 @@ public class IdeasController(ISender sender) : ControllerBase
     }
 
     [HttpGet("{id:guid}/poll")]
-    [AllowAnonymous]
     public async Task<Result<IdeaWithPollDto>> GetIdeaWithPoll(
         Guid id,
         CancellationToken cancellationToken)
