@@ -45,11 +45,10 @@ public sealed class UpdatePollCommandHandler(
             if (!guardResult.IsSuccess)
                 return guardResult.Error;
         }
-
-        var endsAtChanged = poll.EndsAt != command.EndsAt; 
-
+        
         poll.Title = command.Title;
         poll.Description = command.Description;
+        var endsAtChanged = poll.EndsAt != command.EndsAt;
         poll.EndsAt = command.EndsAt;
         poll.BudgetAmount = command.BudgetAmount;
 
