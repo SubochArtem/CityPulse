@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Polls.Domain.Cities;
 using Polls.Domain.Cities.Enums;
 
@@ -24,6 +25,15 @@ public class CityQueryBuilder(IQueryable<City> query)
             c.Title.ToLower().Contains(lower)
             || (c.Description != null
                 && c.Description.ToLower().Contains(lower)));
+        return this;
+    }
+    
+    public CityQueryBuilder IncludeImages(bool include = true)
+    {
+        if (include)
+        {
+            _query = _query.Include(c => c.Images);
+        }
         return this;
     }
 

@@ -6,13 +6,16 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Minio;
 using Polls.Application.Common.Interfaces;
 using Polls.Application.Jobs;
+using Polls.Domain.Images;
 using Polls.Infrastructure.Jobs;
 using Polls.Infrastructure.Persistence;
 using Polls.Infrastructure.Persistence.Interceptors;
 using Polls.Infrastructure.Persistence.Options;
 using Polls.Infrastructure.Persistence.Repositories;
+using Polls.Infrastructure.Storage;
 
 namespace Polls.Infrastructure;
 
@@ -24,6 +27,11 @@ public static class DependencyInjection
     {
         services.AddOptions<DatabaseOptions>()
             .Bind(configuration.GetSection(DatabaseOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddOptions<ImageStorageOptions>()
+            .Bind(configuration.GetSection(ImageStorageOptions.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
@@ -57,7 +65,28 @@ public static class DependencyInjection
             .AddScoped<IPollRepository, PollRepository>()
             .AddScoped<IIdeaRepository, IdeaRepository>()
             .AddScoped<IPollScheduleJobRepository, PollScheduleJobRepository>()
+            .AddScoped<IImageRepository<CityImage>, ImageRepository<CityImage>>()
+            .AddScoped<IImageRepository<PollImage>, ImageRepository<PollImage>>()
+            .AddScoped<IImageRepository<IdeaImage>, ImageRepository<IdeaImage>>()
+            .AddScoped<IDeletedImageRepository, DeletedImageRepository>()
+            .AddScoped<RepositoryCollection>()
             .AddScoped<IUnitOfWork, UnitOfWork>();
+
+        var storageOptions = configuration
+                                 .GetSection(ImageStorageOptions.SectionName)
+                                 .Get<ImageStorageOptions>() 
+                             ?? throw new InvalidOperationException(
+                                 $"Configuration section '{ImageStorageOptions.SectionName}' is missing or invalid.");
+
+        services.AddMinio(client =>
+        {
+            client
+                .WithEndpoint(storageOptions.Endpoint)
+                .WithCredentials(storageOptions.AccessKey, storageOptions.SecretKey)
+                .WithSSL(storageOptions.UseSsl);
+        });
+
+        services.AddScoped<IImageStorageService, MinioStorageService>();
 
         services.AddHangfire((serviceProvider, config) =>
         {
@@ -75,22 +104,30 @@ public static class DependencyInjection
         services
             .AddScoped<IPollScheduler, HangfirePollScheduler>()
             .AddScoped<PollStatusJob>()
-            .AddScoped<PollCleanupJob>();
+            .AddScoped<PollCleanupJob>()
+            .AddScoped<ImageCleanupJob>(); 
 
         return services;
     }
-    
+
     public static void UseInfrastructure(this WebApplication app)
     {
         const string hangfireDashboardPath = "/hangfire";
         const string pollCleanupJobId = "poll-cleanup";
-        
+        const string imageCleanupJobId = "image-cleanup";
+
         if (app.Environment.IsDevelopment())
             app.UseHangfireDashboard(hangfireDashboardPath);
-        
+
         var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
+
         recurringJobManager.AddOrUpdate<PollCleanupJob>(
             pollCleanupJobId,
+            job => job.ExecuteAsync(CancellationToken.None),
+            Cron.Hourly);
+
+        recurringJobManager.AddOrUpdate<ImageCleanupJob>( 
+            imageCleanupJobId,
             job => job.ExecuteAsync(CancellationToken.None),
             Cron.Hourly);
     }

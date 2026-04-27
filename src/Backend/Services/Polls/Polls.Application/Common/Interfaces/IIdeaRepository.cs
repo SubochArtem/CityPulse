@@ -13,6 +13,10 @@ public interface IIdeaRepository : IRepository<Idea>
     Task<Idea?> GetWithPollAsync(
         Guid id,
         CancellationToken cancellationToken = default);
+    
+    Task<Idea?> GetByIdWithImagesAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
 
     Task UpdateStatusByCityAsync(
         Guid cityId,
