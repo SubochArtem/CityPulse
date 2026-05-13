@@ -13,4 +13,9 @@ public interface IIdentityProvider
     public Task DeleteUserAsync(
         string identityId,
         CancellationToken cancellationToken = default);
+    
+    Task SetInternalUserIdAsync(
+        string identityId, 
+        string internalUserId, 
+        CancellationToken cancellationToken = default);
 }

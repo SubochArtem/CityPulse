@@ -49,6 +49,24 @@ public class Auth0Service(
         var client = await GetManagementClientAsync(cancellationToken);
         await client.Users.DeleteAsync(identityId, cancellationToken);
     }
+    
+    public async Task SetInternalUserIdAsync(
+        string identityId,
+        string internalUserId,
+        CancellationToken cancellationToken = default)
+    {
+        var client = await GetManagementClientAsync(cancellationToken);
+
+        var request = new UserUpdateRequest
+        {
+            AppMetadata = new 
+            { 
+                internal_user_id = internalUserId 
+            }
+        };
+
+        await client.Users.UpdateAsync(identityId, request, cancellationToken);
+    }
 
     private async Task<ManagementApiClient> GetManagementClientAsync(
         CancellationToken cancellationToken)
