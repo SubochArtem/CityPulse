@@ -12,14 +12,12 @@ namespace Users.Business.Services;
 
 public class Auth0WebhookService(
     IUserService userService,
-    IIdentityProvider identityProvider, 
     IOptions<Auth0Settings> settings) : IIdentityProviderWebhookService
 {
     private readonly Auth0Settings _settings = settings.Value;
     private readonly IUserService _userService = userService;
-    private readonly IIdentityProvider _identityProvider = identityProvider; 
-
-    public async Task HandleAsync(
+    
+    public async Task<GetUserDto?> HandleAsync(
         string rawBody,
         string signature,
         CancellationToken cancellationToken = default)
@@ -39,17 +37,21 @@ public class Auth0WebhookService(
             throw new InvalidWebhookPayloadException();
 
         if (payload.Event is not IdentityProviderConstants.WebhookUserCreatedEvent)
-            return;
+            return null; 
 
+        var existingUser = await _userService.GetUserByIdentityIdAsync(payload.User.Id, cancellationToken);
+        
+        if (existingUser is not null)
+        {
+            return existingUser;
+        }
+        
         var createdUser = await _userService.CreateUserAsync(new CreateUserDto
         {
-            IdentityId = payload.User.Id
+            IdentityId = payload.User.Id,
         }, cancellationToken);
-        
-        await _identityProvider.SetInternalUserIdAsync(
-            payload.User.Id,
-            createdUser.Id.ToString(),
-            cancellationToken);
+
+        return createdUser;
     }
 
     private bool ValidateSignature(string body, string signature)

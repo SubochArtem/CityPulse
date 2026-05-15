@@ -10,5 +10,4 @@ public class GetUserDto
     
     public DateTimeOffset? UpdatedAt { get; set; }
     
-    public DateTimeOffset? LastSyncedAt { get; set; }
 }
