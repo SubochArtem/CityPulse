@@ -17,7 +17,7 @@ public class Auth0WebhookService(
 {
     private readonly Auth0Settings _settings = settings.Value;
     private readonly IUserService _userService = userService;
-    private readonly IIdentityProvider _identityProvider = identityProvider; // <-- Сохраняем в поле
+    private readonly IIdentityProvider _identityProvider = identityProvider; 
 
     public async Task HandleAsync(
         string rawBody,
