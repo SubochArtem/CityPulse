@@ -12,9 +12,11 @@ namespace Users.Business.Services;
 public class UserService(
     IUserRepository userRepository,
     IIdentityProvider identityProvider,
-    IValidator<CreateUserDto> createValidator) : IUserService
+    IValidator<CreateUserDto> createValidator,
+    IValidator<UpdateUserProfileDto> updateValidator) : IUserService
 {
     private readonly IValidator<CreateUserDto> _createValidator = createValidator;
+    private readonly IValidator<UpdateUserProfileDto> _updateValidator = updateValidator;
     private readonly IIdentityProvider _identityProvider = identityProvider;
     private readonly IUserRepository _userRepository = userRepository;
 
@@ -49,6 +51,10 @@ public class UserService(
         UpdateUserProfileDto updateUserProfileDto,
         CancellationToken cancellationToken = default)
     {
+        await _updateValidator.ValidateAndThrowAsync(
+            updateUserProfileDto, 
+            cancellationToken);
+        
         var user = await GetExistingUserAsync(id, IdentitySources.Internal, cancellationToken);
 
         if (updateUserProfileDto.Nickname is not null)
