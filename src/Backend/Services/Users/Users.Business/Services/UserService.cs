@@ -43,6 +43,26 @@ public class UserService(
 
         return user.Adapt<GetUserDto>();
     }
+    
+    public async Task<GetUserDto> UpdateUserAsync(
+        Guid id,
+        UpdateUserProfileDto updateUserProfileDto,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await GetExistingUserAsync(id, IdentitySources.Internal, cancellationToken);
+
+        if (updateUserProfileDto.Nickname is not null)
+            user.Nickname = updateUserProfileDto.Nickname;
+
+        await _userRepository.UpdateAsync(user, cancellationToken);
+
+        await _identityProvider.UpdateUserProfileAsync(
+            user.IdentityId,
+            updateUserProfileDto,
+            cancellationToken);
+
+        return user.Adapt<GetUserDto>();
+    }
 
     public async Task DeactivateUserAsync(
         Guid id,
