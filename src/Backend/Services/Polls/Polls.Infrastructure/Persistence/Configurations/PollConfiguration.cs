@@ -16,6 +16,13 @@ public class PollConfiguration : IEntityTypeConfiguration<Poll>
     private const string CreatedAtColumnName = "created_at";
     private const string UpdatedAtColumnName = "updated_at";
     private const string CityIdIndexName = "ix_poll_city_id";
+    private const string TitleColumnName = "title";
+    private const string DescriptionColumnName = "description";
+    private const string CityIdColumnName = "city_id";
+    
+    private const int TitleMaxLength = 200;
+    private const int DescriptionMaxLength = 1000;
+
 
     public void Configure(EntityTypeBuilder<Poll> builder)
     {
@@ -23,6 +30,19 @@ public class PollConfiguration : IEntityTypeConfiguration<Poll>
         
         builder.Property(p => p.Id)
             .HasColumnName(IdColumnName);
+        
+        builder.Property(p => p.CityId)
+            .HasColumnName(CityIdColumnName)
+            .IsRequired();
+        
+        builder.Property(p => p.Title)
+            .HasColumnName(TitleColumnName)
+            .IsRequired()
+            .HasMaxLength(TitleMaxLength);
+
+        builder.Property(p => p.Description)
+            .HasColumnName(DescriptionColumnName)
+            .HasMaxLength(DescriptionMaxLength);
 
         builder.Property(p => p.BudgetAmount)
             .HasColumnName(BudgetAmountColumnName)
@@ -50,7 +70,7 @@ public class PollConfiguration : IEntityTypeConfiguration<Poll>
             .IsRequired();
 
         builder.HasOne<City>()
-            .WithMany()
+            .WithMany(c => c.Polls)
             .HasForeignKey(p => p.CityId)
             .OnDelete(DeleteBehavior.Cascade);
 
