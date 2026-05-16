@@ -13,7 +13,8 @@ namespace Polls.Application.Polls.Commands.CreatePoll;
 
 public sealed class CreatePollCommandHandler(
     IUnitOfWork unitOfWork,
-    IMapper mapper)
+    IMapper mapper,
+    IPollScheduler pollScheduler)
     : IRequestHandler<CreatePollCommand, Result<PollDto>>
 {
     public async Task<Result<PollDto>> Handle(
@@ -30,28 +31,36 @@ public sealed class CreatePollCommandHandler(
         var city = await unitOfWork.Cities.GetByIdAsync(
             command.CityId,
             cancellationToken);
-
         if (city is null)
             return CityErrors.NotFound(command.CityId);
-        
+
         var filter = new PollFilter
         {
             CityId = command.CityId,
             Type = command.Type,
             Status = PollStatus.Active
         };
-
         var activePolls = await unitOfWork.Polls.GetFilteredAsync(
             filter,
             cancellationToken);
-
         if (activePolls.TotalCount > 0)
             return PollErrors.AlreadyExists(command.CityId);
 
-        var poll = mapper.Map<Poll>(command);
+        var poll = new Poll
+        {
+            CityId = command.CityId,
+            Title = command.Title,
+            Description = command.Description,
+            EndsAt = command.EndsAt,
+            Type = command.Type,
+            BudgetAmount = command.BudgetAmount,
+            Status = PollStatus.Active
+        };
 
         unitOfWork.Polls.Create(poll);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await pollScheduler.ScheduleAsync(poll.Id, poll.EndsAt, cancellationToken);
 
         return mapper.Map<PollDto>(poll);
     }

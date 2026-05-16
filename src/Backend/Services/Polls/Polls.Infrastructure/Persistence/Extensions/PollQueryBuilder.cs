@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Polls.Domain.Polls;
 using Polls.Domain.Polls.Enums;
 
@@ -45,6 +46,15 @@ public class PollQueryBuilder(IQueryable<Poll> query)
     {
         if (date is not null)
             _query = _query.Where(p => p.EndsAt <= date);
+        return this;
+    }
+    
+    public PollQueryBuilder IncludeImages(bool include)
+    {
+        if (include)
+        {
+            _query = _query.Include(p => p.Images);
+        }
         return this;
     }
 

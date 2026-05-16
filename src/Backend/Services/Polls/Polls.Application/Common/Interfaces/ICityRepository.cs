@@ -14,4 +14,8 @@ public interface ICityRepository : IRepository<City>
         Guid id,
         PollStatus? status,
         CancellationToken cancellationToken = default);
+    
+    Task<City?> GetByIdWithImagesAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
 }

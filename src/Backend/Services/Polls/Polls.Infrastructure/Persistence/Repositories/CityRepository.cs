@@ -16,6 +16,7 @@ public class CityRepository(ApplicationDbContext context) : Repository<City>(con
         return await new CityQueryBuilder(_dbSet.AsNoTracking())
             .WithStatus(filter.Status)
             .WithSearchTerm(filter.SearchTerm)
+            .IncludeImages(filter.IncludeImages)
             .Build()
             .ToPagedListAsync(filter.Page, filter.PageSize, cancellationToken);
     }
@@ -26,7 +27,20 @@ public class CityRepository(ApplicationDbContext context) : Repository<City>(con
         CancellationToken cancellationToken = default)
     {
         return await _dbSet
+            .AsNoTracking()
+            .AsSplitQuery()
+            .Include(c => c.Images)
             .Include(c => c.Polls.Where(p => status == null || p.Status == status))
+            .ThenInclude(p => p.Images)
+            .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
+    }
+
+    public async Task<City?> GetByIdWithImagesAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .Include(c => c.Images)
             .FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
     }
 }

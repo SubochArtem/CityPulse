@@ -15,6 +15,10 @@ public interface IPollRepository : IRepository<Poll>
         Guid id,
         IdeaStatus? ideaStatus,
         CancellationToken cancellationToken = default);
+    
+    Task<Poll?> GetByIdWithImagesAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
 
     Task UpdateStatusByCityAsync(
         Guid cityId,
