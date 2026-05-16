@@ -13,6 +13,7 @@ using Polls.Infrastructure.Persistence;
 using Polls.Infrastructure.Persistence.Interceptors;
 using Polls.Infrastructure.Persistence.Options;
 using Polls.Infrastructure.Persistence.Repositories;
+using Polls.Infrastructure.Services;
 
 namespace Polls.Infrastructure;
 
@@ -22,6 +23,8 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+        
         services.AddOptions<DatabaseOptions>()
             .Bind(configuration.GetSection(DatabaseOptions.SectionName))
             .ValidateDataAnnotations()

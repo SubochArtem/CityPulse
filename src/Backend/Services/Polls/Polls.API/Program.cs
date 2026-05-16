@@ -7,8 +7,14 @@ builder.Services.AddPresentation(builder.Configuration);
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
+builder.Services.AddPresentation(builder.Configuration);
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
+
 var app = builder.Build();
 app.UsePresentation();
 app.UseInfrastructure(); 
+
+app.UsePresentation();
 
 await app.RunAsync();
