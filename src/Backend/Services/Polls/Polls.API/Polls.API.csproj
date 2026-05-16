@@ -21,4 +21,8 @@
         <ProjectReference Include="..\Polls.Infrastructure\Polls.Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\Polls.Application\Polls.Application.csproj"/>
+    </ItemGroup>
+
 </Project>
