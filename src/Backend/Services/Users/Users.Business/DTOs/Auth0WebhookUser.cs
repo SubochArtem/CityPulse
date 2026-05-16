@@ -9,4 +9,7 @@ public class Auth0WebhookUser
     
     [JsonPropertyName("nickname")]
     public string? Nickname { get; init; }
+    
+    [JsonPropertyName("email")]
+    public string? Email { get; init; }
 }

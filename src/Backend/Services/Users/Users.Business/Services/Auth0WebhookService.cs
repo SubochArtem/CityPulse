@@ -27,7 +27,7 @@ public class Auth0WebhookService(
 
         var payload = JsonSerializer.Deserialize<Auth0WebhookPayload>(rawBody);
 
-        if (payload?.User?.Id is null || payload.User.Nickname is null)
+        if (payload?.User?.Id is null)
             throw new InvalidWebhookPayloadException();
 
         if (!string.Equals(
@@ -46,10 +46,12 @@ public class Auth0WebhookService(
             return existingUser;
         }
         
+        var nickname = GenerateNickname(payload.User.Nickname, payload.User.Email);
+        
         var createdUser = await _userService.CreateUserAsync(new CreateUserDto
         {
             IdentityId = payload.User.Id,
-            Nickname = payload.User.Nickname
+            Nickname = nickname
         }, cancellationToken);
 
         return createdUser;
@@ -71,5 +73,17 @@ public class Auth0WebhookService(
         return CryptographicOperations.FixedTimeEquals(
             Encoding.UTF8.GetBytes(signature),
             Encoding.UTF8.GetBytes(expectedSignature));
+    }
+    
+    private static string GenerateNickname(string? nickname, string? email)
+    {
+        if (!string.IsNullOrWhiteSpace(nickname))
+            return nickname;
+        
+        if (!string.IsNullOrWhiteSpace(email) && email.Contains('@'))
+            return email.Split('@')[0];
+        
+        var shortGuid = Guid.NewGuid().ToString("N")[..8];
+        return $"User_{shortGuid}";
     }
 }
