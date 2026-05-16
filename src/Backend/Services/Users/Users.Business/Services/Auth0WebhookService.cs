@@ -27,7 +27,7 @@ public class Auth0WebhookService(
 
         var payload = JsonSerializer.Deserialize<Auth0WebhookPayload>(rawBody);
 
-        if (payload?.User?.Id is null)
+        if (payload?.User?.Id is null || payload.User.Nickname is null)
             throw new InvalidWebhookPayloadException();
 
         if (!string.Equals(
@@ -49,6 +49,7 @@ public class Auth0WebhookService(
         var createdUser = await _userService.CreateUserAsync(new CreateUserDto
         {
             IdentityId = payload.User.Id,
+            Nickname = payload.User.Nickname
         }, cancellationToken);
 
         return createdUser;
