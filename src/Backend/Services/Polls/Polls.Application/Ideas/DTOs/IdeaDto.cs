@@ -1,3 +1,5 @@
+using Polls.Application.Images.DTOs;
+
 namespace Polls.Application.Ideas.DTOs;
 
 public class IdeaDto
@@ -8,4 +10,5 @@ public class IdeaDto
     public required string Title { get; init; }
     public string? Description { get; init; }
     public int Status { get; init; }
+    public IReadOnlyList<ImageDto> Images { get; init; } = [];
 }

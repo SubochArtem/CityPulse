@@ -25,8 +25,6 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
-        
         services.AddOptions<DatabaseOptions>()
             .Bind(configuration.GetSection(DatabaseOptions.SectionName))
             .ValidateDataAnnotations()

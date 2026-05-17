@@ -3,6 +3,7 @@ using Polls.Application.Common.Interfaces;
 using Polls.Application.Common.Security;
 using Polls.Application.Polls.Guards;
 using Polls.Domain.Common;
+using Polls.Domain.Images;
 using Polls.Domain.Polls;
 
 namespace Polls.Application.Polls.Commands.DeletePoll;
@@ -15,7 +16,7 @@ public sealed class DeletePollCommandHandler(
         DeletePollCommand command,
         CancellationToken cancellationToken)
     {
-        var poll = await unitOfWork.Polls.GetByIdAsync(command.Id, cancellationToken);
+        var poll = await unitOfWork.Polls.GetByIdWithImagesAsync(command.Id, cancellationToken);
         if (poll is null)
             return PollErrors.NotFound(command.Id);
 
@@ -32,6 +33,15 @@ public sealed class DeletePollCommandHandler(
 
             if (!guardResult.IsSuccess)
                 return guardResult.Error;
+        }
+        
+        if (poll.Images.Count > 0)
+        {
+            var deletedImages = poll.Images
+                .Select(i => new DeletedImage { FileName = i.FileName })
+                .ToList();
+
+            unitOfWork.DeletedImages.AddRange(deletedImages);
         }
 
         unitOfWork.Polls.Delete(poll);

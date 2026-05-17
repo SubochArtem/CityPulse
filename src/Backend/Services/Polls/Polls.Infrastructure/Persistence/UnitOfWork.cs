@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore.Storage;
 using Polls.Application.Common.Interfaces;
 using Polls.Domain.Images;
 

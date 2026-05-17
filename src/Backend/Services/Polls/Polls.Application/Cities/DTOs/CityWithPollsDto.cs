@@ -1,3 +1,4 @@
+using Polls.Application.Images.DTOs;
 using Polls.Application.Polls.DTOs;
 
 namespace Polls.Application.Cities.DTOs;
@@ -10,4 +11,5 @@ public class CityWithPollsDto
     public string? Description { get; init; }
     public int Status { get; init; }
     public required IReadOnlyCollection<PollDto> Polls { get; init; }
+    public IReadOnlyList<ImageDto> Images { get; init; } = [];
 }

@@ -3,6 +3,7 @@ using Polls.Application.Common.Interfaces;
 using Polls.Application.Ideas.Guards;
 using Polls.Domain.Common;
 using Polls.Domain.Ideas;
+using Polls.Domain.Images;
 
 namespace Polls.Application.Ideas.Commands.DeleteIdea;
 
@@ -25,9 +26,18 @@ public sealed class DeleteIdeaCommandHandler(
                 return validationResult.Error;
         }
 
+        if (idea.Images.Count > 0)
+        {
+            var deletedImages = idea.Images
+                .Select(i => new DeletedImage { FileName = i.FileName })
+                .ToList();
+
+            unitOfWork.DeletedImages.AddRange(deletedImages);
+        }
+
         unitOfWork.Ideas.Delete(idea);
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Unit.Value;
+        return Result<Unit>.Success(Unit.Value);
     }
 }

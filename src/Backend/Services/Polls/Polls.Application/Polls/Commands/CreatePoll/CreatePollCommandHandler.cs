@@ -1,11 +1,14 @@
 using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Polls.Application.Common.Interfaces;
 using Polls.Application.Common.Models;
 using Polls.Application.Common.Security;
+using Polls.Application.Images.Helpers;
 using Polls.Application.Polls.DTOs;
 using Polls.Domain.Cities;
 using Polls.Domain.Common;
+using Polls.Domain.Images;
 using Polls.Domain.Polls;
 using Polls.Domain.Polls.Enums;
 
@@ -14,7 +17,9 @@ namespace Polls.Application.Polls.Commands.CreatePoll;
 public sealed class CreatePollCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
-    IPollScheduler pollScheduler)
+    IPollScheduler pollScheduler,
+    IImageStorageService storageService,
+    ILogger<CreatePollCommandHandler> logger)
     : IRequestHandler<CreatePollCommand, Result<PollDto>>
 {
     public async Task<Result<PollDto>> Handle(
@@ -58,6 +63,26 @@ public sealed class CreatePollCommandHandler(
         };
 
         unitOfWork.Polls.Create(poll);
+        
+        var imageChanges = new ImageChanges(ToAdd: command.Images);
+
+        var imageResult = await ImageProcessingHelper.ProcessChangesAsync<PollImage>(
+            currentImages: poll.Images,
+            unitOfWork: unitOfWork,
+            storageService: storageService,
+            logger: logger,
+            createImageFactory: (fileName, order) => new PollImage
+            {
+                FileName = fileName,
+                PollId = poll.Id,
+                Order = order
+            },
+            imageChanges: imageChanges,
+            cancellationToken: cancellationToken);
+
+        if (!imageResult.IsSuccess)
+            return imageResult.Error;
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         await pollScheduler.ScheduleAsync(poll.Id, poll.EndsAt, cancellationToken);

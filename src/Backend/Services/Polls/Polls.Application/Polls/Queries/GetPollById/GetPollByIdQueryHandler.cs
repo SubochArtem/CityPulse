@@ -15,7 +15,7 @@ public sealed class GetPollByIdQueryHandler(IUnitOfWork unitOfWork, IMapper mapp
         GetPollByIdQuery query,
         CancellationToken cancellationToken)
     {
-        var poll = await unitOfWork.Polls.GetByIdAsync(query.Id, cancellationToken);
+        var poll = await unitOfWork.Polls.GetByIdWithImagesAsync(query.Id, cancellationToken);
         if (poll is null || (poll.Status != PollStatus.Active && query.IncludeOnlyActive))
             return PollErrors.NotFound(query.Id);
 

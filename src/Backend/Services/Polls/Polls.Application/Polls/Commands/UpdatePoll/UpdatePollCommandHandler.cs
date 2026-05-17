@@ -1,10 +1,14 @@
 using AutoMapper;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Polls.Application.Common.Interfaces;
+using Polls.Application.Common.Models;
 using Polls.Application.Common.Security;
+using Polls.Application.Images.Helpers;
 using Polls.Application.Polls.DTOs;
 using Polls.Application.Polls.Guards;
 using Polls.Domain.Common;
+using Polls.Domain.Images;
 using Polls.Domain.Polls;
 using Polls.Domain.Polls.Enums;
 
@@ -13,14 +17,16 @@ namespace Polls.Application.Polls.Commands.UpdatePoll;
 public sealed class UpdatePollCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
-    IPollScheduler pollScheduler) 
+    IPollScheduler pollScheduler,
+    IImageStorageService storageService,
+    ILogger<UpdatePollCommandHandler> logger) 
     : IRequestHandler<UpdatePollCommand, Result<PollDto>>
 {
     public async Task<Result<PollDto>> Handle(
         UpdatePollCommand command,
         CancellationToken cancellationToken)
     {
-        var poll = await unitOfWork.Polls.GetByIdAsync(command.Id, cancellationToken);
+        var poll = await unitOfWork.Polls.GetByIdWithImagesAsync(command.Id, cancellationToken);
         if (poll is null)
             return PollErrors.NotFound(command.Id);
 
@@ -47,6 +53,28 @@ public sealed class UpdatePollCommandHandler(
         poll.BudgetAmount = command.BudgetAmount;
 
         unitOfWork.Polls.Update(poll);
+        
+        var imageChanges = new ImageChanges(
+            ToAdd: command.ImagesToAdd, 
+            ToDeleteIds: command.ImagesToDelete);
+        
+        var imageResult = await ImageProcessingHelper.ProcessChangesAsync<PollImage>(
+            currentImages: poll.Images,
+            unitOfWork: unitOfWork,
+            storageService: storageService,
+            logger: logger,
+            createImageFactory: (fileName, order) => new PollImage
+            {
+                FileName = fileName,
+                PollId = poll.Id,
+                Order = order
+            },
+            imageChanges: imageChanges,
+            cancellationToken: cancellationToken);
+
+        if (!imageResult.IsSuccess)
+            return imageResult.Error;
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         if (endsAtChanged && poll.Status == PollStatus.Active) 
