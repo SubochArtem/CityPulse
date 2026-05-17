@@ -15,6 +15,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Users.Presentation", "src\Backend\Services\Users\Users.Presentation\Users.Presentation.csproj", "{C7DAE406-05FE-434C-9EA5-803B885DC42E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Polls", "Polls", "{56FDEEC0-CF81-4656-853E-698D2983B049}"
+	ProjectSection(SolutionItems) = preProject
+		src\Backend\Services\Polls\appsettings.Development.json = src\Backend\Services\Polls\appsettings.Development.json
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Polls.API", "src\Backend\Services\Polls\Polls.API\Polls.API.csproj", "{C879A540-7AFF-48F3-B1E4-F8D8A1AB793D}"
 EndProject

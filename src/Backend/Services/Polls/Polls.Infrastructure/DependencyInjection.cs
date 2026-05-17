@@ -15,6 +15,7 @@ using Polls.Infrastructure.Persistence;
 using Polls.Infrastructure.Persistence.Interceptors;
 using Polls.Infrastructure.Persistence.Options;
 using Polls.Infrastructure.Persistence.Repositories;
+using Polls.Infrastructure.Services;
 using Polls.Infrastructure.Storage;
 
 namespace Polls.Infrastructure;
@@ -29,6 +30,8 @@ public static class DependencyInjection
             .Bind(configuration.GetSection(DatabaseOptions.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
+        
+        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 
         services.AddOptions<ImageStorageOptions>()
             .Bind(configuration.GetSection(ImageStorageOptions.SectionName))
