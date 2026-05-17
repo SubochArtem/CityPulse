@@ -60,7 +60,7 @@ public class IdeasController(ISender sender) : ControllerBase
     [Authorize(Policy = Permissions.Ideas.CreateCity)]
     public async Task<Result<IdeaDto>> CreateIdea(
         Guid pollId,
-        CreateIdeaRequest request,
+        [FromForm] CreateIdeaRequest request, 
         CancellationToken cancellationToken)
     {
         var command = new CreateIdeaCommand(
@@ -68,6 +68,7 @@ public class IdeasController(ISender sender) : ControllerBase
             PollId: pollId,
             Title: request.Title,
             Description: request.Description,
+            Images: request.Images.ToImageFiles(), 
             UserCityId: User.GetCityId(),
             BypassRestrictions: false);
 
@@ -78,13 +79,15 @@ public class IdeasController(ISender sender) : ControllerBase
     [Authorize(Policy = Permissions.Ideas.UpdateOwn)]
     public async Task<Result<IdeaDto>> UpdateIdea(
         Guid id,
-        UpdateIdeaRequest request,
+        [FromForm] UpdateIdeaRequest request, 
         CancellationToken cancellationToken)
     {
         var command = new UpdateIdeaCommand(
             Id: id,
             Title: request.Title,
             Description: request.Description,
+            ImagesToAdd: request.ImagesToAdd.ToImageFiles(), 
+            ImagesToDelete: request.ImagesToDelete,          
             UserId: User.GetUserId(),
             BypassRestrictions: false);
 

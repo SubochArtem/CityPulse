@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Polls.API.Common.Extensions;
 using Polls.API.Requests.Cities;
 using Polls.Application.Cities.Commands.ChangeStatus;
 using Polls.Application.Cities.Commands.CreateCity;
@@ -63,13 +64,14 @@ public class AdminCitiesController(ISender sender) : ControllerBase
     [HttpPost]
     [Authorize(Policy = Permissions.Cities.CreateAny)]
     public async Task<Result<CityDto>> CreateCity(
-        CreateCityRequest request,
+        [FromForm] CreateCityRequest request,
         CancellationToken cancellationToken)
     {
         var command = new CreateCityCommand(
             Title: request.Title,
             Coordinates: request.Coordinates,
-            Description: request.Description);
+            Description: request.Description,
+            Images: request.Images.ToImageFiles()); 
         
         return await sender.Send(command, cancellationToken);
     }
@@ -78,14 +80,16 @@ public class AdminCitiesController(ISender sender) : ControllerBase
     [Authorize(Policy = Permissions.Cities.UpdateAny)]
     public async Task<Result<CityDto>> UpdateCity(
         Guid id,
-        UpdateCityRequest request,
+        [FromForm] UpdateCityRequest request,
         CancellationToken cancellationToken)
     {
         var command = new UpdateCityCommand(
             Id: id,
             Title: request.Title,
             Coordinates: request.Coordinates,
-            Description: request.Description);
+            Description: request.Description,
+            ImagesToAdd: request.ImagesToAdd.ToImageFiles(), 
+            ImagesToDelete: request.ImagesToDelete);
         
         return await sender.Send(command, cancellationToken);
     }

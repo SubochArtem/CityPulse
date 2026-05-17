@@ -9,4 +9,5 @@ public record CreatePollRequest
     public required PollType Type { get; init; }
     public required DateTimeOffset EndsAt { get; init; }
     public required decimal BudgetAmount { get; init; }
+    public IFormFileCollection? Images { get; init; }
 }

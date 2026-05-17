@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Polls.API.Common.Extensions;
 using Polls.API.Requests.Polls;
 using Polls.Application.Common.Models;
 using Polls.Application.Polls.Commands.ChangeStatus;
@@ -64,7 +65,7 @@ public class AdminPollsController(ISender sender) : ControllerBase
     [Authorize(Policy = Permissions.Polls.CreateAny)]
     public async Task<Result<PollDto>> CreatePoll(
         Guid cityId,
-        CreatePollRequest request,
+        [FromForm] CreatePollRequest request, 
         CancellationToken cancellationToken)
     {
         var command = new CreatePollCommand(
@@ -74,6 +75,7 @@ public class AdminPollsController(ISender sender) : ControllerBase
             Type: request.Type,
             EndsAt: request.EndsAt,
             BudgetAmount: request.BudgetAmount,
+            Images: request.Images.ToImageFiles(), 
             BypassRestrictions: true);
 
         return await sender.Send(command, cancellationToken);
@@ -83,7 +85,7 @@ public class AdminPollsController(ISender sender) : ControllerBase
     [Authorize(Policy = Permissions.Polls.UpdateAny)]
     public async Task<Result<PollDto>> UpdatePoll(
         Guid id,
-        UpdatePollRequest request,
+        [FromForm] UpdatePollRequest request, 
         CancellationToken cancellationToken)
     {
         var command = new UpdatePollCommand(
@@ -92,6 +94,8 @@ public class AdminPollsController(ISender sender) : ControllerBase
             Description: request.Description,
             EndsAt: request.EndsAt,
             BudgetAmount: request.BudgetAmount,
+            ImagesToAdd: request.ImagesToAdd.ToImageFiles(),
+            ImagesToDelete: request.ImagesToDelete,          
             BypassRestrictions: true);
 
         return await sender.Send(command, cancellationToken);
