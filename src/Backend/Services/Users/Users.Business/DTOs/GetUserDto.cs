@@ -12,4 +12,5 @@ public class GetUserDto
     
     public DateTimeOffset? UpdatedAt { get; set; }
     
+    public Guid? CityId { get; set; }
 }

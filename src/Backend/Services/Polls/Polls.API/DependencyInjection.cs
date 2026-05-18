@@ -4,6 +4,7 @@ using Polls.API.Authorization;
 using Polls.API.Common.Extensions.Swagger;
 using Polls.API.Common.Filters;
 using Polls.API.Common.Middleware;
+using Polls.API.Grpc;
 
 namespace Polls.API;
 
@@ -17,6 +18,8 @@ public static class DependencyInjection
 
         services.AddControllers(options =>
             options.Filters.Add<ResultFilter>());
+        
+        services.AddGrpc();
 
         services.Configure<Auth0Settings>(configuration.GetSection(Auth0Settings.SectionName));
 
@@ -42,5 +45,6 @@ public static class DependencyInjection
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
+        app.MapGrpcService<CitiesGrpcService>();
     }
 }
