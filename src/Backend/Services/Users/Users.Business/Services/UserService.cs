@@ -13,12 +13,14 @@ public class UserService(
     IUserRepository userRepository,
     IIdentityProvider identityProvider,
     IValidator<CreateUserDto> createValidator,
-    IValidator<UpdateUserProfileDto> updateValidator) : IUserService
+    IValidator<UpdateUserProfileDto> updateValidator,
+    ICityService cityService) : IUserService
 {
     private readonly IValidator<CreateUserDto> _createValidator = createValidator;
     private readonly IValidator<UpdateUserProfileDto> _updateValidator = updateValidator;
     private readonly IIdentityProvider _identityProvider = identityProvider;
     private readonly IUserRepository _userRepository = userRepository;
+    private readonly ICityService _cityService = cityService;
 
     public async Task<GetUserDto> CreateUserAsync(
         CreateUserDto createUserDto,
@@ -52,20 +54,36 @@ public class UserService(
         CancellationToken cancellationToken = default)
     {
         await _updateValidator.ValidateAndThrowAsync(
-            updateUserProfileDto, 
-            cancellationToken);
-        
-        var user = await GetExistingUserAsync(id, IdentitySources.Internal, cancellationToken);
-
-        if (updateUserProfileDto.Nickname is not null)
-            user.Nickname = updateUserProfileDto.Nickname;
-
-        await _userRepository.UpdateAsync(user, cancellationToken);
-
-        await _identityProvider.UpdateUserProfileAsync(
-            user.IdentityId,
             updateUserProfileDto,
             cancellationToken);
+
+        var user = await GetExistingUserAsync(id, IdentitySources.Internal, cancellationToken);
+
+        if (updateUserProfileDto.CityId is not null)
+        {
+            var city = await _cityService.GetCityAsync(
+                updateUserProfileDto.CityId.Value,
+                cancellationToken);
+
+            if (city is null)
+                throw new CityNotFoundException(updateUserProfileDto.CityId.Value);
+
+            if (city.Status != CityStatus.Active)
+                throw new CityNotActiveException(updateUserProfileDto.CityId.Value);
+
+            user.CityId = updateUserProfileDto.CityId;
+        }
+
+        if (updateUserProfileDto.Nickname is not null)
+        {
+            user.Nickname = updateUserProfileDto.Nickname;
+            await _identityProvider.UpdateUserProfileAsync(
+                user.IdentityId,
+                updateUserProfileDto,
+                cancellationToken);
+        }
+
+        await _userRepository.UpdateAsync(user, cancellationToken);
 
         return user.Adapt<GetUserDto>();
     }
