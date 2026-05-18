@@ -3,6 +3,7 @@ using Mapster;
 using MapsterMapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Users.Business.Configurations;
 using Users.Business.Grpc;
@@ -19,7 +20,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddBusiness(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IHostEnvironment environment)
     {
         var config = new TypeAdapterConfig();
         UserMappingConfig.Configure(config);
@@ -47,6 +49,14 @@ public static class DependencyInjection
         {
             var settings = sp.GetRequiredService<IOptions<GrpcSettings>>().Value;
             options.Address = new Uri(settings.CitiesServiceUrl);
+        })
+        .ConfigurePrimaryHttpMessageHandler(() =>
+        {
+            var handler = new HttpClientHandler();
+            if (environment.IsDevelopment())
+                handler.ServerCertificateCustomValidationCallback =
+                    HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+            return handler;
         });
 
         services.AddScoped<ICityService, CityGrpcService>();
@@ -56,9 +66,10 @@ public static class DependencyInjection
 
     public static IServiceCollection AddUsersModule(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IHostEnvironment environment)
     {
-        services.AddBusiness(configuration);
+        services.AddBusiness(configuration, environment);
         services.AddDataAccess(configuration);
 
         return services;
