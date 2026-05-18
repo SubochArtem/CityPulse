@@ -49,14 +49,6 @@ public static class DependencyInjection
         {
             var settings = sp.GetRequiredService<IOptions<GrpcSettings>>().Value;
             options.Address = new Uri(settings.CitiesServiceUrl);
-        })
-        .ConfigurePrimaryHttpMessageHandler(() =>
-        {
-            var handler = new HttpClientHandler();
-            if (environment.IsDevelopment())
-                handler.ServerCertificateCustomValidationCallback =
-                    HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
-            return handler;
         });
 
         services.AddScoped<ICityService, CityGrpcService>();
