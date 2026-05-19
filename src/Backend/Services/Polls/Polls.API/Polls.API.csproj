@@ -7,7 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CityPulse.Contracts" Version="1.0.0" />
+        <PackageReference Include="CityPulse.Contracts.Auth" Version="1.0.0" />
+        <PackageReference Include="CityPulse.Contracts.Grpc" Version="1.0.0" />
 
         <PackageReference Include="Grpc.AspNetCore" Version="2.67.0" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />

@@ -1,7 +1,7 @@
 using Grpc.Core;
 using MediatR;
 using Polls.Application.Cities.Queries.GetCityById;
-using CityPulse.Contracts.Cities;
+using CityPulse.Contracts.Grpc.Protos;
 
 namespace Polls.API.Grpc;
 
