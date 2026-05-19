@@ -1,6 +1,6 @@
 namespace CityPulse.Contracts.Auth.Claims;
 
-public class ClaimTypes
+public class CityPulseClaims
 {
     private const string Namespace = "https://city-pulse.com";
 
