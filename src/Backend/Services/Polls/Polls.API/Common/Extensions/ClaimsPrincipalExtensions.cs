@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using CustomClaims = CityPulse.Contracts.Auth.Claims.ClaimTypes;
+using CityPulse.Contracts.Auth.Claims;
 
 namespace Polls.API.Common.Extensions;
 
@@ -15,7 +15,7 @@ public static class ClaimsPrincipalExtensions
 
     public static Guid GetCityId(this ClaimsPrincipal user)
     {
-        var claim = user.FindFirstValue(CityPulse.Contracts.Auth.Claims.ClaimTypes.CityId);
+        var claim = user.FindFirstValue(CityPulseClaims.CityId);
         
         return Guid.TryParse(claim, out var id) 
             ? id 

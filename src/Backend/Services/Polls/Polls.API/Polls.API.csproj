@@ -7,22 +7,22 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CityPulse.Contracts.Auth" Version="1.0.0" />
-        <PackageReference Include="CityPulse.Contracts.Grpc" Version="1.0.0" />
+        <PackageReference Include="CityPulse.Contracts.Auth" Version="1.1.0"/>
+        <PackageReference Include="CityPulse.Contracts.Grpc" Version="1.0.0"/>
 
-        <PackageReference Include="Grpc.AspNetCore" Version="2.67.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.23" />
+        <PackageReference Include="Grpc.AspNetCore" Version="2.67.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.23"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Polls.Application\Polls.Application.csproj" />
-        <ProjectReference Include="..\Polls.Infrastructure\Polls.Infrastructure.csproj" />
+        <ProjectReference Include="..\Polls.Application\Polls.Application.csproj"/>
+        <ProjectReference Include="..\Polls.Infrastructure\Polls.Infrastructure.csproj"/>
     </ItemGroup>
 
 </Project>
