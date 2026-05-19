@@ -1,3 +1,5 @@
+using Users.Business.DTOs;
+
 namespace Users.Business.Interfaces;
 
 public interface IIdentityProvider
@@ -12,5 +14,10 @@ public interface IIdentityProvider
 
     public Task DeleteUserAsync(
         string identityId,
+        CancellationToken cancellationToken = default);
+
+    Task UpdateUserProfileAsync(
+        string identityId,
+        UpdateUserProfileDto userProfileDto,
         CancellationToken cancellationToken = default);
 }

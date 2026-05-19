@@ -28,6 +28,16 @@ public class UsersController(IUserService userService) : ControllerBase
     {
         return await _userService.GetAllUsersAsync(cancellationToken);
     }
+    
+    [HttpPatch("{id:guid}")]
+    [Authorize(Policy = Policies.UpdateUser)] 
+    public async Task<GetUserDto> UpdateUser(
+        [FromRoute] Guid id,
+        [FromBody] UpdateUserProfileDto request,
+        CancellationToken cancellationToken)
+    {
+        return await _userService.UpdateUserAsync(id, request, cancellationToken);
+    }
 
     [HttpPost("{id:guid}/deactivate")]
     [Authorize(Policy = Policies.DeactivateUser)]
