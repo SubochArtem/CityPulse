@@ -1,4 +1,4 @@
-using CityPulse.Contracts.Cities;
+using CityPulse.Contracts.Grpc.Protos;
 using FluentValidation;
 using Mapster;
 using MapsterMapper;

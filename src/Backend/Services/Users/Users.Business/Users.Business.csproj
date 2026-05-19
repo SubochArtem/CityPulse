@@ -7,26 +7,27 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="CityPulse.Contracts.Auth" Version="1.1.0" />
         <PackageReference Include="CityPulse.Contracts.Grpc" Version="1.0.0" />
 
         <PackageReference Include="Grpc.Net.Client" Version="2.67.0" />
         <PackageReference Include="Google.Protobuf" Version="3.29.3" />
 
-        <PackageReference Include="Auth0.AuthenticationApi" Version="7.44.0"/>
-        <PackageReference Include="Auth0.ManagementApi" Version="7.44.0"/>
-        <PackageReference Include="FluentValidation" Version="12.1.1"/>
-        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1"/>
-        <PackageReference Include="Mapster" Version="7.4.0"/>
-        <PackageReference Include="Mapster.DependencyInjection" Version="1.0.1"/>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8"/>
-        <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.8"/>
-        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.3.0"/>
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.8"/>
-        <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.8"/>
-        <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.8"/>
+        <PackageReference Include="Auth0.AuthenticationApi" Version="7.44.0" />
+        <PackageReference Include="Auth0.ManagementApi" Version="7.44.0" />
+        <PackageReference Include="FluentValidation" Version="12.1.1" />
+        <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+        <PackageReference Include="Mapster" Version="7.4.0" />
+        <PackageReference Include="Mapster.DependencyInjection" Version="1.0.1" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.8" />
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.3.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.8" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="10.0.8" />
+        <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.8" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Users.DataAccess\Users.DataAccess.csproj"/>
+        <ProjectReference Include="..\Users.DataAccess\Users.DataAccess.csproj" />
     </ItemGroup>
 </Project>

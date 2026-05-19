@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using CityPulse.Contracts.Auth.Claims; 
 using Users.Presentation.Authorization.Requirements;
 
 namespace Users.Presentation.Authorization.Handlers;
@@ -8,7 +9,6 @@ public sealed class SelfOrAnyHandler(
     IHttpContextAccessor httpContextAccessor) : AuthorizationHandler<SelfOrAnyRequirement>
 {
     private const string RouteIdParameter = "id";
-    private const string InternalUserIdClaim = "https://city-pulse.com/internal_user_id"; 
 
     protected override Task HandleRequirementAsync(
         AuthorizationHandlerContext context,
@@ -22,7 +22,7 @@ public sealed class SelfOrAnyHandler(
 
         var routeId = httpContextAccessor.HttpContext?.GetRouteValue(RouteIdParameter)?.ToString();
 
-        var userId = context.User.FindFirstValue(InternalUserIdClaim);
+        var userId = context.User.FindFirstValue(CityPulseClaims.InternalUserId);
 
         if (!context.User.HasClaim(Permissions.ClaimType, requirement.SelfPermission)
             || routeId is null

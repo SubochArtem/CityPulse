@@ -1,4 +1,4 @@
-using CityPulse.Contracts.Cities;
+using CityPulse.Contracts.Grpc.Protos;
 using Grpc.Core;
 using Users.Business.DTOs;
 using Users.Business.Interfaces;
