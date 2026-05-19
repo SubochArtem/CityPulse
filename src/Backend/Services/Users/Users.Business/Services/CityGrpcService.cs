@@ -1,6 +1,6 @@
+using CityPulse.Contracts.Cities;
 using Grpc.Core;
 using Users.Business.DTOs;
-using Users.Business.Grpc;
 using Users.Business.Interfaces;
 
 namespace Users.Business.Services;

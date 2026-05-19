@@ -7,17 +7,15 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="CityPulse.Contracts" Version="1.0.0" />
+
+        <PackageReference Include="Grpc.Net.Client" Version="2.67.0" />
+        <PackageReference Include="Google.Protobuf" Version="3.29.3" />
+
         <PackageReference Include="Auth0.AuthenticationApi" Version="7.44.0"/>
         <PackageReference Include="Auth0.ManagementApi" Version="7.44.0"/>
         <PackageReference Include="FluentValidation" Version="12.1.1"/>
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1"/>
-        <PackageReference Include="Google.Protobuf" Version="3.34.1"/>
-        <PackageReference Include="Grpc.AspNetCore" Version="2.80.0"/>
-        <PackageReference Include="Grpc.Net.Client" Version="2.80.0"/>
-        <PackageReference Include="Grpc.Tools" Version="2.80.0">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
         <PackageReference Include="Mapster" Version="7.4.0"/>
         <PackageReference Include="Mapster.DependencyInjection" Version="1.0.1"/>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8"/>
@@ -30,9 +28,5 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Users.DataAccess\Users.DataAccess.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Protobuf Include="Grpc\Protos\cities.proto" GrpcServices="Client"/>
     </ItemGroup>
 </Project>

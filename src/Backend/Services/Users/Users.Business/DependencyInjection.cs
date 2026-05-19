@@ -1,3 +1,4 @@
+using CityPulse.Contracts.Cities;
 using FluentValidation;
 using Mapster;
 using MapsterMapper;
@@ -6,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Users.Business.Configurations;
-using Users.Business.Grpc;
 using Users.Business.Interfaces;
 using Users.Business.Mapping;
 using Users.Business.Policies;
