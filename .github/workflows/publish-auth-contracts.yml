@@ -1,9 +1,9 @@
-name: Publish Grpc Contracts
+name: Publish Auth Contracts
 
 on:
   push:
     tags:
-      - 'grpc-v*'
+      - 'auth-v*'
 
 permissions:
   packages: write
@@ -22,10 +22,9 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Pack Package
-        run: dotnet pack src/Backend/Services/Shared/CityPulse.Contracts.Grpc/CityPulse.Contracts.Grpc.csproj -c Release
+        run: dotnet pack src/Backend/Services/Shared/CityPulse.Contracts.Auth/CityPulse.Contracts.Auth.csproj -c Release
 
       - name: Push to GitHub Packages
         env:
           NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: dotnet nuget push "src/Backend/Services/Shared/CityPulse.Contracts.Grpc/bin/Release/*.nupkg" --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key $NUGET_AUTH_TOKEN
-        
+        run: dotnet nuget push "src/Backend/Services/Shared/CityPulse.Contracts.Auth/bin/Release/*.nupkg" --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" --api-key $NUGET_AUTH_TOKEN
