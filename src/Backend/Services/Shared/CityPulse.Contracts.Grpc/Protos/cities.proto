@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option csharp_namespace = "CityPulse.Contracts.Cities";
+option csharp_namespace = "CityPulse.Contracts.Grpc.Protos";
 
 package cities;
 
