@@ -5,6 +5,10 @@ on:
     tags:
       - 'contracts-v*'
 
+permissions:
+  packages: write
+  contents: read
+
 jobs:
   publish:
     runs-on: ubuntu-latest
