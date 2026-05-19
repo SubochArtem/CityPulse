@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option csharp_namespace = "CityPulse.Contracts.Cities";
+
+package cities;
+
+service CitiesService {
+  rpc GetCity (GetCityRequest) returns (GetCityResponse);
+}
+
+message GetCityRequest {
+  string city_id = 1;
+}
+
+message GetCityResponse {
+  string id = 1;
+  string name = 2;
+  int32 status = 3;
+}

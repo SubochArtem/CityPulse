@@ -15,9 +15,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Users.Presentation", "src\Backend\Services\Users\Users.Presentation\Users.Presentation.csproj", "{C7DAE406-05FE-434C-9EA5-803B885DC42E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Polls", "Polls", "{56FDEEC0-CF81-4656-853E-698D2983B049}"
-	ProjectSection(SolutionItems) = preProject
-		src\Backend\Services\Polls\appsettings.Development.json = src\Backend\Services\Polls\appsettings.Development.json
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Polls.API", "src\Backend\Services\Polls\Polls.API\Polls.API.csproj", "{C879A540-7AFF-48F3-B1E4-F8D8A1AB793D}"
 EndProject
@@ -26,6 +23,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Polls.Domain", "src\Backend\Services\Polls\Polls.Domain\Polls.Domain.csproj", "{8EBD669F-4B06-4847-A51D-7C959585DC41}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Polls.Infrastructure", "src\Backend\Services\Polls\Polls.Infrastructure\Polls.Infrastructure.csproj", "{B67A7336-4F4E-409D-AAD9-8B046B09E003}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{9DD1C088-D71D-47AE-9782-DBAE5274B052}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CityPulse.Contracts", "src\Backend\Services\Shared\CityPulse.Contracts\CityPulse.Contracts.csproj", "{19885986-EC11-4E2F-9F4E-E31CEBFC6038}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +45,8 @@ Global
 		{9529377A-2EF8-43BA-BAEB-3893D39B155D} = {56FDEEC0-CF81-4656-853E-698D2983B049}
 		{8EBD669F-4B06-4847-A51D-7C959585DC41} = {56FDEEC0-CF81-4656-853E-698D2983B049}
 		{B67A7336-4F4E-409D-AAD9-8B046B09E003} = {56FDEEC0-CF81-4656-853E-698D2983B049}
+		{9DD1C088-D71D-47AE-9782-DBAE5274B052} = {89BA2004-DDA6-49BA-89D7-D5D6C06E85F7}
+		{19885986-EC11-4E2F-9F4E-E31CEBFC6038} = {9DD1C088-D71D-47AE-9782-DBAE5274B052}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{EE7A32BB-4942-4670-9A14-EAC1ABFE81C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -74,5 +77,9 @@ Global
 		{B67A7336-4F4E-409D-AAD9-8B046B09E003}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B67A7336-4F4E-409D-AAD9-8B046B09E003}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B67A7336-4F4E-409D-AAD9-8B046B09E003}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19885986-EC11-4E2F-9F4E-E31CEBFC6038}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19885986-EC11-4E2F-9F4E-E31CEBFC6038}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19885986-EC11-4E2F-9F4E-E31CEBFC6038}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19885986-EC11-4E2F-9F4E-E31CEBFC6038}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
