@@ -6,11 +6,9 @@
         <Nullable>enable</Nullable>
 
         <PackageId>CityPulse.Contracts.Grpc</PackageId>
-        <Version>1.0.0</Version> <Authors>artem</Authors>
+        <Version>1.0.0</Version>
+        <Authors>artem</Authors>
         <RepositoryUrl>https://github.com/SubochArtem/CityPulse</RepositoryUrl>
-
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <IncludeSymbols>true</IncludeSymbols>
     </PropertyGroup>
 
     <ItemGroup>
