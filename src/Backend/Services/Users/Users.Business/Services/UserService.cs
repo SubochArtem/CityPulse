@@ -59,6 +59,8 @@ public class UserService(
 
         var user = await GetExistingUserAsync(id, IdentitySources.Internal, cancellationToken);
 
+        var isAuth0UpdateRequired = false;
+
         if (updateUserProfileDto.CityId is not null)
         {
             var city = await _cityService.GetCityAsync(
@@ -72,11 +74,17 @@ public class UserService(
                 throw new CityNotActiveException(updateUserProfileDto.CityId.Value);
 
             user.CityId = updateUserProfileDto.CityId;
+            isAuth0UpdateRequired = true;
         }
 
         if (updateUserProfileDto.Nickname is not null)
         {
             user.Nickname = updateUserProfileDto.Nickname;
+            isAuth0UpdateRequired = true;
+        }
+        
+        if (isAuth0UpdateRequired)
+        {
             await _identityProvider.UpdateUserProfileAsync(
                 user.IdentityId,
                 updateUserProfileDto,

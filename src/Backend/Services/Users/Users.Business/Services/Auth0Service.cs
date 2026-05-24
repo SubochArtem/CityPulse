@@ -65,6 +65,14 @@ public class Auth0Service(
         {
             NickName =  userProfileDto.Nickname
         };
+        
+        if (userProfileDto.CityId is not null)
+        {
+            userUpdateRequest.UserMetadata = new
+            {
+                city_id = userProfileDto.CityId.ToString()
+            };
+        }
 
         await client.Users.UpdateAsync(identityId, userUpdateRequest, cancellationToken);
     }
