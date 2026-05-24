@@ -16,7 +16,7 @@ public interface IUserService
         string identityId,
         CancellationToken cancellationToken = default);
 
-    public Task<IEnumerable<GetUserDto>> GetAllUsersAsync(
+    public Task<IEnumerable<GetUserDto>> GetUsersAsync(
         CancellationToken cancellationToken = default);
 
     public Task DeleteUserAsync(

@@ -139,7 +139,7 @@ public class UserService(
         return user?.Adapt<GetUserDto>();
     }
 
-    public async Task<IEnumerable<GetUserDto>> GetAllUsersAsync(
+    public async Task<IEnumerable<GetUserDto>> GetUsersAsync(
         CancellationToken cancellationToken = default)
     {
         var users = await _userRepository.GetAllAsync(cancellationToken);
