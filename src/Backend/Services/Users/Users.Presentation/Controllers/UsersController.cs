@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Users.Business.DTOs;
 using Users.Business.Interfaces;
+using Users.Business.Responses;
 using Users.Presentation.Authorization;
 
 namespace Users.Presentation.Controllers;
@@ -23,10 +24,11 @@ public class UsersController(IUserService userService) : ControllerBase
 
     [HttpGet]
     [Authorize(Policy = Policies.ReadUser)]
-    public async Task<IEnumerable<GetUserDto>> GetAllUsers(
+    public async Task<PagedResponse<GetUserDto>> GetAllUsers(
+        [FromQuery] UserFilterDto filter,
         CancellationToken cancellationToken)
     {
-        return await _userService.GetAllUsersAsync(cancellationToken);
+        return await _userService.GetUsersAsync(filter, cancellationToken);
     }
     
     [HttpPatch("{id:guid}")]

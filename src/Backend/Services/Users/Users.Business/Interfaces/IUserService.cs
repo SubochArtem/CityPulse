@@ -1,4 +1,5 @@
 using Users.Business.DTOs;
+using Users.Business.Responses;
 
 namespace Users.Business.Interfaces;
 
@@ -16,7 +17,8 @@ public interface IUserService
         string identityId,
         CancellationToken cancellationToken = default);
 
-    public Task<IEnumerable<GetUserDto>> GetUsersAsync(
+    Task<PagedResponse<GetUserDto>> GetUsersAsync(
+        UserFilterDto filter,
         CancellationToken cancellationToken = default);
 
     public Task DeleteUserAsync(
