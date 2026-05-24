@@ -10,8 +10,8 @@ public class CreateUserValidator : AbstractValidator<CreateUserDto>
     {
         RuleFor(x => x.IdentityId)
             .NotEmpty()
-            .WithMessage(ValidationConstants.IdentityIdRequired)
-            .Matches(ValidationConstants.IdentityIdPattern)
-            .WithMessage(ValidationConstants.IdentityIdInvalidFormat);
+            .WithMessage(ValidationConstants.User.IdentityIdRequired)
+            .Matches(ValidationConstants.User.IdentityIdPattern)
+            .WithMessage(ValidationConstants.User.IdentityIdInvalidFormat);
     }
 }
