@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Users.Business.Configurations;
-using Users.Business.DTOs;
 using Users.Business.Interfaces;
 using Users.Presentation.Extensions;
 
@@ -13,7 +12,7 @@ public class Auth0WebhookController(IIdentityProviderWebhookService webhookServi
     private readonly IIdentityProviderWebhookService _webhookService = webhookService;
 
     [HttpPost]
-    public async Task<GetUserDto?> HandleAsync(CancellationToken cancellationToken)
+    public async Task HandleAsync(CancellationToken cancellationToken)
     {
         var rawBody = await HttpContext.Request.ReadRawBodyAsync();
         var signature = HttpContext
@@ -21,6 +20,6 @@ public class Auth0WebhookController(IIdentityProviderWebhookService webhookServi
             .Headers[IdentityProviderConstants.WebhookSignatureHeader]
             .ToString();
 
-        return await _webhookService.HandleAsync(rawBody, signature, cancellationToken);
+        await _webhookService.HandleAsync(rawBody, signature, cancellationToken);
     }
 }

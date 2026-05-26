@@ -1,5 +1,4 @@
 using FluentValidation;
-using Grpc.Core;
 using Microsoft.AspNetCore.Mvc;
 using Users.Business.Exceptions;
 
@@ -20,15 +19,9 @@ public class ExceptionHandlerMiddleware(
     private const string BadRequest = "Bad Request";
     private const string IdentityProviderError = "Identity Provider Error";
     private const string InternalServerError = "Internal Server Error";
-    private const string CityNotFound = "City Not Found";
-    private const string CityNotActive = "City Not Active";
-    private const string CitiesServiceUnavailable = "Cities Service Unavailable";
-    private const string CitiesServiceTimeout = "Cities Service Timeout";
 
     private const string UnexpectedError = "An unexpected error occurred.";
     private const string IdentityProviderCommunicationError = "An error occurred while communicating with the identity provider.";
-    private const string CitiesServiceUnavailableError = "Cities service is currently unavailable.";
-    private const string CitiesServiceTimeoutError = "Cities service request timed out.";
 
     private readonly ILogger<ExceptionHandlerMiddleware> _logger = logger;
     private readonly RequestDelegate _next = next;
@@ -48,9 +41,6 @@ public class ExceptionHandlerMiddleware(
                 ValidationException => LogLevel.Warning,
                 InvalidWebhookSignatureException => LogLevel.Warning,
                 InvalidWebhookPayloadException => LogLevel.Warning,
-                CityNotFoundException => LogLevel.Warning,
-                CityNotActiveException => LogLevel.Warning,
-                RpcException => LogLevel.Error,
                 _ => LogLevel.Error
             };
 
@@ -110,30 +100,6 @@ public class ExceptionHandlerMiddleware(
                 StatusCodes.Status502BadGateway,
                 IdentityProviderError,
                 IdentityProviderCommunicationError
-            ),
-
-            CityNotFoundException e => (
-                StatusCodes.Status404NotFound,
-                CityNotFound,
-                e.Message
-            ),
-
-            CityNotActiveException e => (
-                StatusCodes.Status422UnprocessableEntity,
-                CityNotActive,
-                e.Message
-            ),
-
-            RpcException e when e.StatusCode == StatusCode.Unavailable => (
-                StatusCodes.Status503ServiceUnavailable,
-                CitiesServiceUnavailable,
-                CitiesServiceUnavailableError
-            ),
-
-            RpcException e when e.StatusCode == StatusCode.DeadlineExceeded => (
-                StatusCodes.Status504GatewayTimeout,
-                CitiesServiceTimeout,
-                CitiesServiceTimeoutError
             ),
 
             _ => (
