@@ -1,8 +1,11 @@
+using CityPulse.Contracts.Grpc.Protos;
 using FluentValidation;
 using Mapster;
 using MapsterMapper;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Users.Business.Configurations;
 using Users.Business.Interfaces;
 using Users.Business.Mapping;
@@ -17,7 +20,8 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddBusiness(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IHostEnvironment environment)
     {
         var config = new TypeAdapterConfig();
         UserMappingConfig.Configure(config);
@@ -36,14 +40,28 @@ public static class DependencyInjection
             .AddResiliencePolicies();
         services.AddSingleton<IIdentityProvider, Auth0Service>();
 
+        services.AddOptions<GrpcSettings>()
+            .Bind(configuration.GetSection(GrpcSettings.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddGrpcClient<CitiesService.CitiesServiceClient>((sp, options) =>
+        {
+            var settings = sp.GetRequiredService<IOptions<GrpcSettings>>().Value;
+            options.Address = new Uri(settings.CitiesServiceUrl);
+        });
+
+        services.AddScoped<ICityService, CityGrpcService>();
+
         return services;
     }
 
     public static IServiceCollection AddUsersModule(
         this IServiceCollection services,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IHostEnvironment environment)
     {
-        services.AddBusiness(configuration);
+        services.AddBusiness(configuration, environment);
         services.AddDataAccess(configuration);
 
         return services;

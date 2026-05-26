@@ -16,8 +16,8 @@ public class Auth0WebhookService(
 {
     private readonly Auth0Settings _settings = settings.Value;
     private readonly IUserService _userService = userService;
-
-    public async Task HandleAsync(
+    
+    public async Task<GetUserDto?> HandleAsync(
         string rawBody,
         string signature,
         CancellationToken cancellationToken = default)
@@ -37,12 +37,24 @@ public class Auth0WebhookService(
             throw new InvalidWebhookPayloadException();
 
         if (payload.Event is not IdentityProviderConstants.WebhookUserCreatedEvent)
-            return;
+            return null; 
 
-        await _userService.CreateUserAsync(new CreateUserDto
+        var existingUser = await _userService.GetUserByIdentityIdAsync(payload.User.Id, cancellationToken);
+        
+        if (existingUser is not null)
         {
-            IdentityId = payload.User.Id
+            return existingUser;
+        }
+        
+        var nickname = GenerateNickname(payload.User.Nickname, payload.User.Email);
+        
+        var createdUser = await _userService.CreateUserAsync(new CreateUserDto
+        {
+            IdentityId = payload.User.Id,
+            Nickname = nickname
         }, cancellationToken);
+
+        return createdUser;
     }
 
     private bool ValidateSignature(string body, string signature)
@@ -61,5 +73,17 @@ public class Auth0WebhookService(
         return CryptographicOperations.FixedTimeEquals(
             Encoding.UTF8.GetBytes(signature),
             Encoding.UTF8.GetBytes(expectedSignature));
+    }
+    
+    private static string GenerateNickname(string? nickname, string? email)
+    {
+        if (!string.IsNullOrWhiteSpace(nickname))
+            return nickname;
+        
+        if (!string.IsNullOrWhiteSpace(email) && email.Contains('@'))
+            return email.Split('@')[0];
+        
+        var shortGuid = Guid.NewGuid().ToString("N")[..8];
+        return $"User_{shortGuid}";
     }
 }
