@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="CityPulse.Contracts.Grpc" Version="1.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.23" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
@@ -22,7 +23,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Polls.Application\Polls.Application.csproj"/>
+        <ProjectReference Include="..\Polls.Application\Polls.Application.csproj" />
     </ItemGroup>
 
 </Project>
