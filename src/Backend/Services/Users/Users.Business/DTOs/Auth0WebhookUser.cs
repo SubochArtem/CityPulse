@@ -4,6 +4,9 @@ namespace Users.Business.DTOs;
 
 public class Auth0WebhookUser
 {
-    [JsonPropertyName("id")] 
-    public string? Id { get; init; }
+    [JsonPropertyName("id")] public string? Id { get; init; }
+
+    [JsonPropertyName("nickname")] public string? Nickname { get; init; }
+
+    [JsonPropertyName("email")] public string? Email { get; init; }
 }
