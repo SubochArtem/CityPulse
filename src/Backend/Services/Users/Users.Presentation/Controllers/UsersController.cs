@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Users.Business.DTOs;
 using Users.Business.Interfaces;
+using Users.Business.Responses;
 using Users.Presentation.Authorization;
 
 namespace Users.Presentation.Controllers;
@@ -21,10 +22,11 @@ public class UsersController(IUserService userService) : ControllerBase
 
     [HttpGet]
     [Authorize(Policy = Policies.ReadUser)]
-    public async Task<IEnumerable<GetUserDto>> GetAllUsers(
+    public async Task<PagedResponse<GetUserDto>> GetUsers(
+        [FromQuery] UserFilterDto filter,
         CancellationToken cancellationToken)
     {
-        return await userService.GetAllUsersAsync(cancellationToken);
+        return await userService.GetUsersAsync(filter, cancellationToken);
     }
 
     [HttpPost("{id:guid}/deactivate")]
