@@ -5,7 +5,6 @@ using Users.Business.Constants;
 using Users.Business.DTOs;
 using Users.Business.Exceptions;
 using Users.Business.Interfaces;
-using Users.DataAccess.DTOs;
 using Users.DataAccess.Entities;
 using Users.DataAccess.Interfaces;
 using Users.DataAccess.Models;
@@ -64,6 +63,9 @@ public class UserService(
             var city = await cityService.GetCityAsync(
                 updateUserProfileDto.CityId.Value,
                 cancellationToken);
+
+            if (city is null)
+                throw new CityNotFoundException(updateUserProfileDto.CityId.Value);
 
             if (city.Status != CityStatus.Active)
                 throw new CityNotActiveException(updateUserProfileDto.CityId.Value);
