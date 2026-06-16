@@ -61,6 +61,9 @@ public class UserService(
                 updateUserProfileDto.CityId.Value,
                 cancellationToken);
 
+            if (city is null)
+                throw new CityNotFoundException(updateUserProfileDto.CityId.Value);
+
             if (city.Status != CityStatus.Active)
                 throw new CityNotActiveException(updateUserProfileDto.CityId.Value);
 
@@ -73,7 +76,7 @@ public class UserService(
             user.Nickname = updateUserProfileDto.Nickname;
             isAuth0UpdateRequired = true;
         }
-    
+        
         if (isAuth0UpdateRequired)
         {
             await identityProvider.UpdateUserProfileAsync(
