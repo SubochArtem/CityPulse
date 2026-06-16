@@ -4,7 +4,7 @@ namespace Users.Business.Interfaces;
 
 public interface ICityService
 {
-    Task<CityDto?> GetCityAsync(
+    Task<CityDto> GetCityAsync(
         Guid cityId,
         CancellationToken cancellationToken = default);
 }
