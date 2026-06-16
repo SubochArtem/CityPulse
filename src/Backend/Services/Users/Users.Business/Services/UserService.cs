@@ -1,10 +1,10 @@
+using CityPulse.Contracts.Querying.Pagination;
 using FluentValidation;
 using MapsterMapper;
 using Users.Business.Constants;
 using Users.Business.DTOs;
 using Users.Business.Exceptions;
 using Users.Business.Interfaces;
-using Users.Business.Responses;
 using Users.DataAccess.Entities;
 using Users.DataAccess.Interfaces;
 using Users.DataAccess.Models;
@@ -136,14 +136,14 @@ public class UserService(
         return user is null ? null : mapper.Map<GetUserDto>(user);
     }
 
-    public async Task<PagedResponse<GetUserDto>> GetUsersAsync(
+    public async Task<PagedList<GetUserDto>> GetUsersAsync(
         UserFilterDto filter,
         CancellationToken cancellationToken = default)
     {
         var userFilter = mapper.Map<UserFilter>(filter);
         var users = await userRepository.GetFilteredAsync(userFilter, cancellationToken);
 
-        return mapper.Map<PagedResponse<GetUserDto>>(users);
+        return mapper.Map<PagedList<GetUserDto>>(users);
     }
 
     private async Task<User> GetExistingUserAsync(

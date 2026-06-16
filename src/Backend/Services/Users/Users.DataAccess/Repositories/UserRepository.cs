@@ -1,3 +1,4 @@
+using CityPulse.Contracts.Querying.Pagination;
 using Microsoft.EntityFrameworkCore;
 using Users.DataAccess.Entities;
 using Users.DataAccess.Extensions;

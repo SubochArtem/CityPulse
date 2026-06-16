@@ -1,6 +1,6 @@
+using CityPulse.Contracts.Querying.Pagination;
 using Mapster;
 using Users.Business.DTOs;
-using Users.Business.Responses;
 using Users.DataAccess.Entities;
 using Users.DataAccess.Models;
 
@@ -24,11 +24,7 @@ public static class UserMappingConfig
         
         TypeAdapterConfig<UserFilterDto, UserFilter>.NewConfig();
         
-        config.NewConfig<PagedList<User>, PagedResponse<GetUserDto>>()
-            .MapWith(src => new PagedResponse<GetUserDto>(
-                src.Items.Select(u => u.Adapt<GetUserDto>()).ToList(),
-                src.Page,
-                src.PageSize,
-                src.TotalCount));
+        config.NewConfig<PagedList<User>, PagedList<GetUserDto>>()
+            .MapWith(src => src.Map(u => u.Adapt<GetUserDto>()));
     }
 }

@@ -1,8 +1,8 @@
+using CityPulse.Contracts.Querying.Pagination;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Users.Business.DTOs;
 using Users.Business.Interfaces;
-using Users.Business.Responses;
 using Users.Presentation.Authorization;
 
 namespace Users.Presentation.Controllers;
@@ -22,7 +22,7 @@ public class UsersController(IUserService userService) : ControllerBase
 
     [HttpGet]
     [Authorize(Policy = Policies.ReadUser)]
-    public async Task<PagedResponse<GetUserDto>> GetUsers(
+    public async Task<PagedList<GetUserDto>> GetUsers(
         [FromQuery] UserFilterDto filter,
         CancellationToken cancellationToken)
     {
