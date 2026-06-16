@@ -27,6 +27,7 @@ public class ExceptionHandlerMiddleware(
 
     private const string UnexpectedError = "An unexpected error occurred.";
     private const string IdentityProviderCommunicationError = "An error occurred while communicating with the identity provider.";
+    private const string CityNotFoundError = "City not found.";
     private const string CitiesServiceUnavailableError = "Cities service is currently unavailable.";
     private const string CitiesServiceTimeoutError = "Cities service request timed out.";
     
@@ -47,6 +48,7 @@ public class ExceptionHandlerMiddleware(
                 InvalidWebhookPayloadException => LogLevel.Warning,
                 CityNotFoundException => LogLevel.Warning,
                 CityNotActiveException => LogLevel.Warning,
+                RpcException e when e.StatusCode == StatusCode.NotFound => LogLevel.Warning,
                 RpcException => LogLevel.Error,
                 _ => LogLevel.Error
             };
@@ -119,6 +121,12 @@ public class ExceptionHandlerMiddleware(
                 StatusCodes.Status422UnprocessableEntity,
                 CityNotActive,
                 e.Message
+            ),
+
+            RpcException e when e.StatusCode == StatusCode.NotFound => (
+                StatusCodes.Status404NotFound,
+                CityNotFound,
+                CityNotFoundError
             ),
 
             RpcException e when e.StatusCode == StatusCode.Unavailable => (
