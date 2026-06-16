@@ -1,4 +1,5 @@
 using AutoMapper;
+using CityPulse.Contracts.Querying.Pagination;
 using MediatR;
 using Polls.Application.Common.Interfaces;
 using Polls.Application.Common.Models;

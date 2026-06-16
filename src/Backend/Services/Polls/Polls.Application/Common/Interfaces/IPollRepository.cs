@@ -1,3 +1,4 @@
+using CityPulse.Contracts.Querying.Pagination;
 using Polls.Application.Common.Models;
 using Polls.Domain.Ideas.Enums;
 using Polls.Domain.Polls;

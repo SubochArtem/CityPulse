@@ -1,3 +1,4 @@
+using CityPulse.Contracts.Querying.Pagination;
 using Polls.Application.Common.CQRS;
 using Polls.Application.Common.Models;
 using Polls.Application.Polls.DTOs;
