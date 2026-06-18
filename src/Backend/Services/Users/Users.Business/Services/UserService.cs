@@ -5,6 +5,7 @@ using Users.Business.Constants;
 using Users.Business.DTOs;
 using Users.Business.Exceptions;
 using Users.Business.Interfaces;
+using Users.DataAccess.DTOs;
 using Users.DataAccess.Entities;
 using Users.DataAccess.Interfaces;
 using Users.DataAccess.Models;
