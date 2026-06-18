@@ -1,11 +1,13 @@
 using CityPulse.Contracts.Grpc.Protos;
+using MapsterMapper;
 using Users.DataAccess.DTOs;
 using Users.DataAccess.Interfaces;
-using CityStatus = Users.DataAccess.DTOs.CityStatus;
 
 namespace Users.DataAccess.Services;
 
-public class CityGrpcService(CitiesService.CitiesServiceClient client) : ICityService
+public class CityGrpcService(
+    CitiesService.CitiesServiceClient client,
+    IMapper mapper) : ICityService
 {
     public async Task<CityDto> GetCityAsync(
         Guid cityId,
@@ -15,11 +17,6 @@ public class CityGrpcService(CitiesService.CitiesServiceClient client) : ICitySe
             new GetCityRequest { CityId = cityId.ToString() },
             cancellationToken: cancellationToken);
 
-        return new CityDto
-        {
-            Id = Guid.Parse(response.Id),
-            Name = response.Name,
-            Status = (CityStatus)response.Status
-        };
+        return mapper.Map<CityDto>(response);
     }
 }
