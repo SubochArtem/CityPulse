@@ -15,11 +15,5 @@ message GetCityRequest {
 message GetCityResponse {
   string id = 1;
   string name = 2;
-  CityStatus status = 3;
-}
-
-enum CityStatus {
-  CITY_STATUS_UNDEFINED = 0;
-  CITY_STATUS_ACTIVE = 1;
-  CITY_STATUS_INACTIVE = 2;
+  int32 status = 3;
 }
