@@ -1,9 +1,9 @@
 using CityPulse.Contracts.Grpc.Protos;
-using Grpc.Core;
-using Users.Business.DTOs;
-using Users.Business.Interfaces;
+using Users.DataAccess.DTOs;
+using Users.DataAccess.Interfaces;
+using CityStatus = Users.DataAccess.DTOs.CityStatus;
 
-namespace Users.Business.Services;
+namespace Users.DataAccess.Services;
 
 public class CityGrpcService(CitiesService.CitiesServiceClient client) : ICityService
 {

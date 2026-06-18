@@ -1,4 +1,4 @@
-namespace Users.Business.DTOs;
+namespace Users.DataAccess.DTOs;
 
 public record CityDto
 {

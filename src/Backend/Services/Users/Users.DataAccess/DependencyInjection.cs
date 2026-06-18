@@ -1,9 +1,13 @@
+using CityPulse.Contracts.Grpc.Protos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
+using Users.DataAccess.Configurations;
 using Users.DataAccess.Interceptors;
 using Users.DataAccess.Interfaces;
 using Users.DataAccess.Repositories;
+using Users.DataAccess.Services;
 
 namespace Users.DataAccess;
 
@@ -45,6 +49,19 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IUserRepository, UserRepository>();
+        
+        services.AddOptions<GrpcSettings>()
+            .Bind(configuration.GetSection(GrpcSettings.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        
+        services.AddGrpcClient<CitiesService.CitiesServiceClient>((sp, options) =>
+        {
+            var settings = sp.GetRequiredService<IOptions<GrpcSettings>>().Value;
+            options.Address = new Uri(settings.CitiesServiceUrl);
+        });
+
+        services.AddScoped<ICityService, CityGrpcService>();
 
         return services;
     }

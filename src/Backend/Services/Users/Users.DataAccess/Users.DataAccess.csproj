@@ -7,7 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4"/>
+        <PackageReference Include="CityPulse.Contracts.Grpc" Version="2.0.0" />
+        <PackageReference Include="CityPulse.Contracts.Querying" Version="1.0.0" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.4" />
     </ItemGroup>
 
 </Project>
