@@ -24,7 +24,7 @@ public class ExceptionHandlerMiddleware(
     private const string CityNotActive = "City Not Active";
     private const string CitiesServiceUnavailable = "Cities Service Unavailable";
     private const string CitiesServiceTimeout = "Cities Service Timeout";
-
+    private const string WebhookEventIgnored = "Webhook Event Ignored";
     private const string UnexpectedError = "An unexpected error occurred.";
     private const string IdentityProviderCommunicationError = "An error occurred while communicating with the identity provider.";
     private const string CityNotFoundError = "City not found.";
@@ -46,6 +46,7 @@ public class ExceptionHandlerMiddleware(
                 ValidationException => LogLevel.Warning,
                 InvalidWebhookSignatureException => LogLevel.Warning,
                 InvalidWebhookPayloadException => LogLevel.Warning,
+                UnsupportedWebhookEventException => LogLevel.Information,
                 CityNotActiveException => LogLevel.Warning,
                 RpcException e when e.StatusCode == StatusCode.NotFound => LogLevel.Warning,
                 RpcException => LogLevel.Error,
@@ -68,6 +69,12 @@ public class ExceptionHandlerMiddleware(
     {
         var (statusCode, title, detail) = ex switch
         {
+            UnsupportedWebhookEventException e => (
+                StatusCodes.Status200OK,
+                WebhookEventIgnored,
+                e.Message
+            ),
+            
             UserNotFoundException e => (
                 StatusCodes.Status404NotFound,
                 UserNotFound,
