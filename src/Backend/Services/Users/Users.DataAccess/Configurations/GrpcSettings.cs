@@ -1,4 +1,4 @@
-namespace Users.Business.Configurations;
+namespace Users.DataAccess.Configurations;
 
 public class GrpcSettings
 {

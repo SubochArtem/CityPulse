@@ -1,6 +1,6 @@
-using Users.Business.DTOs;
+using Users.DataAccess.DTOs;
 
-namespace Users.Business.Interfaces;
+namespace Users.DataAccess.Interfaces;
 
 public interface ICityService
 {
