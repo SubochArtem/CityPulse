@@ -19,9 +19,11 @@ public static class DependencyInjection
         
         services.AddAutoMapper(typeof(CityGrpcProfile).Assembly);
 
+        services.AddAutoMapper(typeof(CityGrpcProfile).Assembly);
+
         services.AddControllers(options =>
             options.Filters.Add<ResultFilter>());
-        
+
         services.AddGrpc();
 
         services.Configure<Auth0Settings>(configuration.GetSection(Auth0Settings.SectionName));
