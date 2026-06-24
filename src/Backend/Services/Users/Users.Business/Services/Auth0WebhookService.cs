@@ -37,14 +37,12 @@ public class Auth0WebhookService(
             throw new InvalidWebhookPayloadException();
 
         if (payload.Event is not IdentityProviderConstants.WebhookUserCreatedEvent)
-            return null; 
+            throw new UnsupportedWebhookEventException(payload.Event);
 
         var existingUser = await _userService.GetUserByIdentityIdAsync(payload.User.Id, cancellationToken);
         
         if (existingUser is not null)
-        {
             return existingUser;
-        }
         
         var nickname = GenerateNickname(payload.User.Nickname, payload.User.Email);
         
