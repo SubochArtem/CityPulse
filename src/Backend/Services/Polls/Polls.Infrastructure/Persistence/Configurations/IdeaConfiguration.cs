@@ -10,7 +10,8 @@ public class IdeaConfiguration : IEntityTypeConfiguration<Idea>
     private const string IdColumnName = "id";
     private const string TitleColumnName = "title";
     private const string DescriptionColumnName = "description";
-    private const string StatusColumnName = "status";
+    private const string AccessStatusColumnName = "access_status";
+    private const string ApprovalStatusColumnName = "approval_status";
     private const string CreatedAtColumnName = "created_at";
     private const string UpdatedAtColumnName = "updated_at";
     private const string PollIdIndexName = "ix_idea_poll_id";
@@ -22,14 +23,14 @@ public class IdeaConfiguration : IEntityTypeConfiguration<Idea>
     public void Configure(EntityTypeBuilder<Idea> builder)
     {
         builder.HasKey(i => i.Id);
-        
+
         builder.Property(i => i.Id)
             .HasColumnName(IdColumnName);
-        
+
         builder.Property(i => i.UserId)
             .HasColumnName(UserIdColumnName)
             .IsRequired();
-        
+
         builder.Property(i => i.PollId)
             .HasColumnName(PollIdColumnName)
             .IsRequired();
@@ -43,8 +44,11 @@ public class IdeaConfiguration : IEntityTypeConfiguration<Idea>
             .HasColumnName(DescriptionColumnName)
             .HasMaxLength(DescriptionMaxLength);
 
-        builder.Property(i => i.Status)
-            .HasColumnName(StatusColumnName)
+        builder.Property(i => i.AccessStatus)
+            .HasColumnName(AccessStatusColumnName)
+            .IsRequired();
+        builder.Property(i => i.ApprovalStatus)
+            .HasColumnName(ApprovalStatusColumnName)
             .IsRequired();
 
         builder.Property(i => i.CreatedAt)
