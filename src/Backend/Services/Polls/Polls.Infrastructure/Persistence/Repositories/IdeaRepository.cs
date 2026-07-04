@@ -47,32 +47,32 @@ public class IdeaRepository(ApplicationDbContext context)
             .FirstOrDefaultAsync(i => i.Id == id, cancellationToken);
     }
     
-    public async Task UpdateStatusByCityAsync(
-        Guid cityId, 
-        IdeaStatus source, 
-        IdeaStatus target, 
+    public async Task UpdateAccessStatusByCityAsync(
+        Guid cityId,
+        AccessStatus sourceAccessStatus,
+        AccessStatus targetAccessStatus,
         DateTimeOffset updatedAt,
         CancellationToken cancellationToken = default)
     {
         await _dbSet
-            .Where(i => i.Poll.CityId == cityId && i.Status == source)
+            .Where(i => i.Poll.CityId == cityId && i.AccessStatus == sourceAccessStatus)
             .ExecuteUpdateAsync(s => s
-                    .SetProperty(i => i.Status, target)
+                    .SetProperty(i => i.AccessStatus, targetAccessStatus)
                     .SetProperty(i => i.UpdatedAt, updatedAt),
                 cancellationToken);
     }
     
-    public async Task UpdateStatusByPollIdAsync(
+    public async Task UpdateAccessStatusByPollIdAsync(
         Guid pollId,
-        IdeaStatus sourceStatus,
-        IdeaStatus targetStatus,
+        AccessStatus sourceAccessStatus,
+        AccessStatus targetAccessStatus,
         DateTimeOffset updatedAt,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
-        await _context.Ideas
-            .Where(i => i.PollId == pollId && i.Status == sourceStatus)
+        await _dbSet
+            .Where(i => i.PollId == pollId && i.AccessStatus == sourceAccessStatus)
             .ExecuteUpdateAsync(setters => setters
-                    .SetProperty(i => i.Status, targetStatus)
+                    .SetProperty(i => i.AccessStatus, targetAccessStatus)
                     .SetProperty(i => i.UpdatedAt, updatedAt), 
                 cancellationToken);
     }
