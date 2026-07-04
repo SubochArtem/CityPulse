@@ -14,7 +14,7 @@ public interface IPollRepository : IRepository<Poll>
 
     Task<Poll?> GetWithIdeasAsync(
         Guid id,
-        IdeaStatus? ideaStatus,
+        AccessStatus? ideaAccessStatus,
         CancellationToken cancellationToken = default);
     
     Task<Poll?> GetByIdWithImagesAsync(
