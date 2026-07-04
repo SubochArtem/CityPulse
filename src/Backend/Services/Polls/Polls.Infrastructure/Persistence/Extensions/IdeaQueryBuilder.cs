@@ -15,10 +15,16 @@ public class IdeaQueryBuilder(IQueryable<Idea> query)
         return this;
     }
 
-    public IdeaQueryBuilder WithStatus(IdeaStatus? status)
+    public IdeaQueryBuilder WithAccessStatus(AccessStatus? status)
     {
         if (status is not null)
-            _query = _query.Where(i => i.Status == status);
+            _query = _query.Where(i => i.AccessStatus == status);
+        return this;
+    }
+    public IdeaQueryBuilder WithApprovalStatus(ApprovalStatus? status)
+    {
+        if (status is not null)
+            _query = _query.Where(i => i.ApprovalStatus == status);
         return this;
     }
 
