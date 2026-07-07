@@ -115,12 +115,12 @@ public class AdminIdeasController(ISender sender) : ControllerBase
     [Authorize(Policy = Permissions.Ideas.ChangeStatusAny)]
     public async Task<Result<Unit>> ChangeStatus(
         Guid id,
-        ChangeIdeaStatusRequest request,
+        ChangeIdeaAccessStatusRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new ChangeIdeaStatusCommand(
+        var command = new ChangeIdeaAccessStatusCommand(
             Id: id,
-            NewStatus: request.NewStatus);
+            NewAccessStatus: request.NewAccessStatus);
         
         return await sender.Send(command, cancellationToken);
     }
