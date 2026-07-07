@@ -13,9 +13,14 @@ public sealed class IdeaFilterValidator : BaseFilterValidator<IdeaFilter>
             .NotEmpty()
             .WithMessage(ValidationConstants.Poll.IdRequired);
 
-        RuleFor(x => x.Status)
+        RuleFor(x => x.AccessStatus)
             .IsInEnum()
-            .WithMessage(ValidationConstants.Idea.InvalidStatus)
-            .When(x => x.Status.HasValue);
+            .WithMessage(ValidationConstants.Idea.InvalidAccessStatus)
+            .When(x => x.AccessStatus.HasValue);
+        
+        RuleFor(x => x.ApprovalStatus)
+            .IsInEnum()
+            .WithMessage(ValidationConstants.Idea.InvalidApprovalStatus)
+            .When(x => x.ApprovalStatus.HasValue);
     }
 }

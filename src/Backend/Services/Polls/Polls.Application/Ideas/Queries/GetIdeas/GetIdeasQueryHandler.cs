@@ -17,7 +17,7 @@ public sealed class GetIdeasQueryHandler(IUnitOfWork unitOfWork, IMapper mapper)
         CancellationToken cancellationToken)
     {
         if (query.IncludeOnlyActive)
-            query.Filter.Status = IdeaStatus.Active;
+            query.Filter.AccessStatus = AccessStatus.Active;
         
         var ideas = await unitOfWork.Ideas.GetFilteredAsync(query.Filter, cancellationToken);
         return ideas.Map(mapper.Map<IdeaDto>);
