@@ -11,6 +11,7 @@ namespace Polls.Application.Cities.Commands.ChangeStatus;
 
 public sealed class ChangeCityStatusCommandHandler(
     IUnitOfWork unitOfWork,
+    IDateTimeProvider dateTimeProvider,
     ILogger<ChangeCityStatusCommandHandler> logger) 
     : IRequestHandler<ChangeCityStatusCommand, Result<Unit>>
 {
@@ -23,10 +24,12 @@ public sealed class ChangeCityStatusCommandHandler(
             return CityErrors.NotFound(command.Id);
 
         if (city.Status == command.NewStatus)
-            return Unit.Value;
+            return Result<Unit>.Success(Unit.Value);
 
-        var transition = GetStatusTransition(command.NewStatus);
-        if (transition is null)
+        var (sourcePollStatus, targetPollStatus, sourceIdeaAccessStatus, targetIdeaAccessStatus) = GetStatusTransition(command.NewStatus);
+        
+        if (sourcePollStatus == PollStatus.Undefined || targetPollStatus == PollStatus.Undefined
+            || sourceIdeaAccessStatus == AccessStatus.Undefined || targetIdeaAccessStatus == AccessStatus.Undefined)
         {
             logger.LogWarning(
                 "Unsupported city status transition {CityId}: {Status}", 
@@ -35,7 +38,8 @@ public sealed class ChangeCityStatusCommandHandler(
             return CityErrors.InvalidStatus(command.NewStatus);
         }
 
-        var utcNow = DateTimeOffset.UtcNow;
+        var utcNow = dateTimeProvider.UtcNow;
+        
         await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
         
         try
@@ -46,20 +50,20 @@ public sealed class ChangeCityStatusCommandHandler(
             
             await unitOfWork.Polls.UpdateStatusByCityAsync(
                 city.Id, 
-                transition.Value.SourcePoll, 
-                transition.Value.TargetPoll, 
+                sourcePollStatus, 
+                targetPollStatus, 
                 utcNow, 
                 cancellationToken);
                 
-            await unitOfWork.Ideas.UpdateStatusByCityAsync(
+            await unitOfWork.Ideas.UpdateAccessStatusByCityAsync(
                 city.Id, 
-                transition.Value.SourceIdea, 
-                transition.Value.TargetIdea, 
+                sourceIdeaAccessStatus, 
+                targetIdeaAccessStatus, 
                 utcNow, 
                 cancellationToken);
             
             await transaction.CommitAsync(cancellationToken);
-            return Unit.Value;
+            return Result<Unit>.Success(Unit.Value);
         }
         catch (Exception ex)
         {
@@ -75,18 +79,21 @@ public sealed class ChangeCityStatusCommandHandler(
     }
 
     private static (
-        PollStatus SourcePoll, PollStatus TargetPoll,
-        IdeaStatus SourceIdea, IdeaStatus TargetIdea)? 
+        PollStatus SourcePollStatus, 
+        PollStatus TargetPollStatus, 
+        AccessStatus SourceIdeaAccessStatus, 
+        AccessStatus TargetIdeaAccessStatus)
         GetStatusTransition(CityStatus newStatus) => newStatus switch
     {
         CityStatus.Active => (
             PollStatus.Suspended, PollStatus.Active,
-            IdeaStatus.Suspended, IdeaStatus.Active),
+            AccessStatus.Restricted, AccessStatus.Active),
             
         CityStatus.Inactive => (
             PollStatus.Active, PollStatus.Suspended,
-            IdeaStatus.Active, IdeaStatus.Suspended),
+            AccessStatus.Active, AccessStatus.Restricted),
         
-        _ => null
+        _ => (PollStatus.Undefined, PollStatus.Undefined, 
+            AccessStatus.Undefined, AccessStatus.Undefined)
     };
 }
