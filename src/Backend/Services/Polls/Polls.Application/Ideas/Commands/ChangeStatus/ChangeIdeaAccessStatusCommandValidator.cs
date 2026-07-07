@@ -3,16 +3,16 @@ using Polls.Application.Common.Constants;
 
 namespace Polls.Application.Ideas.Commands.ChangeStatus;
 
-public class ChangeIdeaStatusCommandValidator : AbstractValidator<ChangeIdeaStatusCommand>
+public class ChangeIdeaAccessStatusCommandValidator : AbstractValidator<ChangeIdeaAccessStatusCommand>
 {
-    public ChangeIdeaStatusCommandValidator()
+    public ChangeIdeaAccessStatusCommandValidator()
     {
         RuleFor(i => i.Id)
             .NotEmpty()
             .WithMessage(ValidationConstants.Idea.IdRequired);
 
-        RuleFor(i => i.NewStatus)
+        RuleFor(i => i.NewAccessStatus)
             .IsInEnum()
-            .WithMessage(ValidationConstants.Idea.InvalidStatus);
+            .WithMessage(ValidationConstants.Idea.InvalidAccessStatus);
     }
 }

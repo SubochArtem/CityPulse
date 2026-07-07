@@ -5,22 +5,22 @@ using Polls.Domain.Ideas;
 
 namespace Polls.Application.Ideas.Commands.ChangeStatus;
 
-public sealed class ChangeIdeaStatusCommandHandler(
+public sealed class ChangeIdeaAccessStatusCommandHandler(
     IUnitOfWork unitOfWork) 
-    : IRequestHandler<ChangeIdeaStatusCommand, Result<Unit>>
+    : IRequestHandler<ChangeIdeaAccessStatusCommand, Result<Unit>>
 {
     public async Task<Result<Unit>> Handle(
-        ChangeIdeaStatusCommand command, 
+        ChangeIdeaAccessStatusCommand command, 
         CancellationToken cancellationToken)
     {
         var idea = await unitOfWork.Ideas.GetByIdAsync(command.Id, cancellationToken);
         if (idea is null)
             return IdeaErrors.NotFound(command.Id);
         
-        if (idea.Status == command.NewStatus)
+        if (idea.AccessStatus == command.NewAccessStatus)
             return Result<Unit>.Success(Unit.Value);
         
-        idea.Status = command.NewStatus;
+        idea.AccessStatus = command.NewAccessStatus;
         unitOfWork.Ideas.Update(idea);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         
