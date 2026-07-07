@@ -1,6 +1,6 @@
 namespace Polls.Domain.Ideas.Enums;
 
-public enum AccessStatus
+public enum IdeaAccessStatus
 {
     Undefined = 0,
     Active = 1,

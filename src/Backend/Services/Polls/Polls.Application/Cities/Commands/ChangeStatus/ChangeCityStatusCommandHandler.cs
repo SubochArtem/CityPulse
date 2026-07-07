@@ -29,7 +29,7 @@ public sealed class ChangeCityStatusCommandHandler(
         var (sourcePollStatus, targetPollStatus, sourceIdeaAccessStatus, targetIdeaAccessStatus) = GetStatusTransition(command.NewStatus);
         
         if (sourcePollStatus == PollStatus.Undefined || targetPollStatus == PollStatus.Undefined
-            || sourceIdeaAccessStatus == AccessStatus.Undefined || targetIdeaAccessStatus == AccessStatus.Undefined)
+            || sourceIdeaAccessStatus == IdeaAccessStatus.Undefined || targetIdeaAccessStatus == IdeaAccessStatus.Undefined)
         {
             logger.LogWarning(
                 "Unsupported city status transition {CityId}: {Status}", 
@@ -81,19 +81,19 @@ public sealed class ChangeCityStatusCommandHandler(
     private static (
         PollStatus SourcePollStatus, 
         PollStatus TargetPollStatus, 
-        AccessStatus SourceIdeaAccessStatus, 
-        AccessStatus TargetIdeaAccessStatus)
+        IdeaAccessStatus SourceIdeaAccessStatus, 
+        IdeaAccessStatus TargetIdeaAccessStatus)
         GetStatusTransition(CityStatus newStatus) => newStatus switch
     {
         CityStatus.Active => (
             PollStatus.Suspended, PollStatus.Active,
-            AccessStatus.Restricted, AccessStatus.Active),
+            IdeaAccessStatus.Restricted, IdeaAccessStatus.Active),
             
         CityStatus.Inactive => (
             PollStatus.Active, PollStatus.Suspended,
-            AccessStatus.Active, AccessStatus.Restricted),
+            IdeaAccessStatus.Active, IdeaAccessStatus.Restricted),
         
         _ => (PollStatus.Undefined, PollStatus.Undefined, 
-            AccessStatus.Undefined, AccessStatus.Undefined)
+            IdeaAccessStatus.Undefined, IdeaAccessStatus.Undefined)
     };
 }

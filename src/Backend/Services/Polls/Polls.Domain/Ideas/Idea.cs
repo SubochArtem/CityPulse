@@ -10,7 +10,7 @@ public class Idea : EntityBase
     public Guid UserId { get; set; }
     public Guid PollId { get; set; }
     public Poll Poll { get; set; } = null!;
-    public AccessStatus AccessStatus { get; set; } = AccessStatus.Undefined;
-    public ApprovalStatus ApprovalStatus { get; set; } = ApprovalStatus.Undefined;
+    public IdeaAccessStatus AccessStatus { get; set; } = IdeaAccessStatus.Undefined;
+    public IdeaApprovalStatus ApprovalStatus { get; set; } = IdeaApprovalStatus.Undefined;
     public ICollection<IdeaImage> Images { get; set; } = [];
 }

@@ -120,7 +120,7 @@ public class AdminIdeasController(ISender sender) : ControllerBase
     {
         var command = new ChangeIdeaAccessStatusCommand(
             Id: id,
-            NewAccessStatus: request.NewAccessStatus);
+            NewIdeaAccessStatus: request.NewIdeaAccessStatus);
         
         return await sender.Send(command, cancellationToken);
     }

@@ -50,8 +50,8 @@ public sealed class CreateIdeaCommandHandler(
             PollId = command.PollId,
             Title = command.Title,
             Description = command.Description,
-            AccessStatus = AccessStatus.Active,
-            ApprovalStatus =  ApprovalStatus.Pending
+            AccessStatus = IdeaAccessStatus.Active,
+            ApprovalStatus =  IdeaApprovalStatus.Pending
         };
 
         unitOfWork.Ideas.Create(idea);

@@ -5,4 +5,4 @@ namespace Polls.Application.Ideas.Commands.ChangeStatus;
 
 public sealed record ChangeIdeaAccessStatusCommand(
     Guid Id, 
-    AccessStatus NewAccessStatus) : ICommand;
+    IdeaAccessStatus NewIdeaAccessStatus) : ICommand;

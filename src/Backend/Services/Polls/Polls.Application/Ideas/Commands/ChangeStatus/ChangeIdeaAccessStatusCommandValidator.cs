@@ -11,7 +11,7 @@ public class ChangeIdeaAccessStatusCommandValidator : AbstractValidator<ChangeId
             .NotEmpty()
             .WithMessage(ValidationConstants.Idea.IdRequired);
 
-        RuleFor(i => i.NewAccessStatus)
+        RuleFor(i => i.NewIdeaAccessStatus)
             .IsInEnum()
             .WithMessage(ValidationConstants.Idea.InvalidAccessStatus);
     }

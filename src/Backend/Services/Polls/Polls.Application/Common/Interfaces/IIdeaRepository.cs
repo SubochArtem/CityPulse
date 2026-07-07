@@ -21,14 +21,14 @@ public interface IIdeaRepository : IRepository<Idea>
 
     Task UpdateAccessStatusByCityAsync(
         Guid cityId,
-        AccessStatus source,
-        AccessStatus target,
+        IdeaAccessStatus source,
+        IdeaAccessStatus target,
         DateTimeOffset updatedAt,
         CancellationToken cancellationToken = default);
     Task UpdateAccessStatusByPollIdAsync(
         Guid pollId,
-        AccessStatus source,
-        AccessStatus target,
+        IdeaAccessStatus source,
+        IdeaAccessStatus target,
         DateTimeOffset updatedAt,
         CancellationToken cancellationToken = default);
 }

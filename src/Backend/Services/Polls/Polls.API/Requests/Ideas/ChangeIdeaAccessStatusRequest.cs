@@ -4,5 +4,5 @@ namespace Polls.API.Requests.Ideas;
 
 public record ChangeIdeaAccessStatusRequest
 {
-    public required AccessStatus NewAccessStatus { get; init; }
+    public required IdeaAccessStatus NewIdeaAccessStatus { get; init; }
 }

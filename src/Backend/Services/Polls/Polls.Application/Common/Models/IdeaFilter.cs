@@ -5,6 +5,6 @@ namespace Polls.Application.Common.Models;
 public class IdeaFilter : BaseFilter
 {
     public Guid? PollId { get; set; }
-    public AccessStatus? AccessStatus { get; set; }
-    public ApprovalStatus? ApprovalStatus { get; set; }
+    public IdeaAccessStatus? AccessStatus { get; set; }
+    public IdeaApprovalStatus? ApprovalStatus { get; set; }
 }

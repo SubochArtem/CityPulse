@@ -1,6 +1,6 @@
 namespace Polls.Domain.Ideas.Enums;
 
-public enum ApprovalStatus
+public enum IdeaApprovalStatus
 {
     Undefined = 0,
     Approved = 1,

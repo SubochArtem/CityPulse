@@ -23,7 +23,7 @@ public sealed class IdeaGuard(Idea idea)
     
     public IdeaGuard IsNotApproved()
     {
-        if (_error is null && idea.ApprovalStatus == ApprovalStatus.Approved)
+        if (_error is null && idea.ApprovalStatus == IdeaApprovalStatus.Approved)
             _error = IdeaErrors.AlreadyApproved(idea.Id);
         return this;
     }

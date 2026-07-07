@@ -28,7 +28,7 @@ public class PollRepository(ApplicationDbContext context) : Repository<Poll>(con
 
     public async Task<Poll?> GetWithIdeasAsync(
         Guid id,
-        AccessStatus? ideaAccessStatus,
+        IdeaAccessStatus? ideaAccessStatus,
         CancellationToken cancellationToken = default)
     {
         return await _dbSet

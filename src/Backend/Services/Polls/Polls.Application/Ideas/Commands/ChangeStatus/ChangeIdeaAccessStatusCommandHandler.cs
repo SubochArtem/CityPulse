@@ -17,10 +17,10 @@ public sealed class ChangeIdeaAccessStatusCommandHandler(
         if (idea is null)
             return IdeaErrors.NotFound(command.Id);
         
-        if (idea.AccessStatus == command.NewAccessStatus)
+        if (idea.AccessStatus == command.NewIdeaAccessStatus)
             return Result<Unit>.Success(Unit.Value);
         
-        idea.AccessStatus = command.NewAccessStatus;
+        idea.AccessStatus = command.NewIdeaAccessStatus;
         unitOfWork.Ideas.Update(idea);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         

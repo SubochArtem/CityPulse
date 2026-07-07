@@ -16,8 +16,8 @@ public sealed class GetPollWithIdeasQueryHandler(IUnitOfWork unitOfWork, IMapper
         GetPollWithIdeasQuery query,
         CancellationToken cancellationToken)
     {
-        AccessStatus? ideaAccessStatusFilter = query.IncludeOnlyActive
-            ? AccessStatus.Active
+        IdeaAccessStatus? ideaAccessStatusFilter = query.IncludeOnlyActive
+            ? IdeaAccessStatus.Active
             : null;
         
         var poll = await unitOfWork.Polls.GetWithIdeasAsync(
