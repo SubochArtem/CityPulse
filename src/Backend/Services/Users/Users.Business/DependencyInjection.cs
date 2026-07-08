@@ -30,12 +30,16 @@ public static class DependencyInjection
             .AddScoped<IUserService, UserService>()
             .AddScoped<IIdentityProviderWebhookService, Auth0WebhookService>();
 
-        services.Configure<Auth0Settings>(
-            configuration.GetSection(IdentityProviderConstants.Auth0ConfigurationSection));
+        services.AddOptions<Auth0Settings>()
+            .Bind(configuration.GetSection(IdentityProviderConstants.Auth0ConfigurationSection))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+        
         services.AddHttpClient(IdentityProviderConstants.Auth0HttpClientName)
             .AddResiliencePolicies();
+        
         services.AddSingleton<IIdentityProvider, Auth0Service>();
-
+        
         return services;
     }
 

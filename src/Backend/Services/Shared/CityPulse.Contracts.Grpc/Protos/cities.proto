@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+option csharp_namespace = "CityPulse.Contracts.Grpc.Protos";
+
+package cities;
+
+service CitiesService {
+  rpc GetCity (GetCityRequest) returns (GetCityResponse);
+}
+
+message GetCityRequest {
+  string city_id = 1;
+}
+
+message GetCityResponse {
+  string id = 1;
+  string name = 2;
+  CityStatus status = 3;
+}
+
+enum CityStatus {
+  CITY_STATUS_UNDEFINED = 0;
+  CITY_STATUS_ACTIVE = 1;
+  CITY_STATUS_INACTIVE = 2;
+}
