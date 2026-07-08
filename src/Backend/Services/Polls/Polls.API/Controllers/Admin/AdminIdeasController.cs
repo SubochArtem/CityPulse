@@ -111,9 +111,9 @@ public class AdminIdeasController(ISender sender) : ControllerBase
         return await sender.Send(command, cancellationToken);
     }
 
-    [HttpPatch("{id:guid}/status")]
+    [HttpPatch("{id:guid}/access-status")]
     [Authorize(Policy = Permissions.Ideas.ChangeStatusAny)]
-    public async Task<Result<Unit>> ChangeStatus(
+    public async Task<Result<Unit>> ChangeAccessStatus(
         Guid id,
         ChangeIdeaAccessStatusRequest request,
         CancellationToken cancellationToken)
