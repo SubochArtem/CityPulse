@@ -7,7 +7,7 @@ public static class ClaimsPrincipalExtensions
 {
     public static Guid GetUserId(this ClaimsPrincipal user)
     {
-        var claim = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        var claim = user.FindFirstValue(CityPulseClaims.InternalUserId);
         return Guid.TryParse(claim, out var id) 
             ? id 
             : Guid.Empty;
