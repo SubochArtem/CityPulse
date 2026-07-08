@@ -3,7 +3,7 @@ using Polls.Application.Common.Interfaces;
 using Polls.Domain.Common;
 using Polls.Domain.Ideas;
 
-namespace Polls.Application.Ideas.Commands.ChangeStatus;
+namespace Polls.Application.Ideas.Commands.ChangeAccessStatus;
 
 public sealed class ChangeIdeaAccessStatusCommandHandler(
     IUnitOfWork unitOfWork) 

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Polls.API.Common.Extensions;
 using Polls.API.Requests.Ideas;
 using Polls.Application.Common.Models;
-using Polls.Application.Ideas.Commands.ChangeStatus;
+using Polls.Application.Ideas.Commands.ChangeAccessStatus;
 using Polls.Application.Ideas.Commands.CreateIdea;
 using Polls.Application.Ideas.Commands.DeleteIdea;
 using Polls.Application.Ideas.Commands.UpdateIdea;

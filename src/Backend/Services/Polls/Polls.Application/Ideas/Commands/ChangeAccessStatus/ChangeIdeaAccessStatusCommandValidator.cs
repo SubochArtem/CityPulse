@@ -1,7 +1,7 @@
 using FluentValidation;
 using Polls.Application.Common.Constants;
 
-namespace Polls.Application.Ideas.Commands.ChangeStatus;
+namespace Polls.Application.Ideas.Commands.ChangeAccessStatus;
 
 public class ChangeIdeaAccessStatusCommandValidator : AbstractValidator<ChangeIdeaAccessStatusCommand>
 {
