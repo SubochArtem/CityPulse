@@ -6,6 +6,7 @@ using Polls.API.Common.Extensions;
 using Polls.API.Requests.Ideas;
 using Polls.Application.Common.Models;
 using Polls.Application.Ideas.Commands.ChangeAccessStatus;
+using Polls.Application.Ideas.Commands.ChangeApprovalStatus;
 using Polls.Application.Ideas.Commands.CreateIdea;
 using Polls.Application.Ideas.Commands.DeleteIdea;
 using Polls.Application.Ideas.Commands.UpdateIdea;
@@ -112,7 +113,7 @@ public class AdminIdeasController(ISender sender) : ControllerBase
     }
 
     [HttpPatch("{id:guid}/access-status")]
-    [Authorize(Policy = Permissions.Ideas.ChangeStatusAny)]
+    [Authorize(Policy = Permissions.Ideas.ChangeAccessStatusAny)]
     public async Task<Result<Unit>> ChangeAccessStatus(
         Guid id,
         ChangeIdeaAccessStatusRequest request,
@@ -121,6 +122,20 @@ public class AdminIdeasController(ISender sender) : ControllerBase
         var command = new ChangeIdeaAccessStatusCommand(
             Id: id,
             NewIdeaAccessStatus: request.NewIdeaAccessStatus);
+        
+        return await sender.Send(command, cancellationToken);
+    }
+    
+    [HttpPatch("{id:guid}/approval-status")]
+    [Authorize(Policy = Permissions.Ideas.ChangeApprovalStatusAny)]
+    public async Task<Result<Unit>> ChangeApprovalStatus(
+        Guid id,
+        ChangeIdeaApprovalStatusRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new ChangeIdeaApprovalStatusCommand(
+            Id: id,
+            NewApprovalStatus: request.NewApprovalStatus);
         
         return await sender.Send(command, cancellationToken);
     }
