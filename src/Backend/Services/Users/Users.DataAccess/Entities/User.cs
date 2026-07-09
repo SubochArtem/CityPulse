@@ -7,5 +7,5 @@ public class User : EntityBase
     public required string IdentityId { get; set; } 
     public required string Nickname { get; set; } 
     public Guid? CityId { get; set; }
-    public UserAccessStatus AccessStatus { get; set; } = UserAccessStatus.Active;
+    public UserAccessStatus AccessStatus { get; set; } = UserAccessStatus.Undefined;
 }
