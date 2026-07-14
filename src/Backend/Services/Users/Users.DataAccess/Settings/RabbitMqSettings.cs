@@ -9,7 +9,8 @@ public sealed class RabbitMqSettings
     [Required]
     public string Host { get; init; } = string.Empty;
 
-    public int Port { get; init; }
+    [Range(1, ushort.MaxValue)]
+    public ushort Port { get; init; }
 
     [Required]
     public string Username { get; init; } = string.Empty;

@@ -1,7 +1,4 @@
-using System.Reflection;
 using CityPulse.Contracts.Grpc.Protos;
-using Mapster;
-using MapsterMapper;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -54,43 +51,40 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IUserRepository, UserRepository>();
-        
+
         services.AddOptions<GrpcSettings>()
             .Bind(configuration.GetSection(GrpcSettings.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
-        
+
         services.AddGrpcClient<CitiesService.CitiesServiceClient>((sp, options) =>
         {
             var settings = sp.GetRequiredService<IOptions<GrpcSettings>>().Value;
             options.Address = new Uri(settings.CitiesServiceUrl);
         });
-
         services.AddScoped<ICityService, CityGrpcService>();
-        
-        var config = TypeAdapterConfig.GlobalSettings;
-        config.Scan(Assembly.GetExecutingAssembly());
-        
-        services.AddSingleton(config);
-        services.AddScoped<IMapper, ServiceMapper>();
-        
+
         services.AddScoped<IEventPublisher, EventPublisherAdapter>();
-        
+
+        services.AddOptions<RabbitMqSettings>()
+            .Bind(configuration.GetSection(RabbitMqSettings.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         services.AddMassTransit(x =>
         {
             x.SetKebabCaseEndpointNameFormatter();
             x.UsingRabbitMq((context, cfg) =>
             {
-                var settings = configuration.GetSection(RabbitMqSettings.SectionName).Get<RabbitMqSettings>() 
-                               ?? throw new InvalidOperationException("RabbitMQ settings are missing"); 
+                var settings = context.GetRequiredService<IOptions<RabbitMqSettings>>().Value;
 
-                cfg.Host(settings.Host, (ushort)settings.Port, settings.VirtualHost, host =>
+                cfg.Host(settings.Host, settings.Port, settings.VirtualHost, host =>
                 {
                     host.Username(settings.Username);
                     host.Password(settings.Password);
-                }); 
+                });
 
-                cfg.ConfigureEndpoints(context); 
+                cfg.ConfigureEndpoints(context);
             });
         });
 
