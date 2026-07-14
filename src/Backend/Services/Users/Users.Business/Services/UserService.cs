@@ -1,3 +1,5 @@
+using CityPulse.Contracts.Events.Users;
+using CityPulse.Contracts.Events.Users.Enums;
 using CityPulse.Contracts.Querying.Pagination;
 using FluentValidation;
 using MapsterMapper;
@@ -7,6 +9,7 @@ using Users.Business.Exceptions;
 using Users.Business.Interfaces;
 using Users.DataAccess.DTOs;
 using Users.DataAccess.Entities;
+using Users.DataAccess.Entities.Enums;
 using Users.DataAccess.Interfaces;
 using Users.DataAccess.Models;
 
@@ -18,7 +21,8 @@ public class UserService(
     IValidator<CreateUserDto> createValidator,
     IValidator<UpdateUserProfileDto> updateValidator,
     ICityService cityService,
-    IMapper mapper) : IUserService
+    IMapper mapper,
+    IEventPublisher eventPublisher) : IUserService
 {
     public async Task<GetUserDto> CreateUserAsync(
         CreateUserDto createUserDto,
@@ -96,7 +100,20 @@ public class UserService(
         CancellationToken cancellationToken = default)
     {
         var user = await GetExistingUserAsync(id, IdentitySources.Internal, cancellationToken);
+        
+        if (user.AccessStatus == UserAccessStatus.Inactive)
+            return;
+        
         await identityProvider.BlockUserAsync(user.IdentityId, cancellationToken);
+        
+        user.AccessStatus = UserAccessStatus.Inactive;
+        await userRepository.UpdateAsync(user, cancellationToken);
+
+        var integrationEvent = new UserStatusChangedEvent(
+            UserId: user.Id,
+            UserLifecycleStatus: UserLifecycleStatus.Inactive); 
+
+        await eventPublisher.PublishAsync(integrationEvent, cancellationToken);
     }
 
     public async Task ActivateUserAsync(
@@ -104,7 +121,20 @@ public class UserService(
         CancellationToken cancellationToken = default)
     {
         var user = await GetExistingUserAsync(id, IdentitySources.Internal, cancellationToken);
+
+        if (user.AccessStatus == UserAccessStatus.Active)
+            return;
+        
         await identityProvider.UnblockUserAsync(user.IdentityId, cancellationToken);
+        
+        user.AccessStatus = UserAccessStatus.Active;
+        await userRepository.UpdateAsync(user, cancellationToken);
+
+        var integrationEvent = new UserStatusChangedEvent(
+            UserId: user.Id,
+            UserLifecycleStatus: UserLifecycleStatus.Active); 
+
+        await eventPublisher.PublishAsync(integrationEvent, cancellationToken);
     }
 
     public async Task DeleteUserAsync(
