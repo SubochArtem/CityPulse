@@ -2,15 +2,17 @@ using System.Reflection;
 using CityPulse.Contracts.Grpc.Protos;
 using Mapster;
 using MapsterMapper;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Users.DataAccess.Configurations;
 using Users.DataAccess.Interceptors;
 using Users.DataAccess.Interfaces;
+using Users.DataAccess.Messaging;
 using Users.DataAccess.Repositories;
 using Users.DataAccess.Services;
+using Users.DataAccess.Settings;
 
 namespace Users.DataAccess;
 
@@ -71,6 +73,26 @@ public static class DependencyInjection
         
         services.AddSingleton(config);
         services.AddScoped<IMapper, ServiceMapper>();
+        
+        services.AddScoped<IEventPublisher, EventPublisherAdapter>();
+        
+        services.AddMassTransit(x =>
+        {
+            x.SetKebabCaseEndpointNameFormatter();
+            x.UsingRabbitMq((context, cfg) =>
+            {
+                var settings = configuration.GetSection(RabbitMqSettings.SectionName).Get<RabbitMqSettings>() 
+                               ?? throw new InvalidOperationException("RabbitMQ settings are missing"); 
+
+                cfg.Host(settings.Host, (ushort)settings.Port, settings.VirtualHost, host =>
+                {
+                    host.Username(settings.Username);
+                    host.Password(settings.Password);
+                }); 
+
+                cfg.ConfigureEndpoints(context); 
+            });
+        });
 
         return services;
     }
