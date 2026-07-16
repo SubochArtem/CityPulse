@@ -12,15 +12,15 @@ using Users.DataAccess;
 namespace Users.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260609153636_AddCityIdToUser")]
-    partial class AddCityIdToUser
+    [Migration("20260716070350_AddUserAccessStatus")]
+    partial class AddUserAccessStatus
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.27")
+                .HasAnnotation("ProductVersion", "8.0.28")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -32,6 +32,9 @@ namespace Users.DataAccess.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id")
                         .HasDefaultValueSql("gen_random_uuid()");
+
+                    b.Property<int>("AccessStatus")
+                        .HasColumnType("integer");
 
                     b.Property<Guid?>("CityId")
                         .HasColumnType("uuid");
