@@ -1,6 +1,6 @@
 namespace Users.Presentation.Middleware;
 
-public class MiddlewareExceptionMessages
+public static class MiddlewareExceptionMessages
 {
     public static class Titles
     {
