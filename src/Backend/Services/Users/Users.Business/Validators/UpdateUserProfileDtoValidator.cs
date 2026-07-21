@@ -12,19 +12,19 @@ public class UpdateUserProfileDtoValidator : AbstractValidator<UpdateUserProfile
         {
             RuleFor(x => x.Nickname)
                 .NotEmpty() 
-                .WithMessage(ValidationConstants.NicknameRequired)
+                .WithMessage(ValidationConstants.Nickname.Required)
                 
-                .MinimumLength(ValidationConstants.MinNicknameLength)
-                .WithMessage(ValidationConstants.NicknameTooShort)
+                .MinimumLength(ValidationConstants.Nickname.MinLength)
+                .WithMessage(ValidationConstants.Nickname.TooShort)
                 
-                .MaximumLength(ValidationConstants.MaxNicknameLength)
-                .WithMessage(ValidationConstants.NicknameTooLong)
+                .MaximumLength(ValidationConstants.Nickname.MaxLength)
+                .WithMessage(ValidationConstants.Nickname.TooLong)
                 
-                .Matches(ValidationConstants.NicknamePattern)
-                .WithMessage(ValidationConstants.NicknameInvalidCharacters)
+                .Matches(ValidationConstants.Nickname.Pattern)
+                .WithMessage(ValidationConstants.Nickname.InvalidCharacters)
                 
-                .Matches(ValidationConstants.NicknameConsecutivePattern)
-                .WithMessage(ValidationConstants.NicknameConsecutiveSpecialCharacters);
+                .Matches(ValidationConstants.Nickname.ConsecutivePattern)
+                .WithMessage(ValidationConstants.Nickname.ConsecutiveSpecialCharacters);
         });
     }
 }
