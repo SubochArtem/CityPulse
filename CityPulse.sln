@@ -34,6 +34,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CityPulse.Contracts.Queryin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CityPulse.Contracts.Events", "src\Backend\Services\Shared\CityPulse.Contracts.Events\CityPulse.Contracts.Events.csproj", "{57B83EA3-8A66-4384-8FD7-8D6BD8FFF731}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Users.Tests", "src\Backend\Services\Users\Users.Tests\Users.Tests.csproj", "{90AD099F-8E61-464B-B2B8-F29E6B485441}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,7 @@ Global
 		{182D2F18-F209-4B46-BCFB-D283311EC437} = {8C0C65FF-0442-42F4-94EA-F06CC2836B7D}
 		{526ED3BE-ED3A-43AB-A39E-563CB16E19CA} = {8C0C65FF-0442-42F4-94EA-F06CC2836B7D}
 		{57B83EA3-8A66-4384-8FD7-8D6BD8FFF731} = {8C0C65FF-0442-42F4-94EA-F06CC2836B7D}
+		{90AD099F-8E61-464B-B2B8-F29E6B485441} = {3EC5ECB3-4942-44F4-8C0F-C5E0D683D564}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{EE7A32BB-4942-4670-9A14-EAC1ABFE81C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -102,5 +105,9 @@ Global
 		{57B83EA3-8A66-4384-8FD7-8D6BD8FFF731}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{57B83EA3-8A66-4384-8FD7-8D6BD8FFF731}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{57B83EA3-8A66-4384-8FD7-8D6BD8FFF731}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90AD099F-8E61-464B-B2B8-F29E6B485441}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90AD099F-8E61-464B-B2B8-F29E6B485441}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90AD099F-8E61-464B-B2B8-F29E6B485441}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90AD099F-8E61-464B-B2B8-F29E6B485441}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
