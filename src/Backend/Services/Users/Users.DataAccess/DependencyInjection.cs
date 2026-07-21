@@ -62,8 +62,8 @@ public static class DependencyInjection
             var settings = sp.GetRequiredService<IOptions<GrpcSettings>>().Value;
             options.Address = new Uri(settings.CitiesServiceUrl);
         });
-        services.AddScoped<ICityService, CityGrpcService>();
 
+        services.AddScoped<ICityService, CityGrpcService>();
         services.AddScoped<IEventPublisher, EventPublisherAdapter>();
 
         services.AddOptions<RabbitMqSettings>()
@@ -74,16 +74,21 @@ public static class DependencyInjection
         services.AddMassTransit(x =>
         {
             x.SetKebabCaseEndpointNameFormatter();
+
+            x.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
+            {
+                o.UsePostgres();
+                o.UseBusOutbox();
+            });
+
             x.UsingRabbitMq((context, cfg) =>
             {
                 var settings = context.GetRequiredService<IOptions<RabbitMqSettings>>().Value;
-
                 cfg.Host(settings.Host, settings.Port, settings.VirtualHost, host =>
                 {
                     host.Username(settings.Username);
                     host.Password(settings.Password);
                 });
-
                 cfg.ConfigureEndpoints(context);
             });
         });
