@@ -106,14 +106,14 @@ public class UserService(
         
         await identityProvider.BlockUserAsync(user.IdentityId, cancellationToken);
         
-        user.AccessStatus = UserAccessStatus.Inactive;
-        await userRepository.UpdateAsync(user, cancellationToken);
-
         var integrationEvent = new UserStatusChangedEvent(
             UserId: user.Id,
             UserLifecycleStatus: UserLifecycleStatus.Inactive); 
 
         await eventPublisher.PublishAsync(integrationEvent, cancellationToken);
+        
+        user.AccessStatus = UserAccessStatus.Inactive;
+        await userRepository.UpdateAsync(user, cancellationToken);
     }
 
     public async Task ActivateUserAsync(
@@ -127,14 +127,14 @@ public class UserService(
         
         await identityProvider.UnblockUserAsync(user.IdentityId, cancellationToken);
         
-        user.AccessStatus = UserAccessStatus.Active;
-        await userRepository.UpdateAsync(user, cancellationToken);
-
         var integrationEvent = new UserStatusChangedEvent(
             UserId: user.Id,
             UserLifecycleStatus: UserLifecycleStatus.Active); 
 
         await eventPublisher.PublishAsync(integrationEvent, cancellationToken);
+        
+        user.AccessStatus = UserAccessStatus.Active;
+        await userRepository.UpdateAsync(user, cancellationToken);
     }
 
     public async Task DeleteUserAsync(
