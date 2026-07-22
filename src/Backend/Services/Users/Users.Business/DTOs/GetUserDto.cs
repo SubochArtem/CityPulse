@@ -6,6 +6,7 @@ public class GetUserDto
     public required string Nickname { get; set; }
     public Guid? CityId { get; set; }
     public required string IdentityId { get; set; }
+    public int AccessStatus { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
 }
