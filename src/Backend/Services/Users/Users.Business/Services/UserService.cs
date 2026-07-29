@@ -13,21 +13,19 @@ namespace Users.Business.Services;
 public class UserService(
     IUserRepository userRepository,
     IIdentityProvider identityProvider,
-    IValidator<CreateUserDto> createValidator) : IUserService
+    IValidator<CreateUserDto> createValidator,
+    IValidator<UpdateUserProfileDto> updateValidator,
+    ICityService cityService) : IUserService
 {
-    private readonly IValidator<CreateUserDto> _createValidator = createValidator;
-    private readonly IIdentityProvider _identityProvider = identityProvider;
-    private readonly IUserRepository _userRepository = userRepository;
-
     public async Task<GetUserDto> CreateUserAsync(
         CreateUserDto createUserDto,
         CancellationToken cancellationToken = default)
     {
-        await _createValidator.ValidateAndThrowAsync(
+        await createValidator.ValidateAndThrowAsync(
             createUserDto,
             cancellationToken);
 
-        var existingUser = await _userRepository.GetByIdentityIdAsync(
+        var existingUser = await userRepository.GetByIdentityIdAsync(
             createUserDto.IdentityId,
             cancellationToken);
 
@@ -38,9 +36,54 @@ public class UserService(
 
         var user = createUserDto.Adapt<User>();
 
-        await _userRepository.CreateAsync(
+        await userRepository.CreateAsync(
             user,
             cancellationToken);
+
+        return user.Adapt<GetUserDto>();
+    }
+    
+    public async Task<GetUserDto> UpdateUserAsync(
+        Guid id,
+        UpdateUserProfileDto updateUserProfileDto,
+        CancellationToken cancellationToken = default)
+    {
+        await updateValidator.ValidateAndThrowAsync(
+            updateUserProfileDto,
+            cancellationToken);
+
+        var user = await GetExistingUserAsync(id, IdentitySources.Internal, cancellationToken);
+
+        var isAuth0UpdateRequired = false;
+
+        if (updateUserProfileDto.CityId is not null)
+        {
+            var city = await cityService.GetCityAsync(
+                updateUserProfileDto.CityId.Value,
+                cancellationToken);
+
+            if (city.Status != CityStatus.Active)
+                throw new CityNotActiveException(updateUserProfileDto.CityId.Value);
+
+            user.CityId = updateUserProfileDto.CityId;
+            isAuth0UpdateRequired = true;
+        }
+
+        if (updateUserProfileDto.Nickname is not null)
+        {
+            user.Nickname = updateUserProfileDto.Nickname;
+            isAuth0UpdateRequired = true;
+        }
+        
+        if (isAuth0UpdateRequired)
+        {
+            await identityProvider.UpdateUserProfileAsync(
+                user.IdentityId,
+                updateUserProfileDto,
+                cancellationToken);
+        }
+
+        await userRepository.UpdateAsync(user, cancellationToken);
 
         return user.Adapt<GetUserDto>();
     }
@@ -50,7 +93,7 @@ public class UserService(
         CancellationToken cancellationToken = default)
     {
         var user = await GetExistingUserAsync(id, IdentitySources.Internal, cancellationToken);
-        await _identityProvider.BlockUserAsync(user.IdentityId, cancellationToken);
+        await identityProvider.BlockUserAsync(user.IdentityId, cancellationToken);
     }
 
     public async Task ActivateUserAsync(
@@ -58,7 +101,7 @@ public class UserService(
         CancellationToken cancellationToken = default)
     {
         var user = await GetExistingUserAsync(id, IdentitySources.Internal, cancellationToken);
-        await _identityProvider.UnblockUserAsync(user.IdentityId, cancellationToken);
+        await identityProvider.UnblockUserAsync(user.IdentityId, cancellationToken);
     }
 
     public async Task DeleteUserAsync(
@@ -66,15 +109,15 @@ public class UserService(
         CancellationToken cancellationToken = default)
     {
         var user = await GetExistingUserAsync(id, IdentitySources.Internal, cancellationToken);
-        await _identityProvider.DeleteUserAsync(user.IdentityId, cancellationToken);
-        await _userRepository.DeleteAsync(user, cancellationToken);
+        await identityProvider.DeleteUserAsync(user.IdentityId, cancellationToken);
+        await userRepository.DeleteAsync(user, cancellationToken);
     }
 
     public async Task<GetUserDto> GetUserByIdAsync(
         Guid id,
         CancellationToken cancellationToken = default)
     {
-        var user = await _userRepository.GetByIdAsync(id, cancellationToken)
+        var user = await userRepository.GetByIdAsync(id, cancellationToken)
                    ?? throw new UserNotFoundException(id.ToString(), IdentitySources.Internal);
 
         return user.Adapt<GetUserDto>();
@@ -84,14 +127,14 @@ public class UserService(
         string identityId,
         CancellationToken cancellationToken = default)
     {
-        var user = await _userRepository.GetByIdentityIdAsync(identityId, cancellationToken);
+        var user = await userRepository.GetByIdentityIdAsync(identityId, cancellationToken);
         return user?.Adapt<GetUserDto>();
     }
 
     public async Task<IEnumerable<GetUserDto>> GetAllUsersAsync(
         CancellationToken cancellationToken = default)
     {
-        var users = await _userRepository.GetAllAsync(cancellationToken);
+        var users = await userRepository.GetAllAsync(cancellationToken);
         return users.Adapt<IEnumerable<GetUserDto>>();
     }
 
@@ -100,7 +143,7 @@ public class UserService(
         string identitySource,
         CancellationToken cancellationToken)
     {
-        return await _userRepository.GetByIdAsync(id, cancellationToken)
+        return await userRepository.GetByIdAsync(id, cancellationToken)
                ?? throw new UserNotFoundException(id.ToString(), identitySource);
     }
 }
