@@ -10,15 +10,13 @@ namespace Users.Presentation.Controllers;
 [Route("api/v1/[controller]")]
 public class UsersController(IUserService userService) : ControllerBase
 {
-    private readonly IUserService _userService = userService;
-
     [HttpGet("{id:guid}")]
     [Authorize(Policy = Policies.ReadUser)]
     public async Task<GetUserDto> GetUserById(
         Guid id,
         CancellationToken cancellationToken)
     {
-        return await _userService.GetUserByIdAsync(id, cancellationToken);
+        return await userService.GetUserByIdAsync(id, cancellationToken);
     }
 
     [HttpGet]
@@ -26,7 +24,7 @@ public class UsersController(IUserService userService) : ControllerBase
     public async Task<IEnumerable<GetUserDto>> GetAllUsers(
         CancellationToken cancellationToken)
     {
-        return await _userService.GetAllUsersAsync(cancellationToken);
+        return await userService.GetAllUsersAsync(cancellationToken);
     }
 
     [HttpPost("{id:guid}/deactivate")]
@@ -35,7 +33,7 @@ public class UsersController(IUserService userService) : ControllerBase
         Guid id,
         CancellationToken cancellationToken)
     {
-        await _userService.DeactivateUserAsync(id, cancellationToken);
+        await userService.DeactivateUserAsync(id, cancellationToken);
     }
 
     [HttpPost("{id:guid}/activate")]
@@ -44,7 +42,7 @@ public class UsersController(IUserService userService) : ControllerBase
         Guid id,
         CancellationToken cancellationToken)
     {
-        await _userService.ActivateUserAsync(id, cancellationToken);
+        await userService.ActivateUserAsync(id, cancellationToken);
     }
 
     [HttpDelete("{id:guid}")]
@@ -53,6 +51,16 @@ public class UsersController(IUserService userService) : ControllerBase
         Guid id,
         CancellationToken cancellationToken)
     {
-        await _userService.DeleteUserAsync(id, cancellationToken);
+        await userService.DeleteUserAsync(id, cancellationToken);
+    }
+    
+    [HttpPatch("{id:guid}")]
+    [Authorize(Policy = Policies.UpdateUser)] 
+    public async Task<GetUserDto> UpdateUser(
+        [FromRoute] Guid id,
+        [FromBody] UpdateUserProfileDto request,
+        CancellationToken cancellationToken)
+    {
+        return await userService.UpdateUserAsync(id, request, cancellationToken);
     }
 }
