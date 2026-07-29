@@ -14,6 +14,7 @@ public class UserService(
     IUserRepository userRepository,
     IIdentityProvider identityProvider,
     IValidator<CreateUserDto> createValidator,
+    IValidator<UpdateUserProfileDto> updateValidator,
     ICityService cityService) : IUserService
 {
     public async Task<GetUserDto> CreateUserAsync(
@@ -47,6 +48,10 @@ public class UserService(
         UpdateUserProfileDto updateUserProfileDto,
         CancellationToken cancellationToken = default)
     {
+        await updateValidator.ValidateAndThrowAsync(
+            updateUserProfileDto,
+            cancellationToken);
+        
         var user = await GetExistingUserAsync(id, IdentitySources.Internal, cancellationToken);
 
         var isAuth0UpdateRequired = false;
