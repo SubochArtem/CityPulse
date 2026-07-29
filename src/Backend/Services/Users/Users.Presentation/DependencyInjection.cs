@@ -14,7 +14,6 @@ public static class DependencyInjection
         services.AddControllers();
         services.AddSwaggerConfiguration();
         services.AddPermissionAuthorization();
-        services.AddTransient<IClaimsTransformation, UserClaimsTransformation>();
 
         services
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
