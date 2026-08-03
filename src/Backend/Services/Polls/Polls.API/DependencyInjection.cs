@@ -5,6 +5,7 @@ using Polls.API.Common.Extensions.Swagger;
 using Polls.API.Common.Filters;
 using Polls.API.Common.Middleware;
 using Polls.API.Grpc;
+using Polls.API.Mapping;
 
 namespace Polls.API;
 
@@ -15,6 +16,8 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.AddHttpContextAccessor();
+        
+        services.AddAutoMapper(typeof(CityGrpcProfile).Assembly);
 
         services.AddControllers(options =>
             options.Filters.Add<ResultFilter>());

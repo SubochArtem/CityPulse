@@ -15,7 +15,9 @@ public class CityGrpcProfile : Profile
 
         CreateMap<CityDto, GetCityResponse>()
             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id.ToString()))
-            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Title));
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Title))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Title))
+            .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status));
     }
 
     private static GrpcCityStatus MapStatus(DomainCityStatus status)

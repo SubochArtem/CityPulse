@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using CityPulse.Contracts.Auth.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Users.Presentation.Authorization.Requirements;
 
@@ -20,7 +21,8 @@ public sealed class SelfOrAnyHandler(
         }
 
         var routeId = httpContextAccessor.HttpContext?.GetRouteValue(RouteIdParameter)?.ToString();
-        var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+        
+        var userId = context.User.FindFirstValue(CityPulseClaims.InternalUserId);
 
         if (!context.User.HasClaim(Permissions.ClaimType, requirement.SelfPermission)
             || routeId is null
