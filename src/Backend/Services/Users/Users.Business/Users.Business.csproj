@@ -9,8 +9,7 @@
     <ItemGroup>
         <PackageReference Include="Auth0.AuthenticationApi" Version="7.44.0" />
         <PackageReference Include="Auth0.ManagementApi" Version="7.44.0" />
-        <PackageReference Include="CityPulse.Contracts.Events" Version="1.1.0" />
-        <PackageReference Include="CityPulse.Contracts.Querying" Version="1.0.0" />
+        <PackageReference Include="CityPulse.Contracts.Querying" Version="1.1.1" />
         <PackageReference Include="FluentValidation" Version="12.1.1" />
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
         <PackageReference Include="Mapster" Version="10.0.8" />
