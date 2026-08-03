@@ -23,4 +23,15 @@ public static class ValidationConstants
         public const string Required = "IdentityId is required";
         public const string InvalidFormat = "IdentityId must be in format '<provider>|<provider_user_id>'";
     }
+    
+    public static class Pagination
+    {
+        public const int MinPageSize = 1;
+        public const int MaxPageSize = 100;
+        public const int MinPage = 1;
+        
+        public static readonly string PageInvalid = $"Page number must be at least {MinPage}";
+        public static readonly string PageSizeTooSmall = $"Page size must be at least {MinPageSize}";
+        public static readonly string PageSizeTooLarge = $"Page size must not exceed {MaxPageSize}";
+    }
 }
