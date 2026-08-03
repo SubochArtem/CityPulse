@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CityPulse.Contracts.Grpc", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CityPulse.Contracts.Auth", "src\Backend\Services\Shared\CityPulse.Contracts.Auth\CityPulse.Contracts.Auth.csproj", "{182D2F18-F209-4B46-BCFB-D283311EC437}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CityPulse.Contracts.Querying", "src\Backend\Services\Shared\CityPulse.Contracts.Querying\CityPulse.Contracts.Querying.csproj", "{526ED3BE-ED3A-43AB-A39E-563CB16E19CA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -50,6 +52,7 @@ Global
 		{8C0C65FF-0442-42F4-94EA-F06CC2836B7D} = {89BA2004-DDA6-49BA-89D7-D5D6C06E85F7}
 		{D0FC0E4B-6950-4B06-857E-8B4DA29EAA64} = {8C0C65FF-0442-42F4-94EA-F06CC2836B7D}
 		{182D2F18-F209-4B46-BCFB-D283311EC437} = {8C0C65FF-0442-42F4-94EA-F06CC2836B7D}
+		{526ED3BE-ED3A-43AB-A39E-563CB16E19CA} = {8C0C65FF-0442-42F4-94EA-F06CC2836B7D}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{EE7A32BB-4942-4670-9A14-EAC1ABFE81C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -88,5 +91,9 @@ Global
 		{182D2F18-F209-4B46-BCFB-D283311EC437}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{182D2F18-F209-4B46-BCFB-D283311EC437}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{182D2F18-F209-4B46-BCFB-D283311EC437}.Release|Any CPU.Build.0 = Release|Any CPU
+		{526ED3BE-ED3A-43AB-A39E-563CB16E19CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{526ED3BE-ED3A-43AB-A39E-563CB16E19CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{526ED3BE-ED3A-43AB-A39E-563CB16E19CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{526ED3BE-ED3A-43AB-A39E-563CB16E19CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

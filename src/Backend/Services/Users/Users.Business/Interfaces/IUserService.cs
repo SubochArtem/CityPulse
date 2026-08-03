@@ -1,3 +1,4 @@
+using CityPulse.Contracts.Querying.Pagination;
 using Users.Business.DTOs;
 
 namespace Users.Business.Interfaces;
@@ -15,8 +16,9 @@ public interface IUserService
     public Task<GetUserDto?> GetUserByIdentityIdAsync(
         string identityId,
         CancellationToken cancellationToken = default);
-
-    public Task<IEnumerable<GetUserDto>> GetAllUsersAsync(
+    
+    Task<PagedList<GetUserDto>> GetUsersAsync(
+        UserFilterDto filter,
         CancellationToken cancellationToken = default);
 
     public Task DeleteUserAsync(

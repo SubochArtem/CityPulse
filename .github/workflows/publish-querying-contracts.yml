@@ -1,0 +1,32 @@
+name: Publish Querying Contracts
+on:
+  push:
+    tags:
+      - 'querying-v*'
+permissions:
+  packages: write
+  contents: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Build Project
+        run: dotnet build src/Backend/Services/Shared/CityPulse.Contracts.Querying/CityPulse.Contracts.Querying.csproj -c Release
+      - name: Pack Package
+        run: |
+          VERSION="${GITHUB_REF_NAME#querying-v}"
+          dotnet pack src/Backend/Services/Shared/CityPulse.Contracts.Querying/CityPulse.Contracts.Querying.csproj -c Release --no-build -p:PackageVersion=$VERSION
+      - name: Push to GitHub Packages
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          dotnet nuget push "src/Backend/Services/Shared/CityPulse.Contracts.Querying/bin/Release/*.nupkg" \
+            --source "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json" \
+            --api-key $NUGET_AUTH_TOKEN \
+            --skip-duplicate

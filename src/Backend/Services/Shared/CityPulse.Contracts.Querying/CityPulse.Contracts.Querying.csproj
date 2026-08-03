@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+
+        <PackageId>CityPulse.Contracts.Querying</PackageId>
+        <Authors>artem</Authors>
+        <RepositoryUrl>https://github.com/SubochArtem/CityPulse</RepositoryUrl>
+    </PropertyGroup>
+
+</Project>

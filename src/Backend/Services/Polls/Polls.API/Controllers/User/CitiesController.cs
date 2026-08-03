@@ -1,3 +1,4 @@
+using CityPulse.Contracts.Querying.Pagination;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Polls.Application.Cities.DTOs;

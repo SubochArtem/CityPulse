@@ -1,4 +1,4 @@
-namespace Polls.Application.Common.Models;
+namespace CityPulse.Contracts.Querying.Pagination;
 
 public class PagedList<T>(List<T> items, int page, int pageSize, int totalCount)
 {

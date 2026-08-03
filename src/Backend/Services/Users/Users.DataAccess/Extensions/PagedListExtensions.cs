@@ -1,8 +1,8 @@
 using CityPulse.Contracts.Querying.Pagination;
 using Microsoft.EntityFrameworkCore;
-using Polls.Application.Common.Models;
+using Users.DataAccess.Models;
 
-namespace Polls.Infrastructure.Persistence.Extensions;
+namespace Users.DataAccess.Extensions;
 
 public static class PagedListExtensions
 {
