@@ -9,28 +9,6 @@ public class ExceptionHandlerMiddleware(
     RequestDelegate next,
     ILogger<ExceptionHandlerMiddleware> logger)
 {
-    private const string ContentType = "application/json";
-    private const string ProblemExtensionKeys = "errors";
-    private const string ExceptionLogTemplate = "Exception at {Method} {Path}{Query}";
-
-    private const string UserNotFound = "User Not Found";
-    private const string UserAlreadyExists = "User Already Exists";
-    private const string ValidationFailed = "Validation Failed";
-    private const string Unauthorized = "Unauthorized";
-    private const string BadRequest = "Bad Request";
-    private const string IdentityProviderError = "Identity Provider Error";
-    private const string InternalServerError = "Internal Server Error";
-    private const string CityNotFound = "City Not Found";
-    private const string CityNotActive = "City Not Active";
-    private const string CitiesServiceUnavailable = "Cities Service Unavailable";
-    private const string CitiesServiceTimeout = "Cities Service Timeout";
-    private const string WebhookEventIgnored = "Webhook Event Ignored";
-    private const string UnexpectedError = "An unexpected error occurred.";
-    private const string IdentityProviderCommunicationError = "An error occurred while communicating with the identity provider.";
-    private const string CityNotFoundError = "City not found.";
-    private const string CitiesServiceUnavailableError = "Cities service is currently unavailable.";
-    private const string CitiesServiceTimeoutError = "Cities service request timed out.";
-    
     public async Task InvokeAsync(HttpContext context)
     {
         try
@@ -48,7 +26,7 @@ public class ExceptionHandlerMiddleware(
                 InvalidWebhookPayloadException => LogLevel.Warning,
                 UnsupportedWebhookEventException => LogLevel.Information,
                 CityNotActiveException => LogLevel.Warning,
-                RpcException e when e.StatusCode == StatusCode.NotFound => LogLevel.Warning,
+                RpcException { StatusCode: StatusCode.NotFound } => LogLevel.Warning,
                 RpcException => LogLevel.Error,
                 _ => LogLevel.Error
             };
@@ -56,7 +34,7 @@ public class ExceptionHandlerMiddleware(
             logger.Log(
                 logLevel,
                 ex,
-                ExceptionLogTemplate,
+                MiddlewareConstants.ExceptionLogTemplate,
                 context.Request.Method,
                 context.Request.Path,
                 context.Request.QueryString);
@@ -71,85 +49,85 @@ public class ExceptionHandlerMiddleware(
         {
             UnsupportedWebhookEventException e => (
                 StatusCodes.Status200OK,
-                WebhookEventIgnored,
+                MiddlewareExceptionMessages.Titles.WebhookEventIgnored,
                 e.Message
             ),
-            
+
             UserNotFoundException e => (
                 StatusCodes.Status404NotFound,
-                UserNotFound,
+                MiddlewareExceptionMessages.Titles.UserNotFound,
                 e.Message
             ),
 
             UserAlreadyExistsException e => (
                 StatusCodes.Status409Conflict,
-                UserAlreadyExists,
+                MiddlewareExceptionMessages.Titles.UserAlreadyExists,
                 e.Message
             ),
 
             ValidationException e => (
                 StatusCodes.Status400BadRequest,
-                ValidationFailed,
+                MiddlewareExceptionMessages.Titles.ValidationFailed,
                 string.Join("; ", e.Errors.Select(err => err.ErrorMessage))
             ),
 
             UnauthorizedAccessException e => (
                 StatusCodes.Status401Unauthorized,
-                Unauthorized,
+                MiddlewareExceptionMessages.Titles.Unauthorized,
                 e.Message
             ),
 
             InvalidWebhookSignatureException e => (
                 StatusCodes.Status401Unauthorized,
-                Unauthorized,
+                MiddlewareExceptionMessages.Titles.Unauthorized,
                 e.Message
             ),
 
             InvalidWebhookPayloadException e => (
                 StatusCodes.Status400BadRequest,
-                BadRequest,
+                MiddlewareExceptionMessages.Titles.BadRequest,
                 e.Message
             ),
 
             Auth0Exception => (
                 StatusCodes.Status502BadGateway,
-                IdentityProviderError,
-                IdentityProviderCommunicationError
+                MiddlewareExceptionMessages.Titles.IdentityProviderError,
+                MiddlewareExceptionMessages.Details.IdentityProviderCommunicationError
             ),
-            
+
             CityNotActiveException e => (
                 StatusCodes.Status422UnprocessableEntity,
-                CityNotActive,
+                MiddlewareExceptionMessages.Titles.CityNotActive,
                 e.Message
             ),
 
-            RpcException e when e.StatusCode == StatusCode.NotFound => (
+            RpcException { StatusCode: StatusCode.NotFound } => (
                 StatusCodes.Status404NotFound,
-                CityNotFound,
-                CityNotFoundError
+                MiddlewareExceptionMessages.Titles.CityNotFound,
+                MiddlewareExceptionMessages.Details.CityNotFound
             ),
 
-            RpcException e when e.StatusCode == StatusCode.Unavailable => (
+            RpcException { StatusCode: StatusCode.Unavailable } => (
                 StatusCodes.Status503ServiceUnavailable,
-                CitiesServiceUnavailable,
-                CitiesServiceUnavailableError
+                MiddlewareExceptionMessages.Titles.CitiesServiceUnavailable,
+                MiddlewareExceptionMessages.Details.CitiesServiceUnavailable
             ),
 
-            RpcException e when e.StatusCode == StatusCode.DeadlineExceeded => (
+            RpcException { StatusCode: StatusCode.DeadlineExceeded } => (
                 StatusCodes.Status504GatewayTimeout,
-                CitiesServiceTimeout,
-                CitiesServiceTimeoutError
+                MiddlewareExceptionMessages.Titles.CitiesServiceTimeout,
+                MiddlewareExceptionMessages.Details.CitiesServiceTimeout
             ),
 
             _ => (
                 StatusCodes.Status500InternalServerError,
-                InternalServerError,
-                UnexpectedError
+                MiddlewareExceptionMessages.Titles.InternalServerError,
+                MiddlewareExceptionMessages.Details.UnexpectedError
             )
         };
 
         context.Response.StatusCode = statusCode;
-        context.Response.ContentType = ContentType;
+        context.Response.ContentType = MiddlewareConstants.ContentType;
 
         var problemDetails = new ProblemDetails
         {
@@ -160,7 +138,7 @@ public class ExceptionHandlerMiddleware(
         };
 
         if (ex is ValidationException validationEx)
-            problemDetails.Extensions[ProblemExtensionKeys] =
+            problemDetails.Extensions[MiddlewareConstants.ProblemExtensionKeys] =
                 validationEx.Errors
                     .GroupBy(e => e.PropertyName)
                     .ToDictionary(
