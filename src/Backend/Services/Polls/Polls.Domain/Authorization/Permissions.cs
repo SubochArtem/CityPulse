@@ -33,17 +33,15 @@ public static class Permissions
     public static class Ideas
     {
         public const string ReadAny = "ideas.read.any";
-        public const string ReadActive = "ideas.read.active";
         public const string CreateAny = "ideas.create.any";
         public const string CreateCity = "ideas.create.city";
-        public const string CreateUserVoting = "ideas.create.user-voting";
-        public const string CreateManagerVoting = "ideas.create.manager-voting";
         public const string UpdateAny = "ideas.update.any";
         public const string UpdateCity = "ideas.update.city";
         public const string UpdateOwn = "ideas.update.own";
         public const string DeleteAny = "ideas.delete.any";
         public const string DeleteCity = "ideas.delete.city";
         public const string DeleteOwn = "ideas.delete.own";
-        public const string ChangeStatusAny = "ideas.changestatus.any";
+        public const string ChangeAccessStatusAny = "ideas.change-access-status.any";
+        public const string ChangeApprovalStatusAny = "ideas.change-approval-status.any";
     }
 }
