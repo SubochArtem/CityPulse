@@ -26,7 +26,7 @@ public class ExceptionHandlerMiddleware(
                 InvalidWebhookPayloadException => LogLevel.Warning,
                 UnsupportedWebhookEventException => LogLevel.Information,
                 CityNotActiveException => LogLevel.Warning,
-                RpcException e when e.StatusCode == StatusCode.NotFound => LogLevel.Warning,
+                RpcException { StatusCode: StatusCode.NotFound } => LogLevel.Warning,
                 RpcException => LogLevel.Error,
                 _ => LogLevel.Error
             };
@@ -101,19 +101,19 @@ public class ExceptionHandlerMiddleware(
                 e.Message
             ),
 
-            RpcException e when e.StatusCode == StatusCode.NotFound => (
+            RpcException { StatusCode: StatusCode.NotFound } => (
                 StatusCodes.Status404NotFound,
                 MiddlewareExceptionMessages.Titles.CityNotFound,
                 MiddlewareExceptionMessages.Details.CityNotFound
             ),
 
-            RpcException e when e.StatusCode == StatusCode.Unavailable => (
+            RpcException { StatusCode: StatusCode.Unavailable } => (
                 StatusCodes.Status503ServiceUnavailable,
                 MiddlewareExceptionMessages.Titles.CitiesServiceUnavailable,
                 MiddlewareExceptionMessages.Details.CitiesServiceUnavailable
             ),
 
-            RpcException e when e.StatusCode == StatusCode.DeadlineExceeded => (
+            RpcException { StatusCode: StatusCode.DeadlineExceeded } => (
                 StatusCodes.Status504GatewayTimeout,
                 MiddlewareExceptionMessages.Titles.CitiesServiceTimeout,
                 MiddlewareExceptionMessages.Details.CitiesServiceTimeout

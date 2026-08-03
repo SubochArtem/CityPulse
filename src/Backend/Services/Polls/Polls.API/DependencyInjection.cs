@@ -16,6 +16,8 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.AddHttpContextAccessor();
+        
+        services.AddAutoMapper(typeof(CityGrpcProfile).Assembly);
 
         services.AddAutoMapper(typeof(CityGrpcProfile).Assembly);
 

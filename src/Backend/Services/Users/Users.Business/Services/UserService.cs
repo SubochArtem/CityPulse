@@ -1,6 +1,5 @@
-using CityPulse.Contracts.Querying.Pagination;
 using FluentValidation;
-using MapsterMapper;
+using Mapster;
 using Users.Business.Constants;
 using Users.Business.DTOs;
 using Users.Business.Exceptions;
@@ -8,7 +7,6 @@ using Users.Business.Interfaces;
 using Users.DataAccess.DTOs;
 using Users.DataAccess.Entities;
 using Users.DataAccess.Interfaces;
-using Users.DataAccess.Models;
 
 namespace Users.Business.Services;
 
@@ -17,8 +15,7 @@ public class UserService(
     IIdentityProvider identityProvider,
     IValidator<CreateUserDto> createValidator,
     IValidator<UpdateUserProfileDto> updateValidator,
-    ICityService cityService,
-    IMapper mapper) : IUserService
+    ICityService cityService) : IUserService
 {
     public async Task<GetUserDto> CreateUserAsync(
         CreateUserDto createUserDto,
@@ -37,15 +34,15 @@ public class UserService(
                 createUserDto.IdentityId,
                 IdentitySources.Auth0);
 
-        var user = mapper.Map<User>(createUserDto);
+        var user = createUserDto.Adapt<User>();
 
         await userRepository.CreateAsync(
             user,
             cancellationToken);
 
-        return mapper.Map<GetUserDto>(user);
+        return user.Adapt<GetUserDto>();
     }
-
+    
     public async Task<GetUserDto> UpdateUserAsync(
         Guid id,
         UpdateUserProfileDto updateUserProfileDto,
@@ -54,7 +51,7 @@ public class UserService(
         await updateValidator.ValidateAndThrowAsync(
             updateUserProfileDto,
             cancellationToken);
-
+        
         var user = await GetExistingUserAsync(id, IdentitySources.Internal, cancellationToken);
 
         var isAuth0UpdateRequired = false;
@@ -77,7 +74,7 @@ public class UserService(
             user.Nickname = updateUserProfileDto.Nickname;
             isAuth0UpdateRequired = true;
         }
-
+        
         if (isAuth0UpdateRequired)
         {
             await identityProvider.UpdateUserProfileAsync(
@@ -88,7 +85,7 @@ public class UserService(
 
         await userRepository.UpdateAsync(user, cancellationToken);
 
-        return mapper.Map<GetUserDto>(user);
+        return user.Adapt<GetUserDto>();
     }
 
     public async Task DeactivateUserAsync(
@@ -123,7 +120,7 @@ public class UserService(
         var user = await userRepository.GetByIdAsync(id, cancellationToken)
                    ?? throw new UserNotFoundException(id.ToString(), IdentitySources.Internal);
 
-        return mapper.Map<GetUserDto>(user);
+        return user.Adapt<GetUserDto>();
     }
 
     public async Task<GetUserDto?> GetUserByIdentityIdAsync(
@@ -131,17 +128,14 @@ public class UserService(
         CancellationToken cancellationToken = default)
     {
         var user = await userRepository.GetByIdentityIdAsync(identityId, cancellationToken);
-        return user is null ? null : mapper.Map<GetUserDto>(user);
+        return user?.Adapt<GetUserDto>();
     }
 
-    public async Task<PagedList<GetUserDto>> GetUsersAsync(
-        UserFilterDto filter,
+    public async Task<IEnumerable<GetUserDto>> GetAllUsersAsync(
         CancellationToken cancellationToken = default)
     {
-        var userFilter = mapper.Map<UserFilter>(filter);
-        var users = await userRepository.GetFilteredAsync(userFilter, cancellationToken);
-
-        return mapper.Map<PagedList<GetUserDto>>(users);
+        var users = await userRepository.GetAllAsync(cancellationToken);
+        return users.Adapt<IEnumerable<GetUserDto>>();
     }
 
     private async Task<User> GetExistingUserAsync(

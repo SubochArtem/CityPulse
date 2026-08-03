@@ -20,10 +20,10 @@ public static class MiddlewareExceptionMessages
 
     public static class Details
     {
-        public const string UnexpectedError = "An unexpected error occurred.";
-        public const string IdentityProviderCommunicationError = "An error occurred while communicating with the identity provider.";
-        public const string CityNotFound = "City not found.";
-        public const string CitiesServiceUnavailable = "Cities service is currently unavailable.";
-        public const string CitiesServiceTimeout = "Cities service request timed out.";
+        public const string UnexpectedError = "An unexpected error occurred";
+        public const string IdentityProviderCommunicationError = "An error occurred while communicating with the identity provider";
+        public const string CityNotFound = "City not found";
+        public const string CitiesServiceUnavailable = "Cities service is currently unavailable";
+        public const string CitiesServiceTimeout = "Cities service request timed out";
     }
 }
