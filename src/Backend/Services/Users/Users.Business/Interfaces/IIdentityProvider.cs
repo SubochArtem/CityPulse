@@ -18,6 +18,6 @@ public interface IIdentityProvider
     
     Task UpdateUserProfileAsync(
         string identityId,
-        UpdateUserProfileDto userProfileDto,
+        UpdateUserProfileDto updateUserProfileDto,
         CancellationToken cancellationToken = default);
 }
