@@ -30,4 +30,9 @@ public interface IUserService
     public Task DeactivateUserAsync(
         Guid id,
         CancellationToken cancellationToken = default);
+    
+    Task<GetUserDto> UpdateUserAsync(
+        Guid id,
+        UpdateUserProfileDto updateUserProfileDto,
+        CancellationToken cancellationToken = default);
 }

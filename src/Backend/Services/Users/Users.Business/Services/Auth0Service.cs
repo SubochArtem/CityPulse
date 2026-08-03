@@ -4,6 +4,7 @@ using Auth0.ManagementApi;
 using Auth0.ManagementApi.Models;
 using Microsoft.Extensions.Options;
 using Users.Business.Configurations;
+using Users.Business.DTOs;
 using Users.Business.Exceptions;
 using Users.Business.Helpers;
 using Users.Business.Interfaces;
@@ -48,6 +49,26 @@ public class Auth0Service(
     {
         var client = await GetManagementClientAsync(cancellationToken);
         await client.Users.DeleteAsync(identityId, cancellationToken);
+    }
+    
+    public async Task UpdateUserProfileAsync(
+        string identityId,
+        UpdateUserProfileDto updateUserProfileDto,
+        CancellationToken cancellationToken = default)
+    {
+        if (updateUserProfileDto.Nickname is null && updateUserProfileDto.CityId is null)
+            return;
+
+        var userUpdateRequest = new UserUpdateRequest();
+
+        if (updateUserProfileDto.Nickname is not null)
+            userUpdateRequest.NickName = updateUserProfileDto.Nickname;
+
+        if (updateUserProfileDto.CityId is not null)
+            userUpdateRequest.UserMetadata = new { city_id = updateUserProfileDto.CityId.ToString() };
+
+        var client = await GetManagementClientAsync(cancellationToken);
+        await client.Users.UpdateAsync(identityId, userUpdateRequest, cancellationToken);
     }
 
     private async Task<ManagementApiClient> GetManagementClientAsync(
