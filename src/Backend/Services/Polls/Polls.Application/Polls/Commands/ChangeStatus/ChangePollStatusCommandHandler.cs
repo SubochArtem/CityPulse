@@ -27,7 +27,7 @@ public sealed class ChangePollStatusCommandHandler(
         
         var (sourceStatus, targetStatus) = GetIdeaStatusTransition(command.NewStatus);
         
-        if (sourceStatus == IdeaStatus.Undefined || targetStatus == IdeaStatus.Undefined)
+        if (sourceStatus == IdeaAccessStatus.Undefined || targetStatus == IdeaAccessStatus.Undefined)
         {
             logger.LogWarning("Unsupported poll status transition for {PollId}: {Status}", 
                 command.Id, command.NewStatus);
@@ -44,7 +44,7 @@ public sealed class ChangePollStatusCommandHandler(
             unitOfWork.Polls.Update(poll);
             await unitOfWork.SaveChangesAsync(cancellationToken);
             
-            await unitOfWork.Ideas.UpdateStatusByPollIdAsync(
+            await unitOfWork.Ideas.UpdateAccessStatusByPollIdAsync(
                 poll.Id, 
                 sourceStatus,
                 targetStatus,
@@ -62,12 +62,12 @@ public sealed class ChangePollStatusCommandHandler(
         }
     }
 
-    private static (IdeaStatus Source, IdeaStatus Target) GetIdeaStatusTransition(
+    private static (IdeaAccessStatus Source, IdeaAccessStatus Target) GetIdeaStatusTransition(
         PollStatus newStatus) =>
         newStatus switch
         {
-            PollStatus.Active => (IdeaStatus.Suspended, IdeaStatus.Active),
-            PollStatus.Suspended => (IdeaStatus.Active, IdeaStatus.Suspended),
-            _=> (IdeaStatus.Undefined, IdeaStatus.Undefined)
+            PollStatus.Active => (IdeaAccessStatus.Restricted, IdeaAccessStatus.Active),
+            PollStatus.Suspended => (IdeaAccessStatus.Active, IdeaAccessStatus.Restricted),
+            _=> (IdeaAccessStatus.Undefined, IdeaAccessStatus.Undefined)
         };
 }

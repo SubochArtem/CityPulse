@@ -19,7 +19,7 @@ public sealed class GetIdeaWithPollQueryHandler(
     {
         var idea = await unitOfWork.Ideas.GetWithPollAsync(query.Id, cancellationToken);
 
-        if (idea is null || (idea.Status != IdeaStatus.Active && query.IncludeOnlyActive))
+        if (idea is null || (idea.AccessStatus != IdeaAccessStatus.Active && query.IncludeOnlyActive))
             return IdeaErrors.NotFound(query.Id);
 
         return mapper.Map<IdeaWithPollDto>(idea);

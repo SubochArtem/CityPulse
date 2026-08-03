@@ -28,14 +28,14 @@ public class PollRepository(ApplicationDbContext context) : Repository<Poll>(con
 
     public async Task<Poll?> GetWithIdeasAsync(
         Guid id,
-        IdeaStatus? ideaStatus,
+        IdeaAccessStatus? ideaAccessStatus,
         CancellationToken cancellationToken = default)
     {
         return await _dbSet
             .AsNoTracking()
             .AsSplitQuery()
             .Include(p => p.Images)
-            .Include(p => p.Ideas.Where(i => ideaStatus == null || i.Status == ideaStatus))
+            .Include(p => p.Ideas.Where(i => ideaAccessStatus == null || i.AccessStatus == ideaAccessStatus))
             .ThenInclude(i => i.Images)
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }

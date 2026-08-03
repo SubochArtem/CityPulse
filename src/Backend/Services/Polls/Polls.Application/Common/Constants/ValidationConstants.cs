@@ -59,7 +59,8 @@ public static class ValidationConstants
         public static readonly string DescriptionTooLong = $"Description must not exceed {MaxDescriptionLength} characters";
         public static readonly string UserIdRequired = "User ID is required";
         public static readonly string IdRequired = "Idea ID is required";
-        public static readonly string InvalidStatus = "The specified Idea status is invalid";
+        public static readonly string InvalidAccessStatus = "The specified Idea access status is invalid";
+        public static readonly string InvalidApprovalStatus = "The specified Idea approval status is invalid";
     }
 
     public static class Search

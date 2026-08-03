@@ -16,13 +16,13 @@ public sealed class GetPollWithIdeasQueryHandler(IUnitOfWork unitOfWork, IMapper
         GetPollWithIdeasQuery query,
         CancellationToken cancellationToken)
     {
-        IdeaStatus? ideaStatusFilter = query.IncludeOnlyActive
-            ? IdeaStatus.Active
+        IdeaAccessStatus? ideaAccessStatusFilter = query.IncludeOnlyActive
+            ? IdeaAccessStatus.Active
             : null;
-
+        
         var poll = await unitOfWork.Polls.GetWithIdeasAsync(
             query.Id,
-            ideaStatusFilter,
+            ideaAccessStatusFilter,
             cancellationToken);
 
         if (poll is null || (poll.Status != PollStatus.Active && query.IncludeOnlyActive))

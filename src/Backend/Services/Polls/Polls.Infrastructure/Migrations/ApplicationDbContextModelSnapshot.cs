@@ -64,6 +64,14 @@ namespace Polls.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<int>("AccessStatus")
+                        .HasColumnType("integer")
+                        .HasColumnName("access_status");
+
+                    b.Property<int>("ApprovalStatus")
+                        .HasColumnType("integer")
+                        .HasColumnName("approval_status");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -76,10 +84,6 @@ namespace Polls.Infrastructure.Migrations
                     b.Property<Guid>("PollId")
                         .HasColumnType("uuid")
                         .HasColumnName("poll_id");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer")
-                        .HasColumnName("status");
 
                     b.Property<string>("Title")
                         .IsRequired()

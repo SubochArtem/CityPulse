@@ -12,8 +12,8 @@ using Polls.Infrastructure.Persistence;
 namespace Polls.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260411093013_AddPollScheduleJobs")]
-    partial class AddPollScheduleJobs
+    [Migration("20260707162949_SplitIdeaStatusToAccessStatusAndApprovalStatus")]
+    partial class SplitIdeaStatusToAccessStatusAndApprovalStatus
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -67,6 +67,14 @@ namespace Polls.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<int>("AccessStatus")
+                        .HasColumnType("integer")
+                        .HasColumnName("access_status");
+
+                    b.Property<int>("ApprovalStatus")
+                        .HasColumnType("integer")
+                        .HasColumnName("approval_status");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -79,10 +87,6 @@ namespace Polls.Infrastructure.Migrations
                     b.Property<Guid>("PollId")
                         .HasColumnType("uuid")
                         .HasColumnName("poll_id");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer")
-                        .HasColumnName("status");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -104,6 +108,115 @@ namespace Polls.Infrastructure.Migrations
                         .HasDatabaseName("ix_idea_poll_id");
 
                     b.ToTable("Ideas");
+                });
+
+            modelBuilder.Entity("Polls.Domain.Images.CityImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("CityId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("city_id");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("file_name");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("order");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CityId")
+                        .HasDatabaseName("ix_city_images_city_id");
+
+                    b.ToTable("city_images", (string)null);
+                });
+
+            modelBuilder.Entity("Polls.Domain.Images.DeletedImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("file_name");
+
+                    b.Property<DateTimeOffset>("QueuedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("queued_at");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("deleted_images", (string)null);
+                });
+
+            modelBuilder.Entity("Polls.Domain.Images.IdeaImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("file_name");
+
+                    b.Property<Guid>("IdeaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("idea_id");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("order");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdeaId")
+                        .HasDatabaseName("ix_idea_images_idea_id");
+
+                    b.ToTable("idea_images", (string)null);
+                });
+
+            modelBuilder.Entity("Polls.Domain.Images.PollImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("file_name");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("order");
+
+                    b.Property<Guid>("PollId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("poll_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PollId")
+                        .HasDatabaseName("ix_poll_images_poll_id");
+
+                    b.ToTable("poll_images", (string)null);
                 });
 
             modelBuilder.Entity("Polls.Domain.PollScheduleJob.PollScheduleJob", b =>
@@ -224,6 +337,33 @@ namespace Polls.Infrastructure.Migrations
                     b.Navigation("Poll");
                 });
 
+            modelBuilder.Entity("Polls.Domain.Images.CityImage", b =>
+                {
+                    b.HasOne("Polls.Domain.Cities.City", null)
+                        .WithMany("Images")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Polls.Domain.Images.IdeaImage", b =>
+                {
+                    b.HasOne("Polls.Domain.Ideas.Idea", null)
+                        .WithMany("Images")
+                        .HasForeignKey("IdeaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Polls.Domain.Images.PollImage", b =>
+                {
+                    b.HasOne("Polls.Domain.Polls.Poll", null)
+                        .WithMany("Images")
+                        .HasForeignKey("PollId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Polls.Domain.PollScheduleJob.PollScheduleJob", b =>
                 {
                     b.HasOne("Polls.Domain.Polls.Poll", null)
@@ -244,12 +384,21 @@ namespace Polls.Infrastructure.Migrations
 
             modelBuilder.Entity("Polls.Domain.Cities.City", b =>
                 {
+                    b.Navigation("Images");
+
                     b.Navigation("Polls");
+                });
+
+            modelBuilder.Entity("Polls.Domain.Ideas.Idea", b =>
+                {
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("Polls.Domain.Polls.Poll", b =>
                 {
                     b.Navigation("Ideas");
+
+                    b.Navigation("Images");
                 });
 #pragma warning restore 612, 618
         }

@@ -10,7 +10,8 @@ public class IdeaWithPollDto
     public Guid PollId { get; init; }
     public required string Title { get; init; }
     public string? Description { get; init; }
-    public int Status { get; init; }
+    public int AccessStatus { get; init; }
+    public int ApprovalStatus { get; init; }
     public required PollDto Poll { get; init; }
     public IReadOnlyList<ImageDto> Images { get; init; } = [];
 }

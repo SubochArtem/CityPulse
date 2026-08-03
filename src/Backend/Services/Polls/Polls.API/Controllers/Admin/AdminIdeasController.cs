@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Polls.API.Common.Extensions;
 using Polls.API.Requests.Ideas;
 using Polls.Application.Common.Models;
-using Polls.Application.Ideas.Commands.ChangeStatus;
+using Polls.Application.Ideas.Commands.ChangeAccessStatus;
 using Polls.Application.Ideas.Commands.CreateIdea;
 using Polls.Application.Ideas.Commands.DeleteIdea;
 using Polls.Application.Ideas.Commands.UpdateIdea;
@@ -111,16 +111,16 @@ public class AdminIdeasController(ISender sender) : ControllerBase
         return await sender.Send(command, cancellationToken);
     }
 
-    [HttpPatch("{id:guid}/status")]
+    [HttpPatch("{id:guid}/access-status")]
     [Authorize(Policy = Permissions.Ideas.ChangeStatusAny)]
-    public async Task<Result<Unit>> ChangeStatus(
+    public async Task<Result<Unit>> ChangeAccessStatus(
         Guid id,
-        ChangeIdeaStatusRequest request,
+        ChangeIdeaAccessStatusRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new ChangeIdeaStatusCommand(
+        var command = new ChangeIdeaAccessStatusCommand(
             Id: id,
-            NewStatus: request.NewStatus);
+            NewIdeaAccessStatus: request.NewIdeaAccessStatus);
         
         return await sender.Send(command, cancellationToken);
     }
