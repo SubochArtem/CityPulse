@@ -1,7 +1,5 @@
-using System.Reflection;
 using CityPulse.Contracts.Grpc.Protos;
-using Mapster;
-using MapsterMapper;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +9,7 @@ using Users.DataAccess.Interceptors;
 using Users.DataAccess.Interfaces;
 using Users.DataAccess.Repositories;
 using Users.DataAccess.Services;
+using Users.DataAccess.Settings;
 
 namespace Users.DataAccess;
 
@@ -52,12 +51,12 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IUserRepository, UserRepository>();
-        
+
         services.AddOptions<GrpcSettings>()
             .Bind(configuration.GetSection(GrpcSettings.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
-        
+
         services.AddGrpcClient<CitiesService.CitiesServiceClient>((sp, options) =>
         {
             var settings = sp.GetRequiredService<IOptions<GrpcSettings>>().Value;
@@ -65,12 +64,33 @@ public static class DependencyInjection
         });
 
         services.AddScoped<ICityService, CityGrpcService>();
-        
-        var config = TypeAdapterConfig.GlobalSettings;
-        config.Scan(Assembly.GetExecutingAssembly());
-        
-        services.AddSingleton(config);
-        services.AddScoped<IMapper, ServiceMapper>();
+
+        services.AddOptions<RabbitMqSettings>()
+            .Bind(configuration.GetSection(RabbitMqSettings.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddMassTransit(x =>
+        {
+            x.SetKebabCaseEndpointNameFormatter();
+
+            x.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
+            {
+                o.UsePostgres();
+                o.UseBusOutbox();
+            });
+
+            x.UsingRabbitMq((context, cfg) =>
+            {
+                var settings = context.GetRequiredService<IOptions<RabbitMqSettings>>().Value;
+                cfg.Host(settings.Host, settings.Port, settings.VirtualHost, host =>
+                {
+                    host.Username(settings.Username);
+                    host.Password(settings.Password);
+                });
+                cfg.ConfigureEndpoints(context);
+            });
+        });
 
         return services;
     }
