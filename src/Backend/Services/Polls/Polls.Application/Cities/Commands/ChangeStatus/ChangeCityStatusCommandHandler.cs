@@ -87,11 +87,11 @@ public sealed class ChangeCityStatusCommandHandler(
     {
         CityStatus.Active => (
             PollStatus.Suspended, PollStatus.Active,
-            IdeaAccessStatus.Restricted, IdeaAccessStatus.Active),
+            IdeaAccessStatus.RestrictedByContext, IdeaAccessStatus.Active),
             
         CityStatus.Inactive => (
             PollStatus.Active, PollStatus.Suspended,
-            IdeaAccessStatus.Active, IdeaAccessStatus.Restricted),
+            IdeaAccessStatus.Active, IdeaAccessStatus.RestrictedByContext),
         
         _ => (PollStatus.Undefined, PollStatus.Undefined, 
             IdeaAccessStatus.Undefined, IdeaAccessStatus.Undefined)

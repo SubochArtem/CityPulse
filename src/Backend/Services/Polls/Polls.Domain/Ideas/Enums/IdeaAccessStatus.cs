@@ -5,5 +5,6 @@ public enum IdeaAccessStatus
     Undefined = 0,
     Active = 1,
     Inactive = 2,
-    Restricted = 3
+    RestrictedByContext = 3,
+    RestrictedByAuthor = 4
 }
