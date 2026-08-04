@@ -19,11 +19,6 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        var config = new TypeAdapterConfig();
-        UserMappingConfig.Configure(config);
-        services.AddSingleton(config);
-        services.AddScoped<IMapper, ServiceMapper>();
-
         services.AddValidatorsFromAssemblyContaining<CreateUserValidator>();
 
         services
@@ -47,6 +42,15 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        var mapperConfig = new TypeAdapterConfig();
+        UserMappingConfig.Configure(mapperConfig);      
+        mapperConfig.Scan(
+            typeof(Business.DependencyInjection).Assembly,
+            typeof(DataAccess.DependencyInjection).Assembly);
+
+        services.AddSingleton(mapperConfig);
+        services.AddScoped<IMapper, ServiceMapper>();
+        
         services.AddBusiness(configuration);
         services.AddDataAccess(configuration);
 
