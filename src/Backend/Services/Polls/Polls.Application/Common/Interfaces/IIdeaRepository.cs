@@ -31,4 +31,11 @@ public interface IIdeaRepository : IRepository<Idea>
         IdeaAccessStatus targetIdeaAccessStatus,
         DateTimeOffset updatedAt,
         CancellationToken cancellationToken = default);
+    
+    Task UpdateAccessStatusByAuthorIdAsync(
+        Guid userId,
+        IdeaAccessStatus sourceIdeaAccessStatus,
+        IdeaAccessStatus targetIdeaAccessStatus,
+        DateTimeOffset updatedAt,
+        CancellationToken cancellationToken = default);
 }
