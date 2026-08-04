@@ -1,5 +1,6 @@
 using Hangfire;
 using Hangfire.PostgreSql;
+using MassTransit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -11,6 +12,7 @@ using Polls.Application.Common.Interfaces;
 using Polls.Application.Jobs;
 using Polls.Domain.Images;
 using Polls.Infrastructure.Jobs;
+using Polls.Infrastructure.Messaging;
 using Polls.Infrastructure.Persistence;
 using Polls.Infrastructure.Persistence.Interceptors;
 using Polls.Infrastructure.Persistence.Options;
@@ -30,7 +32,12 @@ public static class DependencyInjection
             .Bind(configuration.GetSection(DatabaseOptions.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
-        
+
+        services.AddOptions<RabbitMqOptions>()
+            .Bind(configuration.GetSection(RabbitMqOptions.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 
         services.AddOptions<ImageStorageOptions>()
@@ -74,6 +81,32 @@ public static class DependencyInjection
             .AddScoped<IDeletedImageRepository, DeletedImageRepository>()
             .AddScoped<RepositoryCollection>()
             .AddScoped<IUnitOfWork, UnitOfWork>();
+
+        services.AddMassTransit(x =>
+        {
+            x.SetKebabCaseEndpointNameFormatter();
+            
+            x.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
+            {
+                o.UsePostgres();
+                o.UseBusOutbox();
+            });
+
+            x.AddConsumer<UserStatusChangedConsumer>();
+
+            x.UsingRabbitMq((context, cfg) =>
+            {
+                var rabbitOptions = context.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
+
+                cfg.Host(rabbitOptions.Host, rabbitOptions.VirtualHost, h =>
+                {
+                    h.Username(rabbitOptions.Username);
+                    h.Password(rabbitOptions.Password);
+                });
+
+                cfg.ConfigureEndpoints(context);
+            });
+        });
 
         var storageOptions = configuration
                                  .GetSection(ImageStorageOptions.SectionName)
