@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Users.DataAccess.Interceptors;
 using Users.DataAccess.Interfaces;
+using Users.DataAccess.Messaging;
 using Users.DataAccess.Repositories;
 using Users.DataAccess.Services;
 using Users.DataAccess.Settings;
@@ -62,7 +63,9 @@ public static class DependencyInjection
             options.Address = new Uri(settings.CitiesServiceUrl);
         });
 
-        services.AddScoped<ICityService, CityGrpcService>();
+        services
+            .AddScoped<ICityService, CityGrpcService>()
+            .AddScoped<IEventPublisher, EventPublisherAdapter>();;
 
         services.AddOptions<RabbitMqSettings>()
             .Bind(configuration.GetSection(RabbitMqSettings.SectionName))
