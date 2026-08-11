@@ -76,4 +76,19 @@ public class IdeaRepository(ApplicationDbContext context)
                     .SetProperty(i => i.UpdatedAt, updatedAt), 
                 cancellationToken);
     }
+    
+    public async Task UpdateAccessStatusByAuthorIdAsync(
+        Guid userId,
+        IdeaAccessStatus sourceIdeaAccessStatus,
+        IdeaAccessStatus targetIdeaAccessStatus,
+        DateTimeOffset updatedAt,
+        CancellationToken cancellationToken = default)
+    {
+        await _dbSet
+            .Where(i => i.UserId == userId && i.AccessStatus == sourceIdeaAccessStatus)
+            .ExecuteUpdateAsync(setters => setters
+                    .SetProperty(i => i.AccessStatus, targetIdeaAccessStatus)
+                    .SetProperty(i => i.UpdatedAt, updatedAt),
+                cancellationToken);
+    }
 }
