@@ -65,7 +65,7 @@ public static class DependencyInjection
 
         services
             .AddScoped<ICityService, CityGrpcService>()
-            .AddScoped<IEventPublisher, EventPublisherAdapter>();;
+            .AddScoped<IEventPublisher, EventPublisherAdapter>();
 
         services.AddOptions<RabbitMqSettings>()
             .Bind(configuration.GetSection(RabbitMqSettings.SectionName))
