@@ -19,7 +19,6 @@ public sealed class UserStatusChangedConsumer(
                 message.UserId,
                 IdeaAccessStatus.Active,
                 IdeaAccessStatus.RestrictedByAuthor,
-                dateTimeProvider.UtcNow,
                 context.CancellationToken);
         
         else if (message.UserLifecycleStatus == UserLifecycleStatus.Active)
@@ -27,7 +26,6 @@ public sealed class UserStatusChangedConsumer(
                 message.UserId,
                 IdeaAccessStatus.RestrictedByAuthor,
                 IdeaAccessStatus.Active,
-                dateTimeProvider.UtcNow,
                 context.CancellationToken);
     }
 }

@@ -59,7 +59,6 @@ public sealed class ChangeCityStatusCommandHandler(
                 city.Id, 
                 sourceIdeaAccessStatus, 
                 targetIdeaAccessStatus, 
-                utcNow, 
                 cancellationToken);
             
             await transaction.CommitAsync(cancellationToken);
