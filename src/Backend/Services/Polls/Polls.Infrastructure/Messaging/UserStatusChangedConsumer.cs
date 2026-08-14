@@ -15,14 +15,14 @@ public sealed class UserStatusChangedConsumer(
         var message = context.Message;
 
         if (message.UserLifecycleStatus == UserLifecycleStatus.Inactive)
-            await ideaRepository.UpdateAccessStatusByAuthorIdAsync(
+            await ideaRepository.UpdateAccessStatusByUserIdAsync(
                 message.UserId,
                 IdeaAccessStatus.Active,
                 IdeaAccessStatus.RestrictedByAuthor,
                 context.CancellationToken);
         
         else if (message.UserLifecycleStatus == UserLifecycleStatus.Active)
-            await ideaRepository.UpdateAccessStatusByAuthorIdAsync(
+            await ideaRepository.UpdateAccessStatusByUserIdAsync(
                 message.UserId,
                 IdeaAccessStatus.RestrictedByAuthor,
                 IdeaAccessStatus.Active,

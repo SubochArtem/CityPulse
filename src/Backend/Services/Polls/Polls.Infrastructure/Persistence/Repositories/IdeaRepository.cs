@@ -74,7 +74,7 @@ public class IdeaRepository(ApplicationDbContext context, IDateTimeProvider date
             cancellationToken);
     }
 
-    public Task UpdateAccessStatusByAuthorIdAsync(
+    public Task UpdateAccessStatusByUserIdAsync(
         Guid userId,
         IdeaAccessStatus sourceIdeaAccessStatus,
         IdeaAccessStatus targetIdeaAccessStatus,
