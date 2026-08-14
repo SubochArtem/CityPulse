@@ -7,8 +7,7 @@ using Polls.Domain.Ideas.Enums;
 namespace Polls.Infrastructure.Messaging;
 
 public sealed class UserStatusChangedConsumer(
-    IIdeaRepository ideaRepository,
-    IDateTimeProvider dateTimeProvider) : IConsumer<UserStatusChangedEvent>
+    IIdeaRepository ideaRepository) : IConsumer<UserStatusChangedEvent>
 {
     public async Task Consume(ConsumeContext<UserStatusChangedEvent> context)
     {
