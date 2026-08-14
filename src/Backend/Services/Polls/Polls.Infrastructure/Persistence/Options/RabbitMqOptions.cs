@@ -7,13 +7,13 @@ public sealed class RabbitMqOptions
     public const string SectionName = "RabbitMq";
 
     [Required]
-    public string Host { get; init; } = string.Empty;
+    public required string Host { get; init; }
     [Range(1, ushort.MaxValue)]
-    public ushort Port { get; init; } = 5672;
+    public ushort Port { get; init; }
     [Required]
-    public string Username { get; init; } = string.Empty;
+    public required string Username { get; init; }
     [Required]
-    public string Password { get; init; } = string.Empty;
+    public required string Password { get; init; }
     [Required]
-    public string VirtualHost { get; init; } = "/";
+    public required string VirtualHost { get; init; }
 }
