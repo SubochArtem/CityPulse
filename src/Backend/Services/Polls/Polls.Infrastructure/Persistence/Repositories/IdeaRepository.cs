@@ -48,7 +48,7 @@ public class IdeaRepository(ApplicationDbContext context, IDateTimeProvider date
             .FirstOrDefaultAsync(i => i.Id == id, cancellationToken);
     }
 
-    public Task UpdateAccessStatusByCityAsync(
+    public Task<int> UpdateAccessStatusByCityAsync(
         Guid cityId,
         IdeaAccessStatus sourceIdeaAccessStatus,
         IdeaAccessStatus targetIdeaAccessStatus,
@@ -61,7 +61,7 @@ public class IdeaRepository(ApplicationDbContext context, IDateTimeProvider date
             cancellationToken);
     }
 
-    public Task UpdateAccessStatusByPollIdAsync(
+    public Task<int> UpdateAccessStatusByPollIdAsync(
         Guid pollId,
         IdeaAccessStatus sourceIdeaAccessStatus,
         IdeaAccessStatus targetIdeaAccessStatus,
@@ -74,7 +74,7 @@ public class IdeaRepository(ApplicationDbContext context, IDateTimeProvider date
             cancellationToken);
     }
 
-    public Task UpdateAccessStatusByUserIdAsync(
+    public Task<int> UpdateAccessStatusByUserIdAsync(
         Guid userId,
         IdeaAccessStatus sourceIdeaAccessStatus,
         IdeaAccessStatus targetIdeaAccessStatus,
@@ -87,13 +87,13 @@ public class IdeaRepository(ApplicationDbContext context, IDateTimeProvider date
             cancellationToken);
     }
 
-    private async Task UpdateAccessStatusAsync(
+    private Task<int> UpdateAccessStatusAsync(
         Expression<Func<Idea, bool>> scopeFilter,
         IdeaAccessStatus sourceIdeaAccessStatus,
         IdeaAccessStatus targetIdeaAccessStatus,
         CancellationToken cancellationToken)
     {
-        await _dbSet
+        return _dbSet
             .Where(scopeFilter)
             .Where(i => i.AccessStatus == sourceIdeaAccessStatus)
             .ExecuteUpdateAsync(setters => setters
