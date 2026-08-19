@@ -19,16 +19,21 @@ public interface IIdeaRepository : IRepository<Idea>
         Guid id,
         CancellationToken cancellationToken = default);
 
-    Task UpdateAccessStatusByCityAsync(
+    Task<int> UpdateAccessStatusByCityAsync(
         Guid cityId,
         IdeaAccessStatus sourceIdeaAccessStatus,
         IdeaAccessStatus targetIdeaAccessStatus,
-        DateTimeOffset updatedAt,
         CancellationToken cancellationToken = default);
-    Task UpdateAccessStatusByPollIdAsync(
+
+    Task<int> UpdateAccessStatusByPollIdAsync(
         Guid pollId,
         IdeaAccessStatus sourceIdeaAccessStatus,
         IdeaAccessStatus targetIdeaAccessStatus,
-        DateTimeOffset updatedAt,
+        CancellationToken cancellationToken = default);
+
+    Task<int> UpdateAccessStatusByUserIdAsync(
+        Guid userId,
+        IdeaAccessStatus sourceIdeaAccessStatus,
+        IdeaAccessStatus targetIdeaAccessStatus,
         CancellationToken cancellationToken = default);
 }

@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using CityPulse.Contracts.Querying.Pagination;
 using Microsoft.EntityFrameworkCore;
 using Polls.Application.Common.Interfaces;
@@ -8,7 +9,7 @@ using Polls.Infrastructure.Persistence.Extensions;
 
 namespace Polls.Infrastructure.Persistence.Repositories;
 
-public class IdeaRepository(ApplicationDbContext context)
+public class IdeaRepository(ApplicationDbContext context, IDateTimeProvider dateTimeProvider)
     : Repository<Idea>(context), IIdeaRepository
 {
     public async Task<PagedList<Idea>> GetFilteredAsync(
@@ -37,7 +38,7 @@ public class IdeaRepository(ApplicationDbContext context)
             .ThenInclude(p => p.Images)
             .FirstOrDefaultAsync(i => i.Id == id, cancellationToken);
     }
-    
+
     public async Task<Idea?> GetByIdWithImagesAsync(
         Guid id,
         CancellationToken cancellationToken = default)
@@ -46,34 +47,58 @@ public class IdeaRepository(ApplicationDbContext context)
             .Include(i => i.Images)
             .FirstOrDefaultAsync(i => i.Id == id, cancellationToken);
     }
-    
-    public async Task UpdateAccessStatusByCityAsync(
+
+    public Task<int> UpdateAccessStatusByCityAsync(
         Guid cityId,
         IdeaAccessStatus sourceIdeaAccessStatus,
         IdeaAccessStatus targetIdeaAccessStatus,
-        DateTimeOffset updatedAt,
         CancellationToken cancellationToken = default)
     {
-        await _dbSet
-            .Where(i => i.Poll.CityId == cityId && i.AccessStatus == sourceIdeaAccessStatus)
-            .ExecuteUpdateAsync(s => s
-                    .SetProperty(i => i.AccessStatus, targetIdeaAccessStatus)
-                    .SetProperty(i => i.UpdatedAt, updatedAt),
-                cancellationToken);
+        return UpdateAccessStatusAsync(
+            i => i.Poll.CityId == cityId,
+            sourceIdeaAccessStatus,
+            targetIdeaAccessStatus,
+            cancellationToken);
     }
-    
-    public async Task UpdateAccessStatusByPollIdAsync(
+
+    public Task<int> UpdateAccessStatusByPollIdAsync(
         Guid pollId,
         IdeaAccessStatus sourceIdeaAccessStatus,
         IdeaAccessStatus targetIdeaAccessStatus,
-        DateTimeOffset updatedAt,
         CancellationToken cancellationToken = default)
     {
-        await _dbSet
-            .Where(i => i.PollId == pollId && i.AccessStatus == sourceIdeaAccessStatus)
+        return UpdateAccessStatusAsync(
+            i => i.PollId == pollId,
+            sourceIdeaAccessStatus,
+            targetIdeaAccessStatus,
+            cancellationToken);
+    }
+
+    public Task<int> UpdateAccessStatusByUserIdAsync(
+        Guid userId,
+        IdeaAccessStatus sourceIdeaAccessStatus,
+        IdeaAccessStatus targetIdeaAccessStatus,
+        CancellationToken cancellationToken = default)
+    {
+        return UpdateAccessStatusAsync(
+            i => i.UserId == userId,
+            sourceIdeaAccessStatus,
+            targetIdeaAccessStatus,
+            cancellationToken);
+    }
+
+    private Task<int> UpdateAccessStatusAsync(
+        Expression<Func<Idea, bool>> scopeFilter,
+        IdeaAccessStatus sourceIdeaAccessStatus,
+        IdeaAccessStatus targetIdeaAccessStatus,
+        CancellationToken cancellationToken)
+    {
+        return _dbSet
+            .Where(scopeFilter)
+            .Where(i => i.AccessStatus == sourceIdeaAccessStatus)
             .ExecuteUpdateAsync(setters => setters
                     .SetProperty(i => i.AccessStatus, targetIdeaAccessStatus)
-                    .SetProperty(i => i.UpdatedAt, updatedAt), 
+                    .SetProperty(i => i.UpdatedAt, dateTimeProvider.UtcNow),
                 cancellationToken);
     }
 }

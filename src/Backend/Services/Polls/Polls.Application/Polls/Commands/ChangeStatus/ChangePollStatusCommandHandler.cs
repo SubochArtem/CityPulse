@@ -48,7 +48,6 @@ public sealed class ChangePollStatusCommandHandler(
                 poll.Id, 
                 sourceStatus,
                 targetStatus,
-                utcNow, 
                 cancellationToken);
             
             await transaction.CommitAsync(cancellationToken);
