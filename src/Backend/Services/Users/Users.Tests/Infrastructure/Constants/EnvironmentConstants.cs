@@ -37,4 +37,16 @@ internal static class EnvironmentConstants
         public const string ManagementApiAudience = "https://test-tenant.example.com/api/v2/";
         public const string WebhookSecret = "test-webhook-secret";
     }
+    
+    public static class Traits
+    {
+        public const string Category = "Category";
+        public const string Integration = "Integration";
+    }
+
+    public static class Respawner
+    {
+        public const string PublicSchema = "public";
+        public const string EfMigrationsHistoryTable = "__EFMigrationsHistory";
+    }
 }
