@@ -28,7 +28,7 @@ internal static class ConfigurationKeys
         public const string ClientSecret = "Auth0:ClientSecret";
         public const string Audience = "Auth0:Audience";
         public const string ManagementApiClientId = "Auth0:ManagementApiClientId";
-        public const string ManagementApiSecret = "Auth0:ManagementApiSecret";
+        public const string ManagementApiClientSecret = "Auth0:ManagementApiClientSecret";
         public const string ManagementApiAudience = "Auth0:ManagementApiAudience";
         public const string WebhookSecret = "Auth0:WebhookSecret";
     }

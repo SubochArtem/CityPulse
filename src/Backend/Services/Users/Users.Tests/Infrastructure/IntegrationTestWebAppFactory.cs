@@ -58,7 +58,7 @@ public sealed class IntegrationTestWebAppFactory : WebApplicationFactory<Program
             [ConfigurationKeys.Auth0.ClientSecret] = EnvironmentConstants.Auth0.ClientSecret,
             [ConfigurationKeys.Auth0.Audience] = EnvironmentConstants.Auth0.Audience,
             [ConfigurationKeys.Auth0.ManagementApiClientId] = EnvironmentConstants.Auth0.ManagementApiClientId,
-            [ConfigurationKeys.Auth0.ManagementApiSecret] = EnvironmentConstants.Auth0.ManagementApiSecret,
+            [ConfigurationKeys.Auth0.ManagementApiClientSecret] = EnvironmentConstants.Auth0.ManagementApiClientSecret,
             [ConfigurationKeys.Auth0.ManagementApiAudience] = EnvironmentConstants.Auth0.ManagementApiAudience,
             [ConfigurationKeys.Auth0.WebhookSecret] = EnvironmentConstants.Auth0.WebhookSecret
         };
