@@ -20,6 +20,7 @@ public class UserService(
     IIdentityProvider identityProvider,
     IValidator<CreateUserDto> createValidator,
     IValidator<UpdateUserProfileDto> updateValidator,
+    IValidator<UserFilterDto> filterValidator,
     ICityService cityService,
     IMapper mapper,
     IEventPublisher eventPublisher) : IUserService
@@ -168,6 +169,10 @@ public class UserService(
         UserFilterDto filter,
         CancellationToken cancellationToken = default)
     {
+        await filterValidator.ValidateAndThrowAsync(
+            filter,
+            cancellationToken);
+
         var userFilter = mapper.Map<UserFilter>(filter);
         var users = await userRepository.GetFilteredAsync(userFilter, cancellationToken);
 
