@@ -12,6 +12,7 @@ using Users.Business.Interfaces;
 using Users.DataAccess;
 using Users.DataAccess.DTOs;
 using Users.DataAccess.Entities;
+using Users.DataAccess.Entities.Enums;
 using Users.DataAccess.Interfaces;
 using Users.Tests.Infrastructure.Constants;
 using Users.Tests.TestData;
@@ -61,6 +62,14 @@ public abstract class UsersApiTestBase(IntegrationTestWebAppFactory factory) : I
         await dbContext.SaveChangesAsync();
 
         return user;
+    }
+
+    protected Task<User> SeedUserAsync(UserAccessStatus accessStatus)
+    {
+        var user = UserFaker.Generate();
+        user.AccessStatus = accessStatus;
+
+        return SeedUserAsync(user);
     }
 
     protected void SetupCity(Guid cityId, CityStatus status) =>
