@@ -52,11 +52,4 @@ public sealed class GetUsersPaginationValidationTests(IntegrationTestWebAppFacto
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
-
-    private sealed class ValidationProblemResponse
-    {
-        public string? Title { get; set; }
-
-        public Dictionary<string, string[]> Errors { get; set; } = [];
-    }
 }

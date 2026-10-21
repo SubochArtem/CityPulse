@@ -9,6 +9,8 @@ using Testcontainers.PostgreSql;
 using Testcontainers.RabbitMq;
 using Users.Business.Interfaces;
 using Users.DataAccess;
+using Users.DataAccess.Interceptors;
+using Users.DataAccess.Interfaces;
 using Users.Tests.Infrastructure.Constants;
 using Xunit;
 
@@ -26,6 +28,8 @@ public sealed class IntegrationTestWebAppFactory : WebApplicationFactory<Program
         .Build();
     
     public Mock<IIdentityProvider> IdentityProviderMock { get; } = new();
+
+    public Mock<ICityService> CityServiceMock { get; } = new();
 
     public async Task InitializeAsync()
     {
@@ -76,8 +80,12 @@ public sealed class IntegrationTestWebAppFactory : WebApplicationFactory<Program
                 services.Remove(dbContextDescriptor);
             }
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(_postgresContainer.GetConnectionString()));
+            services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
+                options
+                    .UseNpgsql(_postgresContainer.GetConnectionString())
+                    .AddInterceptors(
+                        serviceProvider.GetRequiredService<SaveChangesInterceptor>(),
+                        serviceProvider.GetRequiredService<AuditInterceptor>()));
 
             var identityDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(IIdentityProvider));
             if (identityDescriptor != null)
@@ -86,6 +94,14 @@ public sealed class IntegrationTestWebAppFactory : WebApplicationFactory<Program
             }
 
             services.AddSingleton<IIdentityProvider>(IdentityProviderMock.Object);
+
+            var cityServiceDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(ICityService));
+            if (cityServiceDescriptor != null)
+            {
+                services.Remove(cityServiceDescriptor);
+            }
+
+            services.AddSingleton<ICityService>(CityServiceMock.Object);
 
             services.AddAuthentication(defaultScheme: TestAuthenticationHandler.SchemeName)
                 .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, TestAuthenticationHandler>(
