@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using Bogus;
 using CityPulse.Contracts.Events.Users;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Npgsql;
 using Respawn;
+using Users.Business.Configurations;
 using Users.Business.DTOs;
 using Users.Business.Interfaces;
 using Users.DataAccess;
@@ -24,6 +26,8 @@ namespace Users.Tests.Infrastructure;
 [Trait(EnvironmentConstants.Traits.Category, EnvironmentConstants.Traits.Integration)]
 public abstract class UsersApiTestBase(IntegrationTestWebAppFactory factory) : IAsyncLifetime
 {
+    private const string WebhookRoute = "api/v1/Auth0Webhook";
+    private const string JsonContentType = "application/json";
     private const string DefaultCityName = "Test City";
     private const string OutboxEnvelopeMessageProperty = "message";
 
@@ -101,6 +105,37 @@ public abstract class UsersApiTestBase(IntegrationTestWebAppFactory factory) : I
                 .GetProperty(OutboxEnvelopeMessageProperty)
                 .Deserialize<UserStatusChangedEvent>(WebJsonOptions)!)
             .ToList();
+    }
+
+    protected async Task<HttpResponseMessage> PostWebhookAsync(string body, string? signature)
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Post, WebhookRoute)
+        {
+            Content = new StringContent(body, Encoding.UTF8, JsonContentType)
+        };
+
+        if (signature is not null)
+        {
+            request.Headers.Add(IdentityProviderConstants.WebhookSignatureHeader, signature);
+        }
+
+        return await Client.SendAsync(request);
+    }
+
+    protected async Task<User?> GetUserByIdentityIdFromDbAsync(string identityId)
+    {
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        return await dbContext.Users.AsNoTracking().SingleOrDefaultAsync(u => u.IdentityId == identityId);
+    }
+
+    protected async Task<int> CountUsersInDbAsync()
+    {
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        return await dbContext.Users.CountAsync();
     }
 
     protected async Task<User?> GetUserFromDbAsync(Guid id)
