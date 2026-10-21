@@ -33,7 +33,7 @@ internal static class EnvironmentConstants
         public const string ClientSecret = "test-client-secret";
         public const string Audience = "https://test-api";
         public const string ManagementApiClientId = "test-mgmt-client-id";
-        public const string ManagementApiSecret = "test-mgmt-secret";
+        public const string ManagementApiClientSecret = "test-mgmt-secret";
         public const string ManagementApiAudience = "https://test-tenant.example.com/api/v2/";
         public const string WebhookSecret = "test-webhook-secret";
     }
