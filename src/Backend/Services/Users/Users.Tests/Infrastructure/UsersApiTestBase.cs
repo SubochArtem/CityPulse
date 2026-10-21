@@ -1,8 +1,13 @@
+using Bogus;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Npgsql;
 using Respawn;
 using Users.Business.Interfaces;
+using Users.DataAccess;
+using Users.DataAccess.Entities;
 using Users.Tests.Infrastructure.Constants;
+using Users.Tests.TestData;
 using Xunit;
 
 namespace Users.Tests.Infrastructure;
@@ -11,6 +16,8 @@ namespace Users.Tests.Infrastructure;
 [Trait(EnvironmentConstants.Traits.Category, EnvironmentConstants.Traits.Integration)]
 public abstract class UsersApiTestBase(IntegrationTestWebAppFactory factory) : IAsyncLifetime
 {
+    private static readonly Faker<User> UserFaker = UserFakers.Users();
+
     private Respawner _respawner = null!;
 
     protected HttpClient Client { get; private set; } = null!;
@@ -29,6 +36,18 @@ public abstract class UsersApiTestBase(IntegrationTestWebAppFactory factory) : I
             SchemasToInclude = [EnvironmentConstants.Respawner.PublicSchema],
             TablesToIgnore = [EnvironmentConstants.Respawner.EfMigrationsHistoryTable]
         });
+    }
+
+    protected async Task<User> SeedUserAsync(User? user = null)
+    {
+        user ??= UserFaker.Generate();
+
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        dbContext.Users.Add(user);
+        await dbContext.SaveChangesAsync();
+
+        return user;
     }
 
     public async Task DisposeAsync()
