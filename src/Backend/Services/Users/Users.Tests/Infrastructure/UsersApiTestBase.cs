@@ -1,4 +1,5 @@
 using Bogus;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Npgsql;
@@ -51,6 +52,14 @@ public abstract class UsersApiTestBase(IntegrationTestWebAppFactory factory) : I
         await dbContext.SaveChangesAsync();
 
         return user;
+    }
+
+    protected async Task<User?> GetUserFromDbAsync(Guid id)
+    {
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        return await dbContext.Users.AsNoTracking().SingleOrDefaultAsync(u => u.Id == id);
     }
 
     public async Task DisposeAsync()
