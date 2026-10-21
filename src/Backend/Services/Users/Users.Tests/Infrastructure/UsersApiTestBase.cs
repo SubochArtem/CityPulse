@@ -68,6 +68,31 @@ public abstract class UsersApiTestBase(IntegrationTestWebAppFactory factory) : I
         return user;
     }
 
+    protected HttpClient CreateClient(IEnumerable<string> permissions, string? internalUserId = null)
+    {
+        var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add(
+            AuthConstants.Headers.Permissions,
+            string.Join(
+                AuthConstants.Headers.PermissionsSeparator,
+                permissions.DefaultIfEmpty(AuthConstants.Headers.NoPermissions)));
+
+        if (internalUserId is not null)
+        {
+            client.DefaultRequestHeaders.Add(AuthConstants.Headers.InternalUserId, internalUserId);
+        }
+
+        return client;
+    }
+
+    protected HttpClient CreateAnonymousClient()
+    {
+        var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Add(AuthConstants.Headers.Anonymous, bool.TrueString);
+
+        return client;
+    }
+
     protected Task<User> SeedUserAsync(UserAccessStatus accessStatus)
     {
         var user = UserFaker.Generate();
