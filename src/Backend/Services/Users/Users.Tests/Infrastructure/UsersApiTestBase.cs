@@ -6,6 +6,7 @@ using Respawn;
 using Users.Business.Interfaces;
 using Users.DataAccess;
 using Users.DataAccess.Entities;
+using Users.DataAccess.Interfaces;
 using Users.Tests.Infrastructure.Constants;
 using Users.Tests.TestData;
 using Xunit;
@@ -23,6 +24,8 @@ public abstract class UsersApiTestBase(IntegrationTestWebAppFactory factory) : I
     protected HttpClient Client { get; private set; } = null!;
     
     protected Mock<IIdentityProvider> IdentityProviderMock => factory.IdentityProviderMock;
+
+    protected Mock<ICityService> CityServiceMock => factory.CityServiceMock;
 
     public async Task InitializeAsync()
     {
@@ -52,7 +55,8 @@ public abstract class UsersApiTestBase(IntegrationTestWebAppFactory factory) : I
 
     public async Task DisposeAsync()
     {
-        IdentityProviderMock.Invocations.Clear();
+        IdentityProviderMock.Reset();
+        CityServiceMock.Reset();
 
         await using var connection = new NpgsqlConnection(factory.GetConnectionString());
         await connection.OpenAsync();
