@@ -44,9 +44,10 @@ public sealed class UserServiceTests
         _sut = new UserService(
             _userRepository.Object,
             _identityProvider.Object,
-            new CreateUserValidator(),
-            new UpdateUserProfileDtoValidator(),
-            new UserFilterDtoValidator(),
+            new UserValidators(
+                new CreateUserValidator(),
+                new UpdateUserProfileDtoValidator(),
+                new UserFilterDtoValidator()),
             _cityService.Object,
             _mapper,
             _eventPublisher.Object);
