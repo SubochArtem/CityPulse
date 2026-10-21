@@ -5,6 +5,14 @@ internal static class AuthConstants
     public const string SchemeName = "Test";
     public const string PermissionsClaimType = "permissions";
 
+    public static class Headers
+    {
+        public const string Permissions = "X-Test-Permissions";
+        public const string InternalUserId = "X-Test-Internal-User-Id";
+        public const string Anonymous = "X-Test-Anonymous";
+        public const char PermissionsSeparator = ',';
+    }
+
     public static class Permissions
     {
         public const string ReadMe = "users.read.me";
