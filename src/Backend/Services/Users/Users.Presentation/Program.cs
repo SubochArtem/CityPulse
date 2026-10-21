@@ -11,3 +11,5 @@ var app = builder.Build();
 app.UsePresentation();
 
 app.Run();
+
+public partial class Program;
