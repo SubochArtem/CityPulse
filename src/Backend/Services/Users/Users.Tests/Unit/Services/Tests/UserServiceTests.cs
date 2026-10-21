@@ -1,6 +1,7 @@
 using CityPulse.Contracts.Events.Users;
 using CityPulse.Contracts.Events.Users.Enums;
 using CityPulse.Contracts.Querying.Pagination;
+using FluentValidation;
 using Mapster;
 using MapsterMapper;
 using Moq;
@@ -43,8 +44,10 @@ public sealed class UserServiceTests
         _sut = new UserService(
             _userRepository.Object,
             _identityProvider.Object,
-            new CreateUserValidator(),
-            new UpdateUserProfileDtoValidator(),
+            new UserValidators(
+                new CreateUserValidator(),
+                new UpdateUserProfileDtoValidator(),
+                new UserFilterDtoValidator()),
             _cityService.Object,
             _mapper,
             _eventPublisher.Object);
@@ -535,27 +538,23 @@ public sealed class UserServiceTests
     }
 
     [Fact]
-    public async Task GetUsersAsync_FilterHasInvalidPage_DoesNotThrowValidationException()
+    public async Task GetUsersAsync_FilterHasInvalidPage_ThrowsValidationExceptionAndDoesNotCallRepository()
     {
         const int invalidPage = 0;
         const int oversizedPageSize = 999;
-        const int expectedTotalCount = 0;
 
-        var filterDto = new UserFilterDto 
-        { 
-            Page = invalidPage, 
-            PageSize = oversizedPageSize, 
-            Nickname = null, 
-            CityId = null 
+        var filterDto = new UserFilterDto
+        {
+            Page = invalidPage,
+            PageSize = oversizedPageSize,
+            Nickname = null,
+            CityId = null
         };
-        var pagedUsers = new PagedList<User>([], invalidPage, oversizedPageSize, expectedTotalCount);
 
-        _userRepository
-            .Setup(x => x.GetFilteredAsync(It.IsAny<UserFilter>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(pagedUsers);
+        await Assert.ThrowsAsync<ValidationException>(() => _sut.GetUsersAsync(filterDto));
 
-        var result = await _sut.GetUsersAsync(filterDto);
-
-        Assert.Empty(result.Items);
+        _userRepository.Verify(
+            x => x.GetFilteredAsync(It.IsAny<UserFilter>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }

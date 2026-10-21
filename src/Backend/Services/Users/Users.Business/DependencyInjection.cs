@@ -20,6 +20,7 @@ public static class DependencyInjection
         IConfiguration configuration)
     {
         services.AddValidatorsFromAssemblyContaining<CreateUserValidator>();
+        services.AddScoped<UserValidators>();
 
         services
             .AddScoped<IUserService, UserService>()

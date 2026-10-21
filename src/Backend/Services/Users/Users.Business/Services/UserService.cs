@@ -7,6 +7,7 @@ using Users.Business.Constants;
 using Users.Business.DTOs;
 using Users.Business.Exceptions;
 using Users.Business.Interfaces;
+using Users.Business.Validators;
 using Users.DataAccess.DTOs;
 using Users.DataAccess.Entities;
 using Users.DataAccess.Entities.Enums;
@@ -18,8 +19,7 @@ namespace Users.Business.Services;
 public class UserService(
     IUserRepository userRepository,
     IIdentityProvider identityProvider,
-    IValidator<CreateUserDto> createValidator,
-    IValidator<UpdateUserProfileDto> updateValidator,
+    UserValidators validators,
     ICityService cityService,
     IMapper mapper,
     IEventPublisher eventPublisher) : IUserService
@@ -28,7 +28,7 @@ public class UserService(
         CreateUserDto createUserDto,
         CancellationToken cancellationToken = default)
     {
-        await createValidator.ValidateAndThrowAsync(
+        await validators.Create.ValidateAndThrowAsync(
             createUserDto,
             cancellationToken);
 
@@ -55,7 +55,7 @@ public class UserService(
         UpdateUserProfileDto updateUserProfileDto,
         CancellationToken cancellationToken = default)
     {
-        await updateValidator.ValidateAndThrowAsync(
+        await validators.Update.ValidateAndThrowAsync(
             updateUserProfileDto,
             cancellationToken);
 
@@ -168,6 +168,10 @@ public class UserService(
         UserFilterDto filter,
         CancellationToken cancellationToken = default)
     {
+        await validators.Filter.ValidateAndThrowAsync(
+            filter,
+            cancellationToken);
+
         var userFilter = mapper.Map<UserFilter>(filter);
         var users = await userRepository.GetFilteredAsync(userFilter, cancellationToken);
 
