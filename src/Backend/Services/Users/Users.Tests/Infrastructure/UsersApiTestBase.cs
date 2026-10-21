@@ -1,4 +1,7 @@
+using System.Text.Json;
 using Bogus;
+using CityPulse.Contracts.Events.Users;
+using MassTransit.EntityFrameworkCoreIntegration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
@@ -9,6 +12,7 @@ using Users.Business.Interfaces;
 using Users.DataAccess;
 using Users.DataAccess.DTOs;
 using Users.DataAccess.Entities;
+using Users.DataAccess.Entities.Enums;
 using Users.DataAccess.Interfaces;
 using Users.Tests.Infrastructure.Constants;
 using Users.Tests.TestData;
@@ -21,7 +25,9 @@ namespace Users.Tests.Infrastructure;
 public abstract class UsersApiTestBase(IntegrationTestWebAppFactory factory) : IAsyncLifetime
 {
     private const string DefaultCityName = "Test City";
+    private const string OutboxEnvelopeMessageProperty = "message";
 
+    private static readonly JsonSerializerOptions WebJsonOptions = new(JsonSerializerDefaults.Web);
     private static readonly Faker<User> UserFaker = UserFakers.Users();
 
     private Respawner _respawner = null!;
@@ -58,6 +64,14 @@ public abstract class UsersApiTestBase(IntegrationTestWebAppFactory factory) : I
         return user;
     }
 
+    protected Task<User> SeedUserAsync(UserAccessStatus accessStatus)
+    {
+        var user = UserFaker.Generate();
+        user.AccessStatus = accessStatus;
+
+        return SeedUserAsync(user);
+    }
+
     protected void SetupCity(Guid cityId, CityStatus status) =>
         CityServiceMock
             .Setup(x => x.GetCityAsync(cityId, It.IsAny<CancellationToken>()))
@@ -70,6 +84,24 @@ public abstract class UsersApiTestBase(IntegrationTestWebAppFactory factory) : I
                 It.IsAny<UpdateUserProfileDto>(),
                 It.IsAny<CancellationToken>()),
             Times.Never);
+
+    protected async Task<List<UserStatusChangedEvent>> GetOutboxStatusChangedEventsAsync()
+    {
+        using var scope = factory.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        var bodies = await dbContext.Set<OutboxMessage>()
+            .AsNoTracking()
+            .Where(m => m.MessageType.Contains(nameof(UserStatusChangedEvent)))
+            .Select(m => m.Body)
+            .ToListAsync();
+
+        return bodies
+            .Select(body => JsonDocument.Parse(body).RootElement
+                .GetProperty(OutboxEnvelopeMessageProperty)
+                .Deserialize<UserStatusChangedEvent>(WebJsonOptions)!)
+            .ToList();
+    }
 
     protected async Task<User?> GetUserFromDbAsync(Guid id)
     {
