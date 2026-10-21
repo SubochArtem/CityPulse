@@ -73,7 +73,9 @@ public abstract class UsersApiTestBase(IntegrationTestWebAppFactory factory) : I
         var client = factory.CreateClient();
         client.DefaultRequestHeaders.Add(
             AuthConstants.Headers.Permissions,
-            string.Join(AuthConstants.Headers.PermissionsSeparator, permissions));
+            string.Join(
+                AuthConstants.Headers.PermissionsSeparator,
+                permissions.DefaultIfEmpty(AuthConstants.Headers.NoPermissions)));
 
         if (internalUserId is not null)
         {

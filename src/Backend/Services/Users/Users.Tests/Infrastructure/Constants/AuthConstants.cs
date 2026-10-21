@@ -11,6 +11,7 @@ internal static class AuthConstants
         public const string InternalUserId = "X-Test-Internal-User-Id";
         public const string Anonymous = "X-Test-Anonymous";
         public const char PermissionsSeparator = ',';
+        public const string NoPermissions = "none";
     }
 
     public static class Permissions

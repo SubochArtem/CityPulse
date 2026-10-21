@@ -54,5 +54,6 @@ public sealed class TestAuthenticationHandler(
             ? permissions.ToString().Split(
                 AuthConstants.Headers.PermissionsSeparator,
                 StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Where(p => p != AuthConstants.Headers.NoPermissions)
             : DefaultPermissions;
 }
