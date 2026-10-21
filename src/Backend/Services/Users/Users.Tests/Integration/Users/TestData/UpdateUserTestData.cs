@@ -5,7 +5,6 @@ namespace Users.Tests.Integration.Users.TestData;
 public static class UpdateUserTestData
 {
     public const string NewNickname = "new_nickname";
-    public const string CityName = "Test City";
 
     public static TheoryData<string> EmptyUpdateBodies => new()
     {

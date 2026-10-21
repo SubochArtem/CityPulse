@@ -109,12 +109,7 @@ public sealed class UpdateUserTests(IntegrationTestWebAppFactory factory) : User
         Assert.Equal(user.Nickname, unchanged.Nickname);
         Assert.Equal(user.CityId, unchanged.CityId);
 
-        IdentityProviderMock.Verify(
-            x => x.UpdateUserProfileAsync(
-                It.IsAny<string>(),
-                It.IsAny<UpdateUserProfileDto>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
+        VerifyIdentityProviderNeverUpdated();
     }
 
     [Fact]
@@ -130,18 +125,8 @@ public sealed class UpdateUserTests(IntegrationTestWebAppFactory factory) : User
         Assert.NotNull(problem);
         Assert.Equal(MiddlewareExceptionMessages.Titles.UserNotFound, problem.Title);
 
-        IdentityProviderMock.Verify(
-            x => x.UpdateUserProfileAsync(
-                It.IsAny<string>(),
-                It.IsAny<UpdateUserProfileDto>(),
-                It.IsAny<CancellationToken>()),
-            Times.Never);
+        VerifyIdentityProviderNeverUpdated();
     }
-
-    private void SetupCity(Guid cityId, CityStatus status) =>
-        CityServiceMock
-            .Setup(x => x.GetCityAsync(cityId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CityDto { Id = cityId, Name = UpdateUserTestData.CityName, Status = status });
 
     private void VerifyIdentityProviderUpdatedOnce(string identityId, string? nickname, Guid? cityId) =>
         IdentityProviderMock.Verify(
