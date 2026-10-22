@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="CityPulse.Common.Api" Version="1.0.1"/>
         <PackageReference Include="ErrorOr" Version="2.1.1"/>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.32"/>
         <PackageReference Include="MongoDB.Driver" Version="3.12.0"/>
