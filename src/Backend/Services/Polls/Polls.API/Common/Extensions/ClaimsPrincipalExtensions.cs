@@ -5,14 +5,6 @@ namespace Polls.API.Common.Extensions;
 
 public static class ClaimsPrincipalExtensions
 {
-    public static Guid GetUserId(this ClaimsPrincipal user)
-    {
-        var claim = user.FindFirstValue(CityPulseClaims.InternalUserId);
-        return Guid.TryParse(claim, out var id) 
-            ? id 
-            : Guid.Empty;
-    }
-
     public static Guid GetCityId(this ClaimsPrincipal user)
     {
         var claim = user.FindFirstValue(CityPulseClaims.CityId);
