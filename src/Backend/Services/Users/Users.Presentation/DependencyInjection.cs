@@ -1,24 +1,25 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using CityPulse.Common.Api.Extensions;
+using CityPulse.Common.Api.Swagger;
 using Users.Presentation.Authorization;
 using Users.Presentation.Extensions;
-using Users.Presentation.Extensions.Swagger;
 
 namespace Users.Presentation;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddPresentation(this IServiceCollection services)
+    private const string SwaggerTitle = "CityPulse Users API";
+    private const string SwaggerDescription = "User management service with Auth0 authentication";
+
+    public static IServiceCollection AddPresentation(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         services.AddHttpContextAccessor();
         services.AddControllers();
-        services.AddSwaggerConfiguration();
+        services.AddSwaggerConfiguration(SwaggerTitle, SwaggerDescription);
         services.AddPermissionAuthorization();
 
-        services
-            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer();
-
-        services.ConfigureOptions<ConfigureJwtBearerOptions>();
+        services.AddCityPulseAuthentication(configuration);
 
         return services;
     }
@@ -26,7 +27,7 @@ public static class DependencyInjection
     public static void UsePresentation(this WebApplication app)
     {
         app.UseGlobalExceptionHandler();
-        app.UseSwaggerConfiguration();
+        app.UseSwaggerConfiguration(SwaggerTitle);
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
