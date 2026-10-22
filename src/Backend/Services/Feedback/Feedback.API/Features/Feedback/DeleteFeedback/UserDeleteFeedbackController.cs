@@ -9,7 +9,7 @@ namespace Feedback.API.Features.Feedback.DeleteFeedback;
 
 [ApiController]
 [Route("api/v1/feedback")]
-public class DeleteFeedbackController(ISender sender) : ControllerBase
+public class UserDeleteFeedbackController(ISender sender) : ControllerBase
 {
     [HttpDelete("{id:guid}")]
     [Authorize(Policy = Permissions.Feedback.DeleteOwn)]
