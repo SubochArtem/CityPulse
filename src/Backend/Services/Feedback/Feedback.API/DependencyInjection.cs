@@ -2,6 +2,7 @@ using CityPulse.Common.Api.Auth;
 using CityPulse.Common.Api.Extensions;
 using CityPulse.Common.Api.Middleware;
 using CityPulse.Common.Api.Swagger;
+using Feedback.API.Common.Filters;
 using Feedback.API.Common.Services;
 using Feedback.API.Infrastructure.Mongo;
 using Microsoft.AspNetCore.Authorization;
@@ -17,7 +18,8 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        services.AddControllers();
+        services.AddControllers(options =>
+            options.Filters.Add<ErrorOrResultFilter>());
 
         services.AddMediatR(cfg =>
             cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
