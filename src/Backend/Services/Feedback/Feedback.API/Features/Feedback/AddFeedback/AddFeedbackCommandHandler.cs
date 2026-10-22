@@ -1,4 +1,5 @@
 using ErrorOr;
+using Feedback.API.Common.Errors;
 using Feedback.API.Common.Services;
 using Feedback.API.Domain;
 using Feedback.API.Infrastructure.Mongo;
@@ -12,16 +13,12 @@ public class AddFeedbackCommandHandler(
     IDateTimeProvider dateTimeProvider)
     : IRequestHandler<AddFeedbackCommand, ErrorOr<FeedbackResponse>>
 {
-    private static readonly Error LikeAlreadyExists = Error.Conflict(
-        code: "Feedback.LikeAlreadyExists",
-        description: "Like already exists.");
-
     public async Task<ErrorOr<FeedbackResponse>> Handle(
         AddFeedbackCommand request,
         CancellationToken cancellationToken)
     {
         if (request.Text is null && await LikeExistsAsync(request, cancellationToken))
-            return LikeAlreadyExists;
+            return FeedbackErrors.LikeAlreadyExists;
 
         var item = new FeedbackItem
         {
@@ -37,7 +34,7 @@ public class AddFeedbackCommandHandler(
         }
         catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
         {
-            return LikeAlreadyExists;
+            return FeedbackErrors.LikeAlreadyExists;
         }
 
         return FeedbackResponse.FromEntity(item);
