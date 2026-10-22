@@ -12,6 +12,8 @@ public class MongoDbContext
 {
     static MongoDbContext()
     {
+        BsonSerializer.TryRegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
+
         if (BsonClassMap.IsClassMapRegistered(typeof(FeedbackItem)))
         {
             return;
