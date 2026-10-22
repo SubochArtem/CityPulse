@@ -23,7 +23,7 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
 
   mongodb:
-    image: mongo:7
+    image: mongo:8
     container_name: citypulse_mongodb
     env_file:
       - .env
