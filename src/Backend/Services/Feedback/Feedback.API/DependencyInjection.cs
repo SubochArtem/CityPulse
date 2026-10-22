@@ -19,6 +19,9 @@ public static class DependencyInjection
     {
         services.AddControllers();
 
+        services.AddMediatR(cfg =>
+            cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
+
         services.Configure<MongoDbSettings>(configuration.GetSection(MongoDbSettings.SectionName));
         services.AddSingleton<MongoDbContext>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
