@@ -6,5 +6,4 @@ namespace Feedback.API.Features.Feedback.DeleteFeedback;
 public record DeleteFeedbackCommand(
     Guid UserId,
     Guid Id,
-    bool CanDeleteAny,
-    bool CanDeleteOwn) : IRequest<ErrorOr<Deleted>>;
+    bool BypassRestrictions) : IRequest<ErrorOr<Deleted>>;

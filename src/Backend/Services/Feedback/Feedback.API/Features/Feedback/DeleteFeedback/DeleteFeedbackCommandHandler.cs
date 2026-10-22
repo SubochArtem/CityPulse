@@ -13,9 +13,6 @@ public class DeleteFeedbackCommandHandler(MongoDbContext context)
         DeleteFeedbackCommand request,
         CancellationToken cancellationToken)
     {
-        if (!request.CanDeleteAny && !request.CanDeleteOwn)
-            return FeedbackErrors.DeleteNotPermitted;
-
         var item = await context.FeedbackItems
             .Find(x => x.Id == request.Id)
             .FirstOrDefaultAsync(cancellationToken);
@@ -23,7 +20,7 @@ public class DeleteFeedbackCommandHandler(MongoDbContext context)
         if (item is null)
             return FeedbackErrors.NotFound;
 
-        if (!request.CanDeleteAny && item.UserId != request.UserId)
+        if (!request.BypassRestrictions && item.UserId != request.UserId)
             return FeedbackErrors.CannotDeleteOthers;
 
         await context.FeedbackItems.DeleteOneAsync(
