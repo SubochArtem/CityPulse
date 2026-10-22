@@ -23,8 +23,4 @@ public static class FeedbackErrors
     public static readonly Error CannotDeleteOthers = Error.Forbidden(
         code: "Feedback.CannotDeleteOthers",
         description: "You can delete only your own feedback.");
-
-    public static readonly Error DeleteNotPermitted = Error.Forbidden(
-        code: "Feedback.DeleteNotPermitted",
-        description: "You do not have permission to delete feedback.");
 }
