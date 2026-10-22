@@ -22,7 +22,18 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
 
+  mongodb:
+    image: mongo:7
+    container_name: citypulse_mongodb
+    env_file:
+      - .env
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
 volumes:
   minio_data:
   rabbitmq_data:
+  mongodb_data:
     
