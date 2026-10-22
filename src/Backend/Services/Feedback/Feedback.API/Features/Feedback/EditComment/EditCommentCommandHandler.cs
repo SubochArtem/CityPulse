@@ -1,4 +1,5 @@
 using ErrorOr;
+using Feedback.API.Common.Errors;
 using Feedback.API.Common.Services;
 using Feedback.API.Domain;
 using Feedback.API.Infrastructure.Mongo;
@@ -12,18 +13,6 @@ public class EditCommentCommandHandler(
     IDateTimeProvider dateTimeProvider)
     : IRequestHandler<EditCommentCommand, ErrorOr<FeedbackResponse>>
 {
-    private static readonly Error NotFound = Error.NotFound(
-        code: "Feedback.NotFound",
-        description: "Feedback was not found.");
-
-    private static readonly Error NotAComment = Error.Validation(
-        code: "Feedback.NotAComment",
-        description: "Only comments can be edited.");
-
-    private static readonly Error NotOwner = Error.Forbidden(
-        code: "Feedback.NotOwner",
-        description: "You can edit only your own comments.");
-
     public async Task<ErrorOr<FeedbackResponse>> Handle(
         EditCommentCommand request,
         CancellationToken cancellationToken)
@@ -33,13 +22,13 @@ public class EditCommentCommandHandler(
             .FirstOrDefaultAsync(cancellationToken);
 
         if (item is null)
-            return NotFound;
+            return FeedbackErrors.NotFound;
 
         if (item.Text is null)
-            return NotAComment;
+            return FeedbackErrors.NotAComment;
 
         if (item.UserId != request.UserId)
-            return NotOwner;
+            return FeedbackErrors.CannotEditOthers;
 
         item.Text = request.Text.Trim();
         item.UpdatedAt = dateTimeProvider.UtcNow;
