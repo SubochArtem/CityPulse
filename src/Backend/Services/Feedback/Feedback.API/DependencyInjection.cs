@@ -2,9 +2,12 @@ using CityPulse.Common.Api.Auth;
 using CityPulse.Common.Api.Extensions;
 using CityPulse.Common.Api.Middleware;
 using CityPulse.Common.Api.Swagger;
+using Feedback.API.Common.Behaviors;
 using Feedback.API.Common.Filters;
 using Feedback.API.Common.Services;
 using Feedback.API.Infrastructure.Mongo;
+using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 
 namespace Feedback.API;
@@ -23,6 +26,10 @@ public static class DependencyInjection
 
         services.AddMediatR(cfg =>
             cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
+
+        services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
+
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         services.Configure<MongoDbSettings>(configuration.GetSection(MongoDbSettings.SectionName));
         services.AddSingleton<MongoDbContext>();
