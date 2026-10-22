@@ -1,3 +1,4 @@
+using CityPulse.Common.Api.Extensions;
 using CityPulse.Contracts.Querying.Pagination;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
