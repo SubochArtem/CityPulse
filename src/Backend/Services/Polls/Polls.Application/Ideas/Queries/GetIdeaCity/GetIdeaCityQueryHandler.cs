@@ -1,5 +1,6 @@
 using MediatR;
 using Polls.Application.Common.Interfaces;
+using Polls.Application.Ideas.DTOs;
 using Polls.Domain.Common;
 using Polls.Domain.Ideas;
 using Polls.Domain.Ideas.Enums;
@@ -7,9 +8,9 @@ using Polls.Domain.Ideas.Enums;
 namespace Polls.Application.Ideas.Queries.GetIdeaCity;
 
 public sealed class GetIdeaCityQueryHandler(IUnitOfWork unitOfWork)
-    : IRequestHandler<GetIdeaCityQuery, Result<Guid>>
+    : IRequestHandler<GetIdeaCityQuery, Result<IdeaCityDto>>
 {
-    public async Task<Result<Guid>> Handle(
+    public async Task<Result<IdeaCityDto>> Handle(
         GetIdeaCityQuery query,
         CancellationToken cancellationToken)
     {
@@ -17,6 +18,10 @@ public sealed class GetIdeaCityQueryHandler(IUnitOfWork unitOfWork)
         if (idea is null || (idea.AccessStatus != IdeaAccessStatus.Active && query.IncludeOnlyActive))
             return IdeaErrors.NotFound(query.Id);
 
-        return idea.Poll.CityId;
+        return new IdeaCityDto
+        {
+            IdeaId = idea.Id,
+            CityId = idea.Poll.CityId
+        };
     }
 }
