@@ -21,6 +21,6 @@ public sealed class UpdatePollCommandValidator : AbstractValidator<UpdatePollCom
             .ApplyBudgetRules();
 
         RuleFor(p => p.EndsAt)
-            .GreaterThan(DateTimeOffset.UtcNow).WithMessage(ValidationConstants.Poll.EndDateInFuture);
+            .GreaterThan(_ => DateTimeOffset.UtcNow).WithMessage(ValidationConstants.Poll.EndDateInFuture);
     }
 }

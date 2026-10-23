@@ -9,10 +9,10 @@ public class ChangePollStatusCommandValidator : AbstractValidator<ChangePollStat
     {
         RuleFor(c => c.Id)
             .NotEmpty()
-            .WithMessage(ValidationConstants.City.IdRequired);
+            .WithMessage(ValidationConstants.Poll.IdRequired);
 
         RuleFor(c => c.NewStatus)
             .IsInEnum()
-            .WithMessage(ValidationConstants.City.InvalidStatus);
+            .WithMessage(ValidationConstants.Poll.InvalidStatus);
     }
 }

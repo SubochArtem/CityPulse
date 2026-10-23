@@ -22,7 +22,7 @@ public sealed class CreatePollCommandValidator : AbstractValidator<CreatePollCom
             .ApplyBudgetRules();
 
         RuleFor(p => p.EndsAt)
-            .GreaterThan(DateTimeOffset.UtcNow)
+            .GreaterThan(_ => DateTimeOffset.UtcNow)
             .WithMessage(ValidationConstants.Poll.EndDateInFuture)
             .Must(BeAtLeastMinDuration)
             .WithMessage(ValidationConstants.Poll.TooShortDuration)
