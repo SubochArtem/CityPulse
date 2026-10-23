@@ -1,6 +1,6 @@
 using ErrorOr;
 using Feedback.API.Common.Errors;
-using Feedback.API.Common.Services;
+using Feedback.API.Common.Interfaces;
 using Feedback.API.Domain;
 using Feedback.API.Infrastructure.Mongo;
 using MediatR;

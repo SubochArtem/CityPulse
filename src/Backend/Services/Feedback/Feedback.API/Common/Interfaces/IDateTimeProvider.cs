@@ -1,4 +1,4 @@
-namespace Feedback.API.Common.Services;
+namespace Feedback.API.Common.Interfaces;
 
 public interface IDateTimeProvider
 {

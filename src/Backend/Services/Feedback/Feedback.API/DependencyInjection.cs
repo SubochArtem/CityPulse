@@ -4,6 +4,7 @@ using CityPulse.Common.Api.Middleware;
 using CityPulse.Common.Api.Swagger;
 using Feedback.API.Common.Behaviors;
 using Feedback.API.Common.Filters;
+using Feedback.API.Common.Interfaces;
 using Feedback.API.Common.Services;
 using Feedback.API.Infrastructure.Mongo;
 using FluentValidation;
