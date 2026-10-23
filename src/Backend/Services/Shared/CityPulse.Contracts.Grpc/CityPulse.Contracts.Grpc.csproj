@@ -22,6 +22,9 @@
         <Protobuf Include="Protos\cities.proto" GrpcServices="Both">
             <Generator>MSBuild:Compile</Generator>
         </Protobuf>
+        <Protobuf Include="Protos\ideas.proto" GrpcServices="Both">
+            <Generator>MSBuild:Compile</Generator>
+        </Protobuf>
     </ItemGroup>
 
 </Project>
