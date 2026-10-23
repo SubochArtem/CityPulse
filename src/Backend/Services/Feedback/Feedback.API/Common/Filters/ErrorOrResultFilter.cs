@@ -61,6 +61,7 @@ public class ErrorOrResultFilter : IActionFilter
         ErrorType.Forbidden => StatusCodes.Status403Forbidden,
         ErrorType.NotFound => StatusCodes.Status404NotFound,
         ErrorType.Conflict => StatusCodes.Status409Conflict,
+        ErrorType.Failure => StatusCodes.Status503ServiceUnavailable,
 
         _ => StatusCodes.Status500InternalServerError
     };
