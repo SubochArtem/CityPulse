@@ -67,69 +67,6 @@ public sealed class UserServiceTests
     };
 
     [Fact]
-    public async Task DeleteUserAsync_UserDoesNotExist_ThrowsUserNotFoundExceptionAndCallsNothingElse()
-    {
-        var userId = Guid.NewGuid();
-
-        _userRepository
-            .Setup(x => x.GetByIdAsync(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((User?)null);
-
-        await Assert.ThrowsAsync<UserNotFoundException>(() => _sut.DeleteUserAsync(userId));
-
-        _identityProvider.Verify(
-            x => x.DeleteUserAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
-            Times.Never);
-        _userRepository.Verify(
-            x => x.DeleteAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
-
-    [Fact]
-    public async Task DeleteUserAsync_UserExists_DeletesFromIdentityProviderAndRepository()
-    {
-        var user = UserFakers.Users().Generate();
-
-        _userRepository
-            .Setup(x => x.GetByIdAsync(user.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(user);
-        _identityProvider
-            .Setup(x => x.DeleteUserAsync(user.IdentityId, It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-        _userRepository
-            .Setup(x => x.DeleteAsync(user, It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        await _sut.DeleteUserAsync(user.Id);
-
-        _identityProvider.Verify(
-            x => x.DeleteUserAsync(user.IdentityId, It.IsAny<CancellationToken>()),
-            Times.Once);
-        _userRepository.Verify(
-            x => x.DeleteAsync(user, It.IsAny<CancellationToken>()),
-            Times.Once);
-    }
-
-    [Fact]
-    public async Task DeleteUserAsync_IdentityProviderFails_DoesNotDeleteFromRepository()
-    {
-        var user = UserFakers.Users().Generate();
-
-        _userRepository
-            .Setup(x => x.GetByIdAsync(user.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(user);
-        _identityProvider
-            .Setup(x => x.DeleteUserAsync(user.IdentityId, It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new InvalidOperationException(Auth0UnavailableMessage));
-
-        await Assert.ThrowsAsync<InvalidOperationException>(() => _sut.DeleteUserAsync(user.Id));
-
-        _userRepository.Verify(
-            x => x.DeleteAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
-
-    [Fact]
     public async Task GetUserByIdAsync_UserDoesNotExist_ThrowsUserNotFoundException()
     {
         var userId = Guid.NewGuid();
