@@ -5,6 +5,7 @@ using FluentValidation;
 using Mapster;
 using MapsterMapper;
 using Moq;
+using Users.Business.Constants;
 using Users.Business.DTOs;
 using Users.Business.Exceptions;
 using Users.Business.Interfaces;
@@ -24,6 +25,7 @@ namespace Users.Tests.Unit.Services.Tests;
 public sealed class UserServiceTests
 {
     private const string NonExistentIdentityId = "auth0|does-not-exist";
+    private const string InvalidIdentityId = "auth0";
     private const string Auth0UnavailableMessage = "Auth0 unavailable";
     private const string BusUnavailableMessage = "bus unavailable";
     private const string DbUnavailableMessage = "db unavailable";
@@ -556,5 +558,81 @@ public sealed class UserServiceTests
         _userRepository.Verify(
             x => x.GetFilteredAsync(It.IsAny<UserFilter>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateUserAsync_NewUser_CreatesMappedUserAndReturnsDto()
+    {
+        var createDto = UserFakers.CreateUserDtos().Generate();
+        User? createdUser = null;
+
+        _userRepository
+            .Setup(x => x.GetByIdentityIdAsync(createDto.IdentityId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((User?)null);
+        _userRepository
+            .Setup(x => x.CreateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
+            .Callback<User, CancellationToken>((user, _) => createdUser = user)
+            .Returns(Task.CompletedTask);
+
+        var result = await _sut.CreateUserAsync(createDto);
+
+        Assert.NotNull(createdUser);
+        Assert.Equal(createDto.IdentityId, createdUser.IdentityId);
+        Assert.Equal(createDto.Nickname, createdUser.Nickname);
+        Assert.Equal(createDto.IdentityId, result.IdentityId);
+        Assert.Equal(createDto.Nickname, result.Nickname);
+    }
+
+    [Fact]
+    public async Task CreateUserAsync_InvalidDto_ThrowsValidationExceptionAndDoesNotCallRepository()
+    {
+        var createDto = new CreateUserDto
+        {
+            IdentityId = InvalidIdentityId,
+            Nickname = UserFakers.CreateUserDtos().Generate().Nickname
+        };
+
+        await Assert.ThrowsAsync<ValidationException>(() => _sut.CreateUserAsync(createDto));
+
+        _userRepository.Verify(
+            x => x.GetByIdentityIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _userRepository.Verify(
+            x => x.CreateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateUserAsync_IdentityIdAlreadyExists_ThrowsUserAlreadyExistsExceptionAndDoesNotCreate()
+    {
+        var createDto = UserFakers.CreateUserDtos().Generate();
+        var existingUser = UserFakers.Users().Generate();
+
+        _userRepository
+            .Setup(x => x.GetByIdentityIdAsync(createDto.IdentityId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingUser);
+
+        var exception = await Assert.ThrowsAsync<UserAlreadyExistsException>(() => _sut.CreateUserAsync(createDto));
+
+        Assert.Equal(createDto.IdentityId, exception.IdentityId);
+        Assert.Equal(IdentitySources.Auth0, exception.IdentityProvider);
+        _userRepository.Verify(
+            x => x.CreateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateUserAsync_RepositoryCreateFails_PropagatesException()
+    {
+        var createDto = UserFakers.CreateUserDtos().Generate();
+
+        _userRepository
+            .Setup(x => x.GetByIdentityIdAsync(createDto.IdentityId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((User?)null);
+        _userRepository
+            .Setup(x => x.CreateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException(DbUnavailableMessage));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _sut.CreateUserAsync(createDto));
     }
 }
