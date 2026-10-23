@@ -23,6 +23,27 @@ public sealed class Auth0ServiceTests
     private const int LongLivedTokenSeconds = 3600;
     private const int ExpiredTokenSeconds = IdentityProviderConstants.TokenExpiryBufferSeconds;
     private const string Nickname = "new_nickname";
+    private const string ExpectedAuthorization = $"Bearer {AccessToken}";
+    private const string EmptyJsonObject = "{}";
+    private const string InvalidTokenResponseMessage = "Invalid token response";
+    private const string ClientCredentialsGrantType = "client_credentials";
+
+    private const string BlockedField = "blocked";
+    private const string NicknameField = "nickname";
+    private const string UserMetadataField = "user_metadata";
+    private const string CityIdField = "city_id";
+    private const string GrantTypeField = "grant_type";
+    private const string ClientIdField = "client_id";
+    private const string ClientSecretField = "client_secret";
+    private const string AudienceField = "audience";
+
+    private const string ClientId = "client-id";
+    private const string ClientSecret = "client-secret";
+    private const string Audience = "audience";
+    private const string ManagementApiClientId = "mgmt-client-id";
+    private const string ManagementApiClientSecret = "mgmt-client-secret";
+    private const string ManagementApiAudience = "mgmt-audience";
+    private const string WebhookSecret = "webhook-secret";
 
     private readonly Mock<IHttpClientFactory> _httpClientFactory = new(MockBehavior.Strict);
     private readonly Auth0Settings _settings = BuildSettings();
@@ -47,13 +68,13 @@ public sealed class Auth0ServiceTests
     private static Auth0Settings BuildSettings() => new()
     {
         Domain = Domain,
-        ClientId = "client-id",
-        ClientSecret = "client-secret",
-        Audience = "audience",
-        ManagementApiClientId = "mgmt-client-id",
-        ManagementApiClientSecret = "mgmt-client-secret",
-        ManagementApiAudience = "mgmt-audience",
-        WebhookSecret = "webhook-secret"
+        ClientId = ClientId,
+        ClientSecret = ClientSecret,
+        Audience = Audience,
+        ManagementApiClientId = ManagementApiClientId,
+        ManagementApiClientSecret = ManagementApiClientSecret,
+        ManagementApiAudience = ManagementApiAudience,
+        WebhookSecret = WebhookSecret
     };
 
     private HttpResponseMessage Respond(RecordedRequest request)
@@ -74,7 +95,7 @@ public sealed class Auth0ServiceTests
 
         return new HttpResponseMessage(_managementStatusCode)
         {
-            Content = new StringContent("{}")
+            Content = new StringContent(EmptyJsonObject)
         };
     }
 
@@ -95,9 +116,9 @@ public sealed class Auth0ServiceTests
         var request = Assert.Single(ManagementRequests);
         Assert.Equal(HttpMethod.Patch, request.Method);
         Assert.Equal(UserPath, DecodedPath(request));
-        Assert.Equal($"Bearer {AccessToken}", request.Authorization);
+        Assert.Equal(ExpectedAuthorization, request.Authorization);
         using var body = JsonDocument.Parse(request.Body!);
-        Assert.True(body.RootElement.GetProperty("blocked").GetBoolean());
+        Assert.True(body.RootElement.GetProperty(BlockedField).GetBoolean());
     }
 
     [Fact]
@@ -109,7 +130,7 @@ public sealed class Auth0ServiceTests
         Assert.Equal(HttpMethod.Patch, request.Method);
         Assert.Equal(UserPath, DecodedPath(request));
         using var body = JsonDocument.Parse(request.Body!);
-        Assert.False(body.RootElement.GetProperty("blocked").GetBoolean());
+        Assert.False(body.RootElement.GetProperty(BlockedField).GetBoolean());
     }
 
     [Fact]
@@ -122,7 +143,7 @@ public sealed class Auth0ServiceTests
         var request = Assert.Single(ManagementRequests);
         Assert.Equal(HttpMethod.Delete, request.Method);
         Assert.Equal(UserPath, DecodedPath(request));
-        Assert.Equal($"Bearer {AccessToken}", request.Authorization);
+        Assert.Equal(ExpectedAuthorization, request.Authorization);
     }
 
     [Fact]
@@ -141,8 +162,8 @@ public sealed class Auth0ServiceTests
         var request = Assert.Single(ManagementRequests);
         Assert.Equal(HttpMethod.Patch, request.Method);
         using var body = JsonDocument.Parse(request.Body!);
-        Assert.Equal(Nickname, body.RootElement.GetProperty("nickname").GetString());
-        Assert.False(body.RootElement.TryGetProperty("user_metadata", out _));
+        Assert.Equal(Nickname, body.RootElement.GetProperty(NicknameField).GetString());
+        Assert.False(body.RootElement.TryGetProperty(UserMetadataField, out _));
     }
 
     [Fact]
@@ -154,9 +175,9 @@ public sealed class Auth0ServiceTests
 
         var request = Assert.Single(ManagementRequests);
         using var body = JsonDocument.Parse(request.Body!);
-        var metadata = body.RootElement.GetProperty("user_metadata");
-        Assert.Equal(cityId.ToString(), metadata.GetProperty("city_id").GetString());
-        Assert.False(body.RootElement.TryGetProperty("nickname", out _));
+        var metadata = body.RootElement.GetProperty(UserMetadataField);
+        Assert.Equal(cityId.ToString(), metadata.GetProperty(CityIdField).GetString());
+        Assert.False(body.RootElement.TryGetProperty(NicknameField, out _));
     }
 
     [Fact]
@@ -170,10 +191,10 @@ public sealed class Auth0ServiceTests
 
         var request = Assert.Single(ManagementRequests);
         using var body = JsonDocument.Parse(request.Body!);
-        Assert.Equal(Nickname, body.RootElement.GetProperty("nickname").GetString());
+        Assert.Equal(Nickname, body.RootElement.GetProperty(NicknameField).GetString());
         Assert.Equal(
             cityId.ToString(),
-            body.RootElement.GetProperty("user_metadata").GetProperty("city_id").GetString());
+            body.RootElement.GetProperty(UserMetadataField).GetProperty(CityIdField).GetString());
     }
 
     [Fact]
@@ -184,10 +205,10 @@ public sealed class Auth0ServiceTests
         var request = Assert.Single(TokenRequests);
         Assert.Equal(HttpMethod.Post, request.Method);
         var form = HttpUtility.ParseQueryString(request.Body!);
-        Assert.Equal("client_credentials", form["grant_type"]);
-        Assert.Equal(_settings.ManagementApiClientId, form["client_id"]);
-        Assert.Equal(_settings.ManagementApiClientSecret, form["client_secret"]);
-        Assert.Equal(_settings.ManagementApiAudience, form["audience"]);
+        Assert.Equal(ClientCredentialsGrantType, form[GrantTypeField]);
+        Assert.Equal(ManagementApiClientId, form[ClientIdField]);
+        Assert.Equal(ManagementApiClientSecret, form[ClientSecretField]);
+        Assert.Equal(ManagementApiAudience, form[AudienceField]);
     }
 
     [Fact]
@@ -219,7 +240,7 @@ public sealed class Auth0ServiceTests
 
         var exception = await Assert.ThrowsAsync<Auth0Exception>(() => _sut.BlockUserAsync(IdentityId));
 
-        Assert.Equal("Invalid token response", exception.Message);
+        Assert.Equal(InvalidTokenResponseMessage, exception.Message);
         Assert.Empty(ManagementRequests);
     }
 
