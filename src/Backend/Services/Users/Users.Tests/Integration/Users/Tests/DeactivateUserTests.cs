@@ -32,6 +32,7 @@ public sealed class DeactivateUserTests(IntegrationTestWebAppFactory factory) : 
         var updated = await GetUserFromDbAsync(user.Id);
         Assert.NotNull(updated);
         Assert.Equal(UserAccessStatus.Inactive, updated.AccessStatus);
+        Assert.NotNull(updated.UpdatedAt);
         Assert.True(updated.UpdatedAt > user.UpdatedAt);
 
         IdentityProviderMock.Verify(

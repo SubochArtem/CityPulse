@@ -37,6 +37,7 @@ public sealed class UpdateUserTests(IntegrationTestWebAppFactory factory) : User
         Assert.NotNull(updated);
         Assert.Equal(UpdateUserTestData.NewNickname, updated.Nickname);
         Assert.Equal(user.CityId, updated.CityId);
+        Assert.NotNull(updated.UpdatedAt);
         Assert.True(updated.UpdatedAt > user.UpdatedAt);
         Assert.True((updated.CreatedAt - user.CreatedAt).Duration() < TimestampTolerance);
 
