@@ -78,6 +78,22 @@ public sealed class ResultTests
     }
 
     [Fact]
+    public void Failure_WithoutErrors_ThrowsArgumentException()
+    {
+        var exception = Assert.Throws<ArgumentException>(() => Result<string>.Failure());
+
+        Assert.Equal("errors", exception.ParamName);
+    }
+
+    [Fact]
+    public void Failure_WithEmptyErrorsArray_ThrowsArgumentException()
+    {
+        Error[] noErrors = [];
+
+        Assert.Throws<ArgumentException>(() => Result<string>.Failure(noErrors));
+    }
+
+    [Fact]
     public void ImplicitConversion_FromValue_ReturnsSuccessfulResult()
     {
         Result<string> result = SuccessValue;
