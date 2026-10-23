@@ -27,7 +27,7 @@ public class EditCommentCommandHandler(
         if (item.Text is null)
             return FeedbackErrors.NotAComment;
 
-        if (item.UserId != request.UserId)
+        if (!request.BypassRestrictions && item.UserId != request.UserId)
             return FeedbackErrors.CannotEditOthers;
 
         item.Text = request.Text.Trim();

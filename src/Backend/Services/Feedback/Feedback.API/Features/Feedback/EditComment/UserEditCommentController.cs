@@ -9,7 +9,7 @@ namespace Feedback.API.Features.Feedback.EditComment;
 
 [ApiController]
 [Route("api/v1/feedback")]
-public class EditCommentController(ISender sender) : ControllerBase
+public class UserEditCommentController(ISender sender) : ControllerBase
 {
     [HttpPut("{id:guid}")]
     [Authorize(Policy = Permissions.Feedback.UpdateOwn)]
@@ -21,7 +21,8 @@ public class EditCommentController(ISender sender) : ControllerBase
         var command = new EditCommentCommand(
             UserId: User.GetUserId(),
             Id: id,
-            Text: request.Text);
+            Text: request.Text,
+            BypassRestrictions: false);
 
         return await sender.Send(command, cancellationToken);
     }
