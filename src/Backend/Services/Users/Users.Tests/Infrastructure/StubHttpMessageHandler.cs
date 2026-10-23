@@ -5,9 +5,19 @@ namespace Users.Tests.Infrastructure;
 public sealed class StubHttpMessageHandler(
     Func<RecordedRequest, HttpResponseMessage> responder) : HttpMessageHandler
 {
+    private readonly object _lock = new();
     private readonly List<RecordedRequest> _requests = [];
 
-    public IReadOnlyList<RecordedRequest> Requests => _requests;
+    public IReadOnlyList<RecordedRequest> Requests
+    {
+        get
+        {
+            lock (_lock)
+            {
+                return _requests.ToArray();
+            }
+        }
+    }
 
     public static StubHttpMessageHandler Returning(HttpStatusCode statusCode, string? content = null) =>
         new(_ => new HttpResponseMessage(statusCode)
@@ -29,7 +39,10 @@ public sealed class StubHttpMessageHandler(
             body,
             request.Headers.Authorization?.ToString());
 
-        _requests.Add(recorded);
+        lock (_lock)
+        {
+            _requests.Add(recorded);
+        }
 
         return responder(recorded);
     }
