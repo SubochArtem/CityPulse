@@ -2,14 +2,17 @@ using CityPulse.Common.Api.Auth;
 using CityPulse.Common.Api.Extensions;
 using CityPulse.Common.Api.Middleware;
 using CityPulse.Common.Api.Swagger;
+using CityPulse.Contracts.Grpc.Protos;
 using Feedback.API.Common.Behaviors;
 using Feedback.API.Common.Filters;
 using Feedback.API.Common.Interfaces;
 using Feedback.API.Common.Services;
+using Feedback.API.Infrastructure.Grpc;
 using Feedback.API.Infrastructure.Mongo;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
 
 namespace Feedback.API;
 
@@ -35,6 +38,19 @@ public static class DependencyInjection
         services.Configure<MongoDbSettings>(configuration.GetSection(MongoDbSettings.SectionName));
         services.AddSingleton<MongoDbContext>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+
+        services.AddOptions<GrpcSettings>()
+            .Bind(configuration.GetSection(GrpcSettings.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddGrpcClient<IdeasService.IdeasServiceClient>((sp, options) =>
+        {
+            var settings = sp.GetRequiredService<IOptions<GrpcSettings>>().Value;
+            options.Address = new Uri(settings.IdeasServiceUrl);
+        });
+
+        services.AddScoped<IIdeaService, IdeaGrpcClient>();
 
         services.AddCityPulseAuthentication(configuration);
 
