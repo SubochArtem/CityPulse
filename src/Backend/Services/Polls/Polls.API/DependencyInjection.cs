@@ -46,5 +46,6 @@ public static class DependencyInjection
         app.UseAuthorization();
         app.MapControllers();
         app.MapGrpcService<CitiesGrpcService>();
+        app.MapGrpcService<IdeasGrpcService>();
     }
 }
