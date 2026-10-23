@@ -27,8 +27,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
         builder.Property(u => u.UpdatedAt)
-            .HasColumnName("updated_at")
-            .IsRequired();
+            .HasColumnName("updated_at");
 
         builder.HasIndex(u => u.IdentityId)
             .IsUnique()
