@@ -9,6 +9,7 @@
     <ItemGroup>
         <PackageReference Include="CityPulse.Common.Api" Version="1.0.1"/>
         <PackageReference Include="CityPulse.Contracts.Grpc" Version="2.2.0"/>
+        <PackageReference Include="CityPulse.Contracts.Querying" Version="1.1.1"/>
         <PackageReference Include="ErrorOr" Version="2.1.1"/>
         <PackageReference Include="FluentValidation" Version="12.1.1"/>
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1"/>

@@ -49,6 +49,12 @@ public class MongoDbContext
         var byIdea = new CreateIndexModel<FeedbackItem>(
             keys.Ascending(x => x.IdeaId).Descending(x => x.CreatedAt));
 
+        var byUser = new CreateIndexModel<FeedbackItem>(
+            keys.Ascending(x => x.UserId).Descending(x => x.CreatedAt));
+
+        var byCreatedAt = new CreateIndexModel<FeedbackItem>(
+            keys.Descending(x => x.CreatedAt));
+
         var uniqueLike = new CreateIndexModel<FeedbackItem>(
             keys.Ascending(x => x.UserId).Ascending(x => x.IdeaId),
             new CreateIndexOptions<FeedbackItem>
@@ -58,6 +64,8 @@ public class MongoDbContext
                     new BsonDocument(nameof(FeedbackItem.Text), BsonNull.Value))
             });
 
-        await FeedbackItems.Indexes.CreateManyAsync([byIdea, uniqueLike], cancellationToken);
+        await FeedbackItems.Indexes.CreateManyAsync(
+            [byIdea, byUser, byCreatedAt, uniqueLike],
+            cancellationToken);
     }
 }
