@@ -20,7 +20,8 @@ public static class DependencyInjection
     {
         services.AddHttpContextAccessor();
 
-        services.AddAutoMapper(typeof(CityGrpcProfile).Assembly);
+        services.AddAutoMapper(cfg =>
+            cfg.AddMaps(typeof(CityGrpcProfile).Assembly));
 
         services.AddControllers(options =>
             options.Filters.Add<ResultFilter>());
