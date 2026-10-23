@@ -5,5 +5,7 @@ namespace Feedback.API.Features.Feedback.AddFeedback;
 
 public record AddFeedbackCommand(
     Guid UserId,
+    Guid UserCityId,
     Guid IdeaId,
-    string? Text) : IRequest<ErrorOr<FeedbackResponse>>;
+    string? Text,
+    bool BypassRestrictions) : IRequest<ErrorOr<FeedbackResponse>>;

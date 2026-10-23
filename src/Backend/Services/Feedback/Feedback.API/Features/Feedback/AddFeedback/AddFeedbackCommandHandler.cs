@@ -10,13 +10,25 @@ namespace Feedback.API.Features.Feedback.AddFeedback;
 
 public class AddFeedbackCommandHandler(
     MongoDbContext context,
-    IDateTimeProvider dateTimeProvider)
+    IDateTimeProvider dateTimeProvider,
+    IIdeaService ideaService)
     : IRequestHandler<AddFeedbackCommand, ErrorOr<FeedbackResponse>>
 {
     public async Task<ErrorOr<FeedbackResponse>> Handle(
         AddFeedbackCommand request,
         CancellationToken cancellationToken)
     {
+        var cityResult = await ideaService.GetIdeaCityAsync(
+            request.IdeaId,
+            includeOnlyActive: !request.BypassRestrictions,
+            cancellationToken);
+
+        if (cityResult.IsError)
+            return cityResult.Errors;
+
+        if (!request.BypassRestrictions && cityResult.Value != request.UserCityId)
+            return FeedbackErrors.NotFromUserCity;
+
         if (request.Text is null && await LikeExistsAsync(request, cancellationToken))
             return FeedbackErrors.LikeAlreadyExists;
 
