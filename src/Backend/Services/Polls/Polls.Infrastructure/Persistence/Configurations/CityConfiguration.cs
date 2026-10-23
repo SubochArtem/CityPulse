@@ -54,7 +54,6 @@ public class CityConfiguration : IEntityTypeConfiguration<City>
             .IsRequired();
 
         builder.Property(c => c.UpdatedAt)
-            .HasColumnName(UpdatedAtColumnName)
-            .IsRequired();
+            .HasColumnName(UpdatedAtColumnName);
     }
 }

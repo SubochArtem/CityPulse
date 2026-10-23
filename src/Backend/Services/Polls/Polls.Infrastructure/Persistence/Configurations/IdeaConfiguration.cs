@@ -56,8 +56,7 @@ public class IdeaConfiguration : IEntityTypeConfiguration<Idea>
             .IsRequired();
 
         builder.Property(i => i.UpdatedAt)
-            .HasColumnName(UpdatedAtColumnName)
-            .IsRequired();
+            .HasColumnName(UpdatedAtColumnName);
 
         builder.HasOne<Poll>(i => i.Poll)
             .WithMany(p => p.Ideas)
