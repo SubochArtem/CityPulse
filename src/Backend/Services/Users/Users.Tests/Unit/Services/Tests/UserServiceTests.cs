@@ -5,12 +5,14 @@ using FluentValidation;
 using Mapster;
 using MapsterMapper;
 using Moq;
+using Users.Business.Constants;
 using Users.Business.DTOs;
 using Users.Business.Exceptions;
 using Users.Business.Interfaces;
 using Users.Business.Mapping;
 using Users.Business.Services;
 using Users.Business.Validators;
+using Users.DataAccess.DTOs;
 using Users.DataAccess.Entities;
 using Users.DataAccess.Entities.Enums;
 using Users.DataAccess.Interfaces;
@@ -24,6 +26,10 @@ namespace Users.Tests.Unit.Services.Tests;
 public sealed class UserServiceTests
 {
     private const string NonExistentIdentityId = "auth0|does-not-exist";
+    private const string InvalidIdentityId = "auth0";
+    private const string NewNickname = "new_nickname";
+    private const string CityName = "Test City";
+    private const string CityServiceUnavailableMessage = "city service unavailable";
     private const string Auth0UnavailableMessage = "Auth0 unavailable";
     private const string BusUnavailableMessage = "bus unavailable";
     private const string DbUnavailableMessage = "db unavailable";
@@ -52,6 +58,13 @@ public sealed class UserServiceTests
             _mapper,
             _eventPublisher.Object);
     }
+
+    private static CityDto BuildCity(Guid cityId, CityStatus status) => new()
+    {
+        Id = cityId,
+        Name = CityName,
+        Status = status
+    };
 
     [Fact]
     public async Task ActivateUserAsync_UserDoesNotExist_ThrowsUserNotFoundExceptionAndCallsNothingElse()
@@ -555,6 +568,320 @@ public sealed class UserServiceTests
 
         _userRepository.Verify(
             x => x.GetFilteredAsync(It.IsAny<UserFilter>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateUserAsync_NewUser_CreatesMappedUserAndReturnsDto()
+    {
+        var createDto = UserFakers.CreateUserDtos().Generate();
+        User? createdUser = null;
+
+        _userRepository
+            .Setup(x => x.GetByIdentityIdAsync(createDto.IdentityId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((User?)null);
+        _userRepository
+            .Setup(x => x.CreateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
+            .Callback<User, CancellationToken>((user, _) => createdUser = user)
+            .Returns(Task.CompletedTask);
+
+        var result = await _sut.CreateUserAsync(createDto);
+
+        Assert.NotNull(createdUser);
+        Assert.Equal(createDto.IdentityId, createdUser.IdentityId);
+        Assert.Equal(createDto.Nickname, createdUser.Nickname);
+        Assert.Equal(createDto.IdentityId, result.IdentityId);
+        Assert.Equal(createDto.Nickname, result.Nickname);
+    }
+
+    [Fact]
+    public async Task CreateUserAsync_InvalidDto_ThrowsValidationExceptionAndDoesNotCallRepository()
+    {
+        var createDto = new CreateUserDto
+        {
+            IdentityId = InvalidIdentityId,
+            Nickname = UserFakers.CreateUserDtos().Generate().Nickname
+        };
+
+        await Assert.ThrowsAsync<ValidationException>(() => _sut.CreateUserAsync(createDto));
+
+        _userRepository.Verify(
+            x => x.GetByIdentityIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _userRepository.Verify(
+            x => x.CreateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateUserAsync_IdentityIdAlreadyExists_ThrowsUserAlreadyExistsExceptionAndDoesNotCreate()
+    {
+        var createDto = UserFakers.CreateUserDtos().Generate();
+        var existingUser = UserFakers.Users().Generate();
+
+        _userRepository
+            .Setup(x => x.GetByIdentityIdAsync(createDto.IdentityId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingUser);
+
+        var exception = await Assert.ThrowsAsync<UserAlreadyExistsException>(() => _sut.CreateUserAsync(createDto));
+
+        Assert.Equal(createDto.IdentityId, exception.IdentityId);
+        Assert.Equal(IdentitySources.Auth0, exception.IdentityProvider);
+        _userRepository.Verify(
+            x => x.CreateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateUserAsync_RepositoryCreateFails_PropagatesException()
+    {
+        var createDto = UserFakers.CreateUserDtos().Generate();
+
+        _userRepository
+            .Setup(x => x.GetByIdentityIdAsync(createDto.IdentityId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((User?)null);
+        _userRepository
+            .Setup(x => x.CreateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException(DbUnavailableMessage));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _sut.CreateUserAsync(createDto));
+    }
+
+    [Fact]
+    public async Task UpdateUserAsync_InvalidDto_ThrowsValidationExceptionAndCallsNothingElse()
+    {
+        var updateDto = new UpdateUserProfileDto { Nickname = string.Empty };
+
+        await Assert.ThrowsAsync<ValidationException>(() => _sut.UpdateUserAsync(Guid.NewGuid(), updateDto));
+
+        _userRepository.Verify(
+            x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _identityProvider.Verify(
+            x => x.UpdateUserProfileAsync(
+                It.IsAny<string>(),
+                It.IsAny<UpdateUserProfileDto>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdateUserAsync_UserDoesNotExist_ThrowsUserNotFoundExceptionAndCallsNothingElse()
+    {
+        var userId = Guid.NewGuid();
+        var updateDto = UserFakers.UpdateUserProfileDtos().Generate();
+
+        _userRepository
+            .Setup(x => x.GetByIdAsync(userId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((User?)null);
+
+        await Assert.ThrowsAsync<UserNotFoundException>(() => _sut.UpdateUserAsync(userId, updateDto));
+
+        _cityService.Verify(
+            x => x.GetCityAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _identityProvider.Verify(
+            x => x.UpdateUserProfileAsync(
+                It.IsAny<string>(),
+                It.IsAny<UpdateUserProfileDto>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        _userRepository.Verify(
+            x => x.UpdateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdateUserAsync_NicknameOnly_UpdatesNicknameInIdentityProviderAndRepositoryWithoutCityLookup()
+    {
+        var user = UserFakers.Users().Generate();
+        var originalCityId = user.CityId;
+        var updateDto = new UpdateUserProfileDto { Nickname = NewNickname };
+
+        _userRepository
+            .Setup(x => x.GetByIdAsync(user.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        _identityProvider
+            .Setup(x => x.UpdateUserProfileAsync(user.IdentityId, updateDto, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        _userRepository
+            .Setup(x => x.UpdateAsync(user, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        var result = await _sut.UpdateUserAsync(user.Id, updateDto);
+
+        Assert.Equal(NewNickname, user.Nickname);
+        Assert.Equal(originalCityId, user.CityId);
+        Assert.Equal(NewNickname, result.Nickname);
+        _cityService.Verify(
+            x => x.GetCityAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _identityProvider.Verify(
+            x => x.UpdateUserProfileAsync(user.IdentityId, updateDto, It.IsAny<CancellationToken>()),
+            Times.Once);
+        _userRepository.Verify(x => x.UpdateAsync(user, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateUserAsync_ActiveCityOnly_UpdatesCityInIdentityProviderAndRepositoryWithoutChangingNickname()
+    {
+        var user = UserFakers.Users().Generate();
+        var originalNickname = user.Nickname;
+        var cityId = Guid.NewGuid();
+        var updateDto = new UpdateUserProfileDto { CityId = cityId };
+
+        _userRepository
+            .Setup(x => x.GetByIdAsync(user.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        _cityService
+            .Setup(x => x.GetCityAsync(cityId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildCity(cityId, CityStatus.Active));
+        _identityProvider
+            .Setup(x => x.UpdateUserProfileAsync(user.IdentityId, updateDto, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        _userRepository
+            .Setup(x => x.UpdateAsync(user, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        var result = await _sut.UpdateUserAsync(user.Id, updateDto);
+
+        Assert.Equal(cityId, user.CityId);
+        Assert.Equal(originalNickname, user.Nickname);
+        Assert.Equal(cityId, result.CityId);
+        _identityProvider.Verify(
+            x => x.UpdateUserProfileAsync(user.IdentityId, updateDto, It.IsAny<CancellationToken>()),
+            Times.Once);
+        _userRepository.Verify(x => x.UpdateAsync(user, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateUserAsync_NicknameAndActiveCity_UpdatesBothFields()
+    {
+        var user = UserFakers.Users().Generate();
+        var cityId = Guid.NewGuid();
+        var updateDto = new UpdateUserProfileDto { Nickname = NewNickname, CityId = cityId };
+
+        _userRepository
+            .Setup(x => x.GetByIdAsync(user.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        _cityService
+            .Setup(x => x.GetCityAsync(cityId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildCity(cityId, CityStatus.Active));
+        _identityProvider
+            .Setup(x => x.UpdateUserProfileAsync(user.IdentityId, updateDto, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        _userRepository
+            .Setup(x => x.UpdateAsync(user, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        var result = await _sut.UpdateUserAsync(user.Id, updateDto);
+
+        Assert.Equal(NewNickname, user.Nickname);
+        Assert.Equal(cityId, user.CityId);
+        Assert.Equal(NewNickname, result.Nickname);
+        Assert.Equal(cityId, result.CityId);
+    }
+
+    [Theory]
+    [MemberData(nameof(UserServiceTestData.NonActiveCityStatuses), MemberType = typeof(UserServiceTestData))]
+    public async Task UpdateUserAsync_CityIsNotActive_ThrowsCityNotActiveExceptionAndDoesNotPersist(CityStatus cityStatus)
+    {
+        var user = UserFakers.Users().Generate();
+        var originalCityId = user.CityId;
+        var cityId = Guid.NewGuid();
+        var updateDto = new UpdateUserProfileDto { Nickname = NewNickname, CityId = cityId };
+
+        _userRepository
+            .Setup(x => x.GetByIdAsync(user.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        _cityService
+            .Setup(x => x.GetCityAsync(cityId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(BuildCity(cityId, cityStatus));
+
+        await Assert.ThrowsAsync<CityNotActiveException>(() => _sut.UpdateUserAsync(user.Id, updateDto));
+
+        Assert.Equal(originalCityId, user.CityId);
+        _identityProvider.Verify(
+            x => x.UpdateUserProfileAsync(
+                It.IsAny<string>(),
+                It.IsAny<UpdateUserProfileDto>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        _userRepository.Verify(
+            x => x.UpdateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdateUserAsync_NothingToUpdate_SkipsIdentityProviderAndPersistsUser()
+    {
+        var user = UserFakers.Users().Generate();
+
+        _userRepository
+            .Setup(x => x.GetByIdAsync(user.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        _userRepository
+            .Setup(x => x.UpdateAsync(user, It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        await _sut.UpdateUserAsync(user.Id, new UpdateUserProfileDto());
+
+        _cityService.Verify(
+            x => x.GetCityAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _identityProvider.Verify(
+            x => x.UpdateUserProfileAsync(
+                It.IsAny<string>(),
+                It.IsAny<UpdateUserProfileDto>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        _userRepository.Verify(x => x.UpdateAsync(user, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateUserAsync_CityServiceFails_DoesNotCallIdentityProviderOrRepository()
+    {
+        var user = UserFakers.Users().Generate();
+        var cityId = Guid.NewGuid();
+        var updateDto = new UpdateUserProfileDto { CityId = cityId };
+
+        _userRepository
+            .Setup(x => x.GetByIdAsync(user.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        _cityService
+            .Setup(x => x.GetCityAsync(cityId, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException(CityServiceUnavailableMessage));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _sut.UpdateUserAsync(user.Id, updateDto));
+
+        _identityProvider.Verify(
+            x => x.UpdateUserProfileAsync(
+                It.IsAny<string>(),
+                It.IsAny<UpdateUserProfileDto>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
+        _userRepository.Verify(
+            x => x.UpdateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdateUserAsync_IdentityProviderFails_DoesNotPersistUser()
+    {
+        var user = UserFakers.Users().Generate();
+        var updateDto = new UpdateUserProfileDto { Nickname = NewNickname };
+
+        _userRepository
+            .Setup(x => x.GetByIdAsync(user.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(user);
+        _identityProvider
+            .Setup(x => x.UpdateUserProfileAsync(user.IdentityId, updateDto, It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException(Auth0UnavailableMessage));
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _sut.UpdateUserAsync(user.Id, updateDto));
+
+        _userRepository.Verify(
+            x => x.UpdateAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 }
