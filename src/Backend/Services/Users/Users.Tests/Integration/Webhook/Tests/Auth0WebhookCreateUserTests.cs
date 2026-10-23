@@ -22,11 +22,13 @@ public sealed class Auth0WebhookCreateUserTests(IntegrationTestWebAppFactory fac
         Assert.NotNull(dto);
         Assert.Equal(Auth0WebhookRequestBuilder.DefaultIdentityId, dto.IdentityId);
         Assert.Equal(Auth0WebhookRequestBuilder.DefaultNickname, dto.Nickname);
+        Assert.Null(dto.UpdatedAt);
 
         var created = await GetUserByIdentityIdFromDbAsync(Auth0WebhookRequestBuilder.DefaultIdentityId);
         Assert.NotNull(created);
         Assert.Equal(dto.Id, created.Id);
         Assert.Equal(Auth0WebhookRequestBuilder.DefaultNickname, created.Nickname);
+        Assert.Null(created.UpdatedAt);
     }
 
     [Theory]

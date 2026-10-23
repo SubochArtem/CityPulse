@@ -88,7 +88,7 @@ public sealed class UserMappingConfigTests
 
         Assert.Equal(Guid.Empty, user.Id);
         Assert.Equal(default, user.CreatedAt);
-        Assert.Equal(default, user.UpdatedAt);
+        Assert.Null(user.UpdatedAt);
     }
 
     [Fact]

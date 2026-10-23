@@ -23,7 +23,7 @@ public class SaveChangesInterceptor : Microsoft.EntityFrameworkCore.Diagnostics.
         return base.SavingChangesAsync(eventData, result, cancellationToken);
     }
 
-    private void UpdateTimestamps(DbContext? context)
+    private static void UpdateTimestamps(DbContext? context)
     {
         if (context is null)
             return;
@@ -37,7 +37,6 @@ public class SaveChangesInterceptor : Microsoft.EntityFrameworkCore.Diagnostics.
             if (entry.State == EntityState.Added)
             {
                 entry.Entity.CreatedAt = utcNow;
-                entry.Entity.UpdatedAt = utcNow;
             }
             else
             {

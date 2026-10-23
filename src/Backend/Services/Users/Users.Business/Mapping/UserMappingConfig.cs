@@ -21,7 +21,7 @@ public static class UserMappingConfig
             .Map(dest => dest.IdentityId, src => src.IdentityId)
             .Ignore(dest => dest.Id)
             .Ignore(dest => dest.CreatedAt)
-            .Ignore(dest => dest.UpdatedAt);
+            .Ignore(dest => dest.UpdatedAt!);
         
         TypeAdapterConfig<UserFilterDto, UserFilter>.NewConfig();
         
