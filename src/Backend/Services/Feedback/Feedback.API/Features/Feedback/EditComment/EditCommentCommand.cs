@@ -6,4 +6,5 @@ namespace Feedback.API.Features.Feedback.EditComment;
 public record EditCommentCommand(
     Guid UserId,
     Guid Id,
-    string Text) : IRequest<ErrorOr<FeedbackResponse>>;
+    string Text,
+    bool BypassRestrictions) : IRequest<ErrorOr<FeedbackResponse>>;
