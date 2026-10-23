@@ -21,6 +21,8 @@ public abstract class Result
 
 public class Result<T> : Result
 {
+    private const string NoErrorsMessage = "A failed result requires at least one error";
+
     private Result(T value)
     {
         Value = value;
@@ -37,6 +39,9 @@ public class Result<T> : Result
 
     public static Result<T> Failure(params Error[] errors)
     {
+        if (errors.Length == 0)
+            throw new ArgumentException(NoErrorsMessage, nameof(errors));
+
         return new Result<T>(errors);
     }
 
