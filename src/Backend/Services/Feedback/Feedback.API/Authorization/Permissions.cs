@@ -5,6 +5,7 @@ public static class Permissions
     public static class Feedback
     {
         public const string ReadAny = "feedback.read.any";
+        public const string CreateCity = "feedback.create.city";
         public const string CreateAny = "feedback.create.any";
         public const string UpdateOwn = "feedback.update.own";
         public const string DeleteOwn = "feedback.delete.own";
