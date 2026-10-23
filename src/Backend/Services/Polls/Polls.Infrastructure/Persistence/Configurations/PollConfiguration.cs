@@ -66,8 +66,7 @@ public class PollConfiguration : IEntityTypeConfiguration<Poll>
             .IsRequired();
 
         builder.Property(p => p.UpdatedAt)
-            .HasColumnName(UpdatedAtColumnName)
-            .IsRequired();
+            .HasColumnName(UpdatedAtColumnName);
 
         builder.HasOne<City>()
             .WithMany(c => c.Polls)
