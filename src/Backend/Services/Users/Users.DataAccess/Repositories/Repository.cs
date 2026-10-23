@@ -14,11 +14,6 @@ public class Repository<TEntity>(ApplicationDbContext context) : IRepository<TEn
         return await _dbSet.FindAsync([id], cancellationToken);
     }
 
-    public async Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
-    {
-        return await _dbSet.ToListAsync(cancellationToken);
-    }
-
     public async Task CreateAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         _dbSet.Add(entity);
