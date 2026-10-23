@@ -11,6 +11,16 @@ services:
     volumes:
       - minio_data:/data
 
+  minio-init:
+    image: cgr.dev/chainguard/minio-client:latest
+    container_name: polls_minio_init
+    depends_on:
+      - minio
+    restart: on-failure
+    environment:
+      MC_HOST_local: http://${MINIO_ROOT_USER}:${MINIO_ROOT_PASSWORD}@minio:9000
+    command: mb --ignore-existing local/polls-images
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: citypulse_rabbitmq
