@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Users.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class AddMassTransitOutbox : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -49,6 +49,23 @@ namespace Users.DataAccess.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_OutboxState", x => x.OutboxId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false, defaultValueSql: "gen_random_uuid()"),
+                    identity_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Nickname = table.Column<string>(type: "text", nullable: false),
+                    CityId = table.Column<Guid>(type: "uuid", nullable: true),
+                    AccessStatus = table.Column<int>(type: "integer", nullable: false),
+                    created_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
+                    updated_at = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -119,6 +136,12 @@ namespace Users.DataAccess.Migrations
                 name: "IX_OutboxState_Created",
                 table: "OutboxState",
                 column: "Created");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_User_IdentityId",
+                table: "Users",
+                column: "identity_id",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -126,6 +149,9 @@ namespace Users.DataAccess.Migrations
         {
             migrationBuilder.DropTable(
                 name: "OutboxMessage");
+
+            migrationBuilder.DropTable(
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "InboxState");

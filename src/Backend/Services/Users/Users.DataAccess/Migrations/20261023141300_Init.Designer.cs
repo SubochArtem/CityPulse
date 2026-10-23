@@ -12,8 +12,8 @@ using Users.DataAccess;
 namespace Users.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20261023132925_MakeUpdatedAtNullable")]
-    partial class MakeUpdatedAtNullable
+    [Migration("20261023141300_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
