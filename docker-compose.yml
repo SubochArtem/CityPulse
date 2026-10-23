@@ -32,8 +32,34 @@ services:
     volumes:
       - mongodb_data:/data/db
 
+  users-db:
+    image: postgres:18
+    container_name: citypulse_users_db
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: CityPulse
+    ports:
+      - "5432:5432"
+    volumes:
+      - users_db_data:/var/lib/postgresql
+
+  polls-db:
+    image: postgres:18
+    container_name: citypulse_polls_db
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: CityPulse_polls
+    ports:
+      - "5433:5432"
+    volumes:
+      - polls_db_data:/var/lib/postgresql
+
 volumes:
   minio_data:
   rabbitmq_data:
   mongodb_data:
+  users_db_data:
+  polls_db_data:
     
