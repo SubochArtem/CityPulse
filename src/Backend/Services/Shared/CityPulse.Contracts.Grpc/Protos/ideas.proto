@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option csharp_namespace = "CityPulse.Contracts.Grpc.Protos";
+
+package ideas;
+
+service IdeasService {
+  rpc GetIdeaCity (GetIdeaCityRequest) returns (GetIdeaCityResponse);
+}
+
+message GetIdeaCityRequest {
+  string idea_id = 1;
+}
+
+message GetIdeaCityResponse {
+  string idea_id = 1;
+  string city_id = 2;
+}
