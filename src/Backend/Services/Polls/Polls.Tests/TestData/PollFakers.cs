@@ -1,4 +1,5 @@
 using Bogus;
+using Polls.Domain.Images;
 using Polls.Domain.Polls;
 using Polls.Domain.Polls.Enums;
 
@@ -27,4 +28,20 @@ internal static class PollFakers
             .RuleFor(x => x.Status, _ => PollStatus.Active)
             .Ignore(x => x.Ideas)
             .Ignore(x => x.Images);
+
+    public static Poll PollWithImages(params string[] fileNames)
+    {
+        var poll = Polls().Generate();
+        poll.Images = fileNames
+            .Select((fileName, order) => new PollImage
+            {
+                Id = Guid.NewGuid(),
+                FileName = fileName,
+                Order = order,
+                PollId = poll.Id
+            })
+            .ToList();
+
+        return poll;
+    }
 }
