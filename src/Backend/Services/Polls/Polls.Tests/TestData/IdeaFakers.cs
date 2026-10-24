@@ -1,6 +1,7 @@
 using Bogus;
 using Polls.Domain.Ideas;
 using Polls.Domain.Ideas.Enums;
+using Polls.Domain.Images;
 
 namespace Polls.Tests.TestData;
 
@@ -24,4 +25,30 @@ internal static class IdeaFakers
             .RuleFor(x => x.ApprovalStatus, _ => IdeaApprovalStatus.Pending)
             .Ignore(x => x.Poll)
             .Ignore(x => x.Images);
+
+    public static Idea IdeaWithPoll()
+    {
+        var idea = Ideas().Generate();
+        var poll = PollFakers.Polls().Generate();
+        idea.Poll = poll;
+        idea.PollId = poll.Id;
+
+        return idea;
+    }
+
+    public static Idea IdeaWithImages(params string[] fileNames)
+    {
+        var idea = IdeaWithPoll();
+        idea.Images = fileNames
+            .Select((fileName, order) => new IdeaImage
+            {
+                Id = Guid.NewGuid(),
+                FileName = fileName,
+                Order = order,
+                IdeaId = idea.Id
+            })
+            .ToList();
+
+        return idea;
+    }
 }
