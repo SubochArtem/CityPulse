@@ -1,5 +1,6 @@
 using AutoMapper;
 using Microsoft.Extensions.Logging.Abstractions;
+using Polls.API.Mapping;
 using Polls.Application.Common.Interfaces;
 using Polls.Application.Images.Resolvers;
 
@@ -9,7 +10,11 @@ internal static class TestMapper
 {
     public static MapperConfiguration CreateConfiguration() =>
         new(
-            configuration => configuration.AddMaps(typeof(ImageUrlResolver).Assembly),
+            configuration =>
+            {
+                configuration.AddMaps(typeof(ImageUrlResolver).Assembly);
+                configuration.AddMaps(typeof(CityGrpcProfile).Assembly);
+            },
             NullLoggerFactory.Instance);
 
     public static IMapper Create(IImageStorageService storageService) =>
