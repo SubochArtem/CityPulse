@@ -44,6 +44,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Feedback.API", "src\Backend
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CityPulse.Common.Api", "src\Backend\Services\Shared\CityPulse.Common.Api\CityPulse.Common.Api.csproj", "{4ADB490F-8A70-4D8A-A33F-04854ED5738D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Feedback.Tests", "src\Backend\Services\Feedback\Feedback.Tests\Feedback.Tests.csproj", "{A53E2A8A-48F6-4372-8635-B85C22C8C43C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,7 @@ Global
 		{BBDE1A4D-D144-4373-AE6F-BE1DA95C5FB7} = {89BA2004-DDA6-49BA-89D7-D5D6C06E85F7}
 		{AF205DA2-5264-4266-8C98-09FA4ACB317A} = {BBDE1A4D-D144-4373-AE6F-BE1DA95C5FB7}
 		{4ADB490F-8A70-4D8A-A33F-04854ED5738D} = {8C0C65FF-0442-42F4-94EA-F06CC2836B7D}
+		{A53E2A8A-48F6-4372-8635-B85C22C8C43C} = {BBDE1A4D-D144-4373-AE6F-BE1DA95C5FB7}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{EE7A32BB-4942-4670-9A14-EAC1ABFE81C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -133,5 +136,9 @@ Global
 		{4ADB490F-8A70-4D8A-A33F-04854ED5738D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4ADB490F-8A70-4D8A-A33F-04854ED5738D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4ADB490F-8A70-4D8A-A33F-04854ED5738D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A53E2A8A-48F6-4372-8635-B85C22C8C43C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A53E2A8A-48F6-4372-8635-B85C22C8C43C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A53E2A8A-48F6-4372-8635-B85C22C8C43C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A53E2A8A-48F6-4372-8635-B85C22C8C43C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
