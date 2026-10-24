@@ -3,7 +3,7 @@ using Polls.Application.Common.Interfaces;
 
 namespace Polls.Tests.Infrastructure;
 
-internal sealed class UnitOfWorkMock
+public sealed class UnitOfWorkMock
 {
     public Mock<IUnitOfWork> Mock { get; } = new(MockBehavior.Strict);
 
