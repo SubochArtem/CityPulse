@@ -1,17 +1,18 @@
 using FluentValidation;
 using FluentValidation.TestHelper;
-using Polls.Application.Common.Constants;
 using Xunit;
 
 namespace Polls.Tests.Unit.Validators.Tests;
 
-public abstract class ChangeIdeaStatusValidatorTestsBase<TCommand, TStatus>
+public abstract class ChangeStatusValidatorTestsBase<TCommand, TStatus>
     where TStatus : struct, Enum
 {
     private const string IdProperty = "Id";
     private static readonly int[] UnknownStatusValues = [99, -1];
 
     protected abstract IValidator<TCommand> Validator { get; }
+
+    protected abstract string IdRequiredMessage { get; }
 
     protected abstract string StatusProperty { get; }
 
@@ -29,7 +30,7 @@ public abstract class ChangeIdeaStatusValidatorTestsBase<TCommand, TStatus>
         var result = Validator.TestValidate(command);
 
         result.ShouldHaveValidationErrorFor(IdProperty)
-            .WithErrorMessage(ValidationConstants.Idea.IdRequired);
+            .WithErrorMessage(IdRequiredMessage);
     }
 
     [Fact]

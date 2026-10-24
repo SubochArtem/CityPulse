@@ -6,10 +6,12 @@ using Polls.Domain.Ideas.Enums;
 namespace Polls.Tests.Unit.Validators.Tests;
 
 public sealed class ChangeIdeaApprovalStatusCommandValidatorTests
-    : ChangeIdeaStatusValidatorTestsBase<ChangeIdeaApprovalStatusCommand, IdeaApprovalStatus>
+    : ChangeStatusValidatorTestsBase<ChangeIdeaApprovalStatusCommand, IdeaApprovalStatus>
 {
     protected override IValidator<ChangeIdeaApprovalStatusCommand> Validator { get; } =
         new ChangeIdeaApprovalStatusCommandValidator();
+
+    protected override string IdRequiredMessage => ValidationConstants.Idea.IdRequired;
 
     protected override string StatusProperty => nameof(ChangeIdeaApprovalStatusCommand.NewApprovalStatus);
 
