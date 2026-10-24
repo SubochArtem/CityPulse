@@ -43,6 +43,7 @@ public class ResultFilter : IActionFilter
         ErrorType.Conflict => StatusCodes.Status409Conflict,
         ErrorType.Forbidden => StatusCodes.Status403Forbidden,
         ErrorType.Validation => StatusCodes.Status400BadRequest,
+        ErrorType.Failure => StatusCodes.Status500InternalServerError,
         
         _=> StatusCodes.Status400BadRequest
     };
