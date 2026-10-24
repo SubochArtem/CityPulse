@@ -1,0 +1,25 @@
+using Bogus;
+using Polls.Domain.Cities;
+using Polls.Domain.Cities.Enums;
+
+namespace Polls.Tests.TestData;
+
+internal static class CityFakers
+{
+    private const int Seed = 20261024;
+    private const string DefaultLocale = "en";
+
+    public static Faker<City> Cities() =>
+        new Faker<City>(DefaultLocale)
+            .UseSeed(Seed)
+            .StrictMode(true)
+            .RuleFor(x => x.Id, f => f.Random.Guid())
+            .RuleFor(x => x.CreatedAt, f => f.Date.PastOffset().ToUniversalTime())
+            .RuleFor(x => x.UpdatedAt, _ => null)
+            .RuleFor(x => x.Title, f => f.Address.City())
+            .RuleFor(x => x.Description, f => f.Lorem.Sentence())
+            .RuleFor(x => x.Coordinates, f => new Coordinates(f.Address.Latitude(), f.Address.Longitude()))
+            .RuleFor(x => x.Status, _ => CityStatus.Active)
+            .Ignore(x => x.Polls)
+            .Ignore(x => x.Images);
+}
