@@ -47,8 +47,12 @@ public static class ImageValidator
         if (!MagicNumbers.TryGetValue(extension, out var signature))
             return false;
 
-        var buffer = new byte[signature.Length];
         var position = stream.Position;
+
+        if (stream.Length - position < signature.Length)
+            return false;
+
+        var buffer = new byte[signature.Length];
 
         stream.ReadExactly(buffer, 0, buffer.Length);
         stream.Position = position;
