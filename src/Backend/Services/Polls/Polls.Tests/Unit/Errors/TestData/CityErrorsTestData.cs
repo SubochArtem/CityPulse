@@ -1,7 +1,7 @@
 using Polls.Domain.Cities.Enums;
 using Xunit;
 
-namespace Polls.Tests.Unit.Cities.TestData;
+namespace Polls.Tests.Unit.Errors.TestData;
 
 public static class CityErrorsTestData
 {

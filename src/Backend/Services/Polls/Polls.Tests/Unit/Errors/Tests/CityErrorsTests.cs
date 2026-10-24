@@ -1,10 +1,10 @@
 using Polls.Domain.Cities;
 using Polls.Domain.Cities.Enums;
 using Polls.Domain.Common.Enums;
-using Polls.Tests.Unit.Cities.TestData;
+using Polls.Tests.Unit.Errors.TestData;
 using Xunit;
 
-namespace Polls.Tests.Unit.Cities.Tests;
+namespace Polls.Tests.Unit.Errors.Tests;
 
 public sealed class CityErrorsTests
 {

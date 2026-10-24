@@ -1,10 +1,10 @@
 using Polls.Domain.Common.Enums;
 using Polls.Domain.Polls;
 using Polls.Domain.Polls.Enums;
-using Polls.Tests.Unit.Polls.TestData;
+using Polls.Tests.Unit.Errors.TestData;
 using Xunit;
 
-namespace Polls.Tests.Unit.Polls.Tests;
+namespace Polls.Tests.Unit.Errors.Tests;
 
 public sealed class PollErrorsTests
 {

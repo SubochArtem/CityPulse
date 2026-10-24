@@ -2,7 +2,7 @@ using Polls.Domain.Common.Enums;
 using Polls.Domain.Images;
 using Xunit;
 
-namespace Polls.Tests.Unit.Images.Tests;
+namespace Polls.Tests.Unit.Errors.Tests;
 
 public sealed class ImageErrorsTests
 {

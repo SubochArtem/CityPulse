@@ -1,7 +1,7 @@
 using Polls.Domain.Polls.Enums;
 using Xunit;
 
-namespace Polls.Tests.Unit.Polls.TestData;
+namespace Polls.Tests.Unit.Errors.TestData;
 
 public static class PollErrorsTestData
 {

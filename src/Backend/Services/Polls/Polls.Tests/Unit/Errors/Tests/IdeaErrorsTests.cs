@@ -2,7 +2,7 @@ using Polls.Domain.Common.Enums;
 using Polls.Domain.Ideas;
 using Xunit;
 
-namespace Polls.Tests.Unit.Ideas.Tests;
+namespace Polls.Tests.Unit.Errors.Tests;
 
 public sealed class IdeaErrorsTests
 {

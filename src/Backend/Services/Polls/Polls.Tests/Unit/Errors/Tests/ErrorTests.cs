@@ -1,9 +1,9 @@
 using Polls.Domain.Common;
 using Polls.Domain.Common.Enums;
-using Polls.Tests.Unit.Common.TestData;
+using Polls.Tests.Unit.Errors.TestData;
 using Xunit;
 
-namespace Polls.Tests.Unit.Common.Tests;
+namespace Polls.Tests.Unit.Errors.Tests;
 
 public sealed class ErrorTests
 {

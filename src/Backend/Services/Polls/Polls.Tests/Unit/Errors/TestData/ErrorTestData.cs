@@ -2,7 +2,7 @@ using Polls.Domain.Common;
 using Polls.Domain.Common.Enums;
 using Xunit;
 
-namespace Polls.Tests.Unit.Common.TestData;
+namespace Polls.Tests.Unit.Errors.TestData;
 
 public static class ErrorTestData
 {
