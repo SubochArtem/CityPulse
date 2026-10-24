@@ -3,7 +3,7 @@ using Polls.Domain.Ideas.Enums;
 using Polls.Domain.Polls.Enums;
 using Xunit;
 
-namespace Polls.Tests.Unit.Handlers.TestData;
+namespace Polls.Tests.Unit.Cities.TestData;
 
 public enum FailingStep
 {

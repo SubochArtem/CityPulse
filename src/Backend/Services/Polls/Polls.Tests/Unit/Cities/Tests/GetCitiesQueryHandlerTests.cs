@@ -6,10 +6,10 @@ using Polls.Domain.Cities;
 using Polls.Domain.Cities.Enums;
 using Polls.Tests.Infrastructure;
 using Polls.Tests.TestData;
-using Polls.Tests.Unit.Handlers.TestData;
+using Polls.Tests.Unit.Cities.TestData;
 using Xunit;
 
-namespace Polls.Tests.Unit.Handlers.Tests;
+namespace Polls.Tests.Unit.Cities.Tests;
 
 public sealed class GetCitiesQueryHandlerTests : HandlerTestsBase
 {

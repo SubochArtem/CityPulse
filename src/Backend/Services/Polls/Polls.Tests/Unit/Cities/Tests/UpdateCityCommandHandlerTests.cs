@@ -9,7 +9,7 @@ using Polls.Tests.Infrastructure;
 using Polls.Tests.TestData;
 using Xunit;
 
-namespace Polls.Tests.Unit.Handlers.Tests;
+namespace Polls.Tests.Unit.Cities.Tests;
 
 public sealed class UpdateCityCommandHandlerTests : HandlerTestsBase
 {

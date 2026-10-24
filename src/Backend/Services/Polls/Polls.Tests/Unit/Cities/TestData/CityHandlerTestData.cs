@@ -1,7 +1,7 @@
 using Polls.Domain.Cities.Enums;
 using Xunit;
 
-namespace Polls.Tests.Unit.Handlers.TestData;
+namespace Polls.Tests.Unit.Cities.TestData;
 
 public static class CityHandlerTestData
 {
