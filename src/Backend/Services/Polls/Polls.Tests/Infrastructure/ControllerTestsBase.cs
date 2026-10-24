@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using System.Security.Claims;
 using CityPulse.Contracts.Auth.Claims;
 using MediatR;
@@ -51,13 +50,17 @@ public abstract class ControllerTestsBase
             .Setup(x => x.Send<Result<TValue>>(It.IsAny<TRequest>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(result);
 
-    protected void VerifySent<TRequest, TValue>(
-        Expression<Func<TRequest, bool>> match,
-        CancellationToken cancellationToken)
-        where TRequest : class, IRequest<Result<TValue>> =>
-        Sender.Verify(
-            x => x.Send<Result<TValue>>(It.Is(match), cancellationToken),
-            Times.Once);
+    protected TRequest SentRequest<TRequest>() where TRequest : class =>
+        Sender.Invocations
+            .Select(invocation => invocation.Arguments[0])
+            .OfType<TRequest>()
+            .Single();
+
+    protected CancellationToken SentToken<TRequest>() where TRequest : class =>
+        Sender.Invocations
+            .Where(invocation => invocation.Arguments[0] is TRequest)
+            .Select(invocation => (CancellationToken)invocation.Arguments[1])
+            .Single();
 
     protected static FormFileCollection FormFiles(params string[] fileNames)
     {
