@@ -7,6 +7,9 @@ using Polls.Application.Ideas.Commands.DeleteIdea;
 using Polls.Application.Ideas.Queries.GetIdeaById;
 using Polls.Application.Ideas.Queries.GetIdeaCity;
 using Polls.Application.Ideas.Queries.GetIdeaWithPoll;
+using Polls.Application.Polls.Commands.DeletePoll;
+using Polls.Application.Polls.Queries.GetPollById;
+using Polls.Application.Polls.Queries.GetPollWithIdeas;
 using Xunit;
 
 namespace Polls.Tests.Unit.Validators.TestData;
@@ -58,6 +61,21 @@ public static class IdRequiredValidatorTestData
             nameof(GetIdeaWithPollQueryValidator),
             new GetIdeaWithPollQueryValidator(),
             id => new GetIdeaWithPollQuery(id),
-            ValidationConstants.Idea.IdRequired)
+            ValidationConstants.Idea.IdRequired),
+        new IdRequiredCase(
+            nameof(DeletePollCommandValidator),
+            new DeletePollCommandValidator(),
+            id => new DeletePollCommand(id),
+            ValidationConstants.Poll.IdRequired),
+        new IdRequiredCase(
+            nameof(GetPollByIdQueryValidator),
+            new GetPollByIdQueryValidator(),
+            id => new GetPollByIdQuery(id),
+            ValidationConstants.Poll.IdRequired),
+        new IdRequiredCase(
+            nameof(GetPollWithIdeasQueryValidator),
+            new GetPollWithIdeasQueryValidator(),
+            id => new GetPollWithIdeasQuery(id),
+            ValidationConstants.Poll.IdRequired)
     };
 }

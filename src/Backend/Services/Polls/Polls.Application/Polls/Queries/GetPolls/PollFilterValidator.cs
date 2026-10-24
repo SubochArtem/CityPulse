@@ -10,7 +10,7 @@ public sealed class PollFilterValidator : BaseFilterValidator<PollFilter>
     public PollFilterValidator()
     {
         RuleFor(x => x.CityId)
-            .NotEmpty()
+            .NotEqual(Guid.Empty)
             .WithMessage(ValidationConstants.City.IdRequired)
             .When(x => x.CityId.HasValue);
 
