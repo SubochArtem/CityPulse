@@ -3,6 +3,10 @@ using Polls.Application.Cities.Commands.DeleteCity;
 using Polls.Application.Cities.Queries.GetCityById;
 using Polls.Application.Cities.Queries.GetCityWithPolls;
 using Polls.Application.Common.Constants;
+using Polls.Application.Ideas.Commands.DeleteIdea;
+using Polls.Application.Ideas.Queries.GetIdeaById;
+using Polls.Application.Ideas.Queries.GetIdeaCity;
+using Polls.Application.Ideas.Queries.GetIdeaWithPoll;
 using Xunit;
 
 namespace Polls.Tests.Unit.Validators.TestData;
@@ -34,6 +38,26 @@ public static class IdRequiredValidatorTestData
             nameof(GetCityWithPollsQueryValidator),
             new GetCityWithPollsQueryValidator(),
             id => new GetCityWithPollsQuery(id),
-            ValidationConstants.City.IdRequired)
+            ValidationConstants.City.IdRequired),
+        new IdRequiredCase(
+            nameof(DeleteIdeaCommandValidator),
+            new DeleteIdeaCommandValidator(),
+            id => new DeleteIdeaCommand(id),
+            ValidationConstants.Idea.IdRequired),
+        new IdRequiredCase(
+            nameof(GetIdeaByIdQueryValidator),
+            new GetIdeaByIdQueryValidator(),
+            id => new GetIdeaByIdQuery(id),
+            ValidationConstants.Idea.IdRequired),
+        new IdRequiredCase(
+            nameof(GetIdeaCityQueryValidator),
+            new GetIdeaCityQueryValidator(),
+            id => new GetIdeaCityQuery(id),
+            ValidationConstants.Idea.IdRequired),
+        new IdRequiredCase(
+            nameof(GetIdeaWithPollQueryValidator),
+            new GetIdeaWithPollQueryValidator(),
+            id => new GetIdeaWithPollQuery(id),
+            ValidationConstants.Idea.IdRequired)
     };
 }
