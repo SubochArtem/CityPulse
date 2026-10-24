@@ -60,8 +60,8 @@ public sealed class ImageProcessingHelperTests
     private Task<Result<MediatRUnit>> ProcessAsync(
         List<PollImage> images,
         ImageChanges changes,
-        CancellationToken cancellationToken = default,
-        ImageFactory<PollImage>? factory = null) =>
+        ImageFactory<PollImage>? factory = null,
+        CancellationToken cancellationToken = default) =>
         ImageProcessingHelper.ProcessChangesAsync(
             images,
             _unitOfWork.Object,
@@ -126,7 +126,7 @@ public sealed class ImageProcessingHelperTests
         using var cts = new CancellationTokenSource();
         SetupUpload(UploadedNames(1));
 
-        await ProcessAsync([], new ImageChanges(files), cts.Token);
+        await ProcessAsync([], new ImageChanges(files), cancellationToken: cts.Token);
 
         _storage.Verify(x => x.UploadRangeAsync(files, cts.Token), Times.Once);
     }
@@ -248,8 +248,8 @@ public sealed class ImageProcessingHelperTests
             () => ProcessAsync(
                 [],
                 new ImageChanges(BuildFiles(2)),
-                cts.Token,
-                (_, _) => throw new InvalidOperationException(FactoryFailureMessage)));
+                (_, _) => throw new InvalidOperationException(FactoryFailureMessage),
+                cts.Token));
 
         Assert.Equal(FactoryFailureMessage, exception.Message);
         _storage.Verify(x => x.DeleteByNamesAsync(uploadedNames, cts.Token), Times.Once);
