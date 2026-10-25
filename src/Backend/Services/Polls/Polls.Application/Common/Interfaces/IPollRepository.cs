@@ -21,6 +21,10 @@ public interface IPollRepository : IRepository<Poll>
         Guid id,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<Guid>> GetIdsByCityAsync(
+        Guid cityId,
+        CancellationToken cancellationToken = default);
+
     Task UpdateStatusByCityAsync(
         Guid cityId,
         PollStatus source,
