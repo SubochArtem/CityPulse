@@ -12,3 +12,5 @@ app.UsePresentation();
 app.UseInfrastructure(); 
 
 await app.RunAsync();
+
+public partial class Program;
