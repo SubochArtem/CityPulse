@@ -1,5 +1,6 @@
 using System.Net;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using Polls.Domain.Authorization;
 using Polls.Domain.Cities;
 using Polls.Domain.Ideas;
@@ -67,6 +68,30 @@ public sealed class DeletePollCommandHandlerTests(PollsWebAppFactory factory) : 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal(0, await CountPollsAsync(graph.Poll.Id));
         Assert.Equal(1, await QueryDbAsync(context => context.Cities.CountAsync(x => x.Id == graph.City.Id)));
+    }
+
+    [Fact]
+    public async Task Handle_PollExists_CancelsItsScheduledJobOnce()
+    {
+        var graph = await SeedPollGraphAsync();
+
+        await DeleteAsAdminAsync(graph.Poll.Id);
+
+        Factory.PollScheduler.Verify(
+            x => x.CancelAsync(graph.Poll.Id, It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_DeleteIsRejected_DoesNotCancelScheduledJob()
+    {
+        var graph = await SeedPollGraphAsync();
+
+        await DeleteAsUserAsync(graph.Poll.Id, Guid.NewGuid());
+
+        Factory.PollScheduler.Verify(
+            x => x.CancelAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
