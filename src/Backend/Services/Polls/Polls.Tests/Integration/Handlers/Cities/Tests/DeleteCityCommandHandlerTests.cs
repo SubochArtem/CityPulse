@@ -90,24 +90,24 @@ public sealed class DeleteCityCommandHandlerTests(PollsWebAppFactory factory) : 
     }
 
     [Fact]
-    public async Task Handle_CityHasPolls_CancelsTheirScheduledJobsOnly()
+    public async Task Handle_CityHasPolls_CancelsTheirScheduledJobsInOneBatch()
     {
         var target = await SeedCityGraphAsync();
         var secondPoll = PollIntegrationHelpers.BuildPoll(target.City.Id);
-        var other = await SeedCityGraphAsync();
+        await SeedCityGraphAsync();
         await SeedAsync(secondPoll);
+        IReadOnlyCollection<Guid>? cancelled = null;
+        Factory.PollScheduler
+            .Setup(x => x.CancelRangeAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .Callback<IReadOnlyCollection<Guid>, CancellationToken>((ids, _) => cancelled = ids.ToList())
+            .Returns(Task.CompletedTask);
 
         await DeleteAsync(target.City.Id);
 
+        Assert.Equivalent(new[] { target.Poll.Id, secondPoll.Id }, cancelled);
         Factory.PollScheduler.Verify(
-            x => x.CancelAsync(target.Poll.Id, It.IsAny<CancellationToken>()),
+            x => x.CancelRangeAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()),
             Times.Once);
-        Factory.PollScheduler.Verify(
-            x => x.CancelAsync(secondPoll.Id, It.IsAny<CancellationToken>()),
-            Times.Once);
-        Factory.PollScheduler.Verify(
-            x => x.CancelAsync(other.Poll.Id, It.IsAny<CancellationToken>()),
-            Times.Never);
     }
 
     [Fact]
@@ -120,7 +120,7 @@ public sealed class DeleteCityCommandHandlerTests(PollsWebAppFactory factory) : 
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Factory.PollScheduler.Verify(
-            x => x.CancelAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            x => x.CancelRangeAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -131,7 +131,7 @@ public sealed class DeleteCityCommandHandlerTests(PollsWebAppFactory factory) : 
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         Factory.PollScheduler.Verify(
-            x => x.CancelAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            x => x.CancelRangeAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 

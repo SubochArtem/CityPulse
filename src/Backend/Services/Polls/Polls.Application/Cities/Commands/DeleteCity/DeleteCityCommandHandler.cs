@@ -20,8 +20,8 @@ public sealed class DeleteCityCommandHandler(
             return CityErrors.NotFound(command.Id);
 
         var pollIds = await unitOfWork.Polls.GetIdsByCityAsync(city.Id, cancellationToken);
-        foreach (var pollId in pollIds)
-            await pollScheduler.CancelAsync(pollId, cancellationToken);
+        if (pollIds.Count > 0)
+            await pollScheduler.CancelRangeAsync(pollIds, cancellationToken);
 
         if (city.Images.Count > 0)
         {

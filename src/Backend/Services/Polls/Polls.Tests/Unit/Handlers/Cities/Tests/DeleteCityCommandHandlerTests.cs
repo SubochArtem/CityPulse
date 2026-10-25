@@ -23,20 +23,27 @@ public sealed class DeleteCityCommandHandlerTests : HandlerTestsBase
         _sut = new DeleteCityCommandHandler(UnitOfWork.Object, _scheduler.Object);
     }
 
+    private static bool SameIds(IReadOnlyCollection<Guid> actual, IReadOnlyCollection<Guid> expected) =>
+        actual.Count == expected.Count && !actual.Except(expected).Any();
+
     private void SetupPollIds(Guid cityId, params Guid[] pollIds)
     {
         UnitOfWork.Polls
             .Setup(x => x.GetIdsByCityAsync(cityId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(pollIds);
 
-        foreach (var pollId in pollIds)
+        if (pollIds.Length > 0)
             _scheduler
-                .Setup(x => x.CancelAsync(pollId, It.IsAny<CancellationToken>()))
+                .Setup(x => x.CancelRangeAsync(
+                    It.Is<IReadOnlyCollection<Guid>>(ids => SameIds(ids, pollIds)),
+                    It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
     }
 
     private void VerifyCancelCalls(Times times) =>
-        _scheduler.Verify(x => x.CancelAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), times);
+        _scheduler.Verify(
+            x => x.CancelRangeAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()),
+            times);
 
     private void SetupCity(City? city, Guid id) =>
         UnitOfWork.Cities
@@ -75,7 +82,7 @@ public sealed class DeleteCityCommandHandlerTests : HandlerTestsBase
     }
 
     [Fact]
-    public async Task Handle_CityHasPolls_CancelsEachScheduledJobBeforeDeletingAndSaving()
+    public async Task Handle_CityHasPolls_CancelsTheirJobsInOneBatchBeforeDeletingAndSaving()
     {
         var city = CityFakers.Cities().Generate();
         var pollIds = new[] { Guid.NewGuid(), Guid.NewGuid() };
@@ -84,11 +91,12 @@ public sealed class DeleteCityCommandHandlerTests : HandlerTestsBase
         UnitOfWork.Polls
             .Setup(x => x.GetIdsByCityAsync(city.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(pollIds);
-        foreach (var pollId in pollIds)
-            _scheduler
-                .Setup(x => x.CancelAsync(pollId, It.IsAny<CancellationToken>()))
-                .Callback(() => calls.Add(CancelStep))
-                .Returns(Task.CompletedTask);
+        _scheduler
+            .Setup(x => x.CancelRangeAsync(
+                It.Is<IReadOnlyCollection<Guid>>(ids => SameIds(ids, pollIds)),
+                It.IsAny<CancellationToken>()))
+            .Callback(() => calls.Add(CancelStep))
+            .Returns(Task.CompletedTask);
         UnitOfWork.Cities
             .Setup(x => x.Delete(city))
             .Callback(() => calls.Add(DeleteStep));
@@ -100,9 +108,8 @@ public sealed class DeleteCityCommandHandlerTests : HandlerTestsBase
         var result = await _sut.Handle(new DeleteCityCommand(city.Id), CancellationToken.None);
 
         Assert.True(result.IsSuccess);
-        Assert.Equal([CancelStep, CancelStep, DeleteStep, SaveStep], calls);
-        foreach (var pollId in pollIds)
-            _scheduler.Verify(x => x.CancelAsync(pollId, It.IsAny<CancellationToken>()), Times.Once);
+        Assert.Equal([CancelStep, DeleteStep, SaveStep], calls);
+        VerifyCancelCalls(Times.Once());
     }
 
     [Fact]
@@ -154,7 +161,9 @@ public sealed class DeleteCityCommandHandlerTests : HandlerTestsBase
             .Setup(x => x.GetIdsByCityAsync(city.Id, cts.Token))
             .ReturnsAsync([pollId]);
         _scheduler
-            .Setup(x => x.CancelAsync(pollId, cts.Token))
+            .Setup(x => x.CancelRangeAsync(
+                It.Is<IReadOnlyCollection<Guid>>(ids => SameIds(ids, new[] { pollId })),
+                cts.Token))
             .Returns(Task.CompletedTask);
         UnitOfWork.Cities.Setup(x => x.Delete(city));
         UnitOfWork.Mock.Setup(x => x.SaveChangesAsync(cts.Token)).Returns(Task.CompletedTask);
@@ -163,7 +172,9 @@ public sealed class DeleteCityCommandHandlerTests : HandlerTestsBase
 
         UnitOfWork.Cities.Verify(x => x.GetByIdWithImagesAsync(city.Id, cts.Token), Times.Once);
         UnitOfWork.Polls.Verify(x => x.GetIdsByCityAsync(city.Id, cts.Token), Times.Once);
-        _scheduler.Verify(x => x.CancelAsync(pollId, cts.Token), Times.Once);
+        _scheduler.Verify(
+            x => x.CancelRangeAsync(It.IsAny<IReadOnlyCollection<Guid>>(), cts.Token),
+            Times.Once);
         UnitOfWork.Mock.Verify(x => x.SaveChangesAsync(cts.Token), Times.Once);
     }
 }
