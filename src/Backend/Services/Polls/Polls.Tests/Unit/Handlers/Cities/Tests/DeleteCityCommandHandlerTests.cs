@@ -23,8 +23,8 @@ public sealed class DeleteCityCommandHandlerTests : HandlerTestsBase
         _sut = new DeleteCityCommandHandler(UnitOfWork.Object, _scheduler.Object);
     }
 
-    private static bool SameIds(IReadOnlyCollection<Guid> actual, IReadOnlyCollection<Guid> expected) =>
-        actual.Count == expected.Count && !actual.Except(expected).Any();
+    private static bool SameIds(IReadOnlyCollection<Guid> actual, Guid[] expected) =>
+        actual.Count == expected.Length && !actual.Except(expected).Any();
 
     private void SetupPollIds(Guid cityId, params Guid[] pollIds)
     {
