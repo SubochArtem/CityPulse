@@ -40,39 +40,40 @@ public sealed class ChangeCityStatusCommandHandler(
 
         var utcNow = dateTimeProvider.UtcNow;
         
-        await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
-        
         try
         {
-            city.Status = command.NewStatus;
-            unitOfWork.Cities.Update(city);
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-            
-            await unitOfWork.Polls.UpdateStatusByCityAsync(
-                city.Id, 
-                sourcePollStatus, 
-                targetPollStatus, 
-                utcNow, 
+            await unitOfWork.ExecuteInTransactionAsync(
+                async token =>
+                {
+                    city.Status = command.NewStatus;
+                    unitOfWork.Cities.Update(city);
+                    await unitOfWork.SaveChangesAsync(token);
+
+                    await unitOfWork.Polls.UpdateStatusByCityAsync(
+                        city.Id,
+                        sourcePollStatus,
+                        targetPollStatus,
+                        utcNow,
+                        token);
+
+                    await unitOfWork.Ideas.UpdateAccessStatusByCityAsync(
+                        city.Id,
+                        sourceIdeaAccessStatus,
+                        targetIdeaAccessStatus,
+                        token);
+                },
                 cancellationToken);
-                
-            await unitOfWork.Ideas.UpdateAccessStatusByCityAsync(
-                city.Id, 
-                sourceIdeaAccessStatus, 
-                targetIdeaAccessStatus, 
-                cancellationToken);
-            
-            await transaction.CommitAsync(cancellationToken);
+
             return Result<Unit>.Success(Unit.Value);
         }
         catch (Exception ex)
         {
             logger.LogError(
-                ex, 
-                "Error changing city {CityId} status to {Status}", 
-                command.Id, 
+                ex,
+                "Error changing city {CityId} status to {Status}",
+                command.Id,
                 command.NewStatus);
 
-            await transaction.RollbackAsync(cancellationToken);
             return CommonErrors.DatabaseError;
         }
     }

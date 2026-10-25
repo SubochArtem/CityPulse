@@ -13,5 +13,7 @@ public interface IUnitOfWork
     IImageRepository<IdeaImage> IdeaImages { get; }
     IDeletedImageRepository DeletedImages { get; }
     Task SaveChangesAsync(CancellationToken cancellationToken = default);
-    Task<IUnitOfWorkTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default);
+    Task ExecuteInTransactionAsync(
+        Func<CancellationToken, Task> operation,
+        CancellationToken cancellationToken = default);
 }
