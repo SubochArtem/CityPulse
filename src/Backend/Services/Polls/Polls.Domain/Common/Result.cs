@@ -19,7 +19,12 @@ public abstract class Result
     public Error Error => Errors.Count > 0 ? Errors[0] : Error.Undefined;
 }
 
-public class Result<T> : Result
+public interface IResultWithValue
+{
+    object? GetValue();
+}
+
+public class Result<T> : Result, IResultWithValue
 {
     private const string NoErrorsMessage = "A failed result requires at least one error";
 
@@ -31,6 +36,8 @@ public class Result<T> : Result
     private Result(params Error[] errors) : base(errors){}
 
     public T? Value { get; }
+
+    public object? GetValue() => Value;
 
     public static Result<T> Success(T value)
     {
