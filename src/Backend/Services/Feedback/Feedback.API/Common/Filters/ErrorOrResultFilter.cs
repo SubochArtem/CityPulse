@@ -1,3 +1,4 @@
+using CityPulse.Common.Api.Errors;
 using ErrorOr;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -6,7 +7,6 @@ namespace Feedback.API.Common.Filters;
 
 public class ErrorOrResultFilter : IActionFilter
 {
-    private const string ErrorsExtensionKey = "errors";
     private const string ValuePropertyName = "Value";
 
     public void OnActionExecuting(ActionExecutingContext context) { }
@@ -33,20 +33,12 @@ public class ErrorOrResultFilter : IActionFilter
     {
         var statusCode = GetStatusCode(errors[0].Type);
 
-        var problemDetails = new ProblemDetails
-        {
-            Status = statusCode,
-            Title = errors[0].Type.ToString(),
-            Detail = errors[0].Description,
-            Instance = path
-        };
-
-        if (errors.Count > 1)
-        {
-            problemDetails.Extensions[ErrorsExtensionKey] = errors
-                .Select(e => e.Description)
-                .ToArray();
-        }
+        var problemDetails = ProblemDetailsFactory.Create(
+            statusCode,
+            errors[0].Type.ToString(),
+            errors[0].Description,
+            path,
+            errors.Select(e => e.Description).ToArray());
 
         return new ObjectResult(problemDetails)
         {
