@@ -7,13 +7,13 @@ using Polls.Domain.Ideas.Enums;
 using Polls.Domain.Polls;
 using Polls.Domain.Polls.Enums;
 using Polls.Tests.Infrastructure;
-using Polls.Tests.Integration.Polls.TestData;
+using Polls.Tests.Integration.Handlers.Polls.TestData;
 using Polls.Tests.TestData;
 using Xunit;
 
-namespace Polls.Tests.Integration.Polls.Tests;
+namespace Polls.Tests.Integration.Handlers.Polls.Tests;
 
-public sealed class ChangePollStatusTests(PollsWebAppFactory factory) : PollsApiTestBase(factory)
+public sealed class ChangePollStatusCommandHandlerTests(PollsWebAppFactory factory) : PollsApiTestBase(factory)
 {
     private const string AdminPollsRoute = "api/v1/admin/polls";
     private const string StatusSegment = "status";

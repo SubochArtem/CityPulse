@@ -12,9 +12,9 @@ using Polls.Tests.Infrastructure;
 using Polls.Tests.TestData;
 using Xunit;
 
-namespace Polls.Tests.Integration.Cities.Tests;
+namespace Polls.Tests.Integration.Handlers.Cities.Tests;
 
-public sealed class ChangeCityStatusTests(PollsWebAppFactory factory) : PollsApiTestBase(factory)
+public sealed class ChangeCityStatusCommandHandlerTests(PollsWebAppFactory factory) : PollsApiTestBase(factory)
 {
     private const string AdminCitiesRoute = "api/v1/admin/cities";
     private const string StatusSegment = "status";
