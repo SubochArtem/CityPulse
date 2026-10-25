@@ -64,7 +64,7 @@ public sealed class ChangePollStatusCommandHandlerTests(PollsWebAppFactory facto
 
         var response = await ChangeStatusAsync(graph.Poll.Id, (int)PollStatus.Suspended);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Equal(PollStatus.Suspended, await GetPollStatusAsync(graph.Poll.Id));
         Assert.Equal(IdeaAccessStatus.RestrictedByContext, await GetIdeaStatusAsync(graph.Idea.Id));
     }
@@ -76,7 +76,7 @@ public sealed class ChangePollStatusCommandHandlerTests(PollsWebAppFactory facto
 
         var response = await ChangeStatusAsync(graph.Poll.Id, (int)PollStatus.Active);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Equal(PollStatus.Active, await GetPollStatusAsync(graph.Poll.Id));
         Assert.Equal(IdeaAccessStatus.Active, await GetIdeaStatusAsync(graph.Idea.Id));
     }
@@ -100,7 +100,7 @@ public sealed class ChangePollStatusCommandHandlerTests(PollsWebAppFactory facto
 
         var response = await ChangeStatusAsync(graph.Poll.Id, (int)PollStatus.Active);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Equal(IdeaAccessStatus.Active, await GetIdeaStatusAsync(graph.Idea.Id));
     }
 

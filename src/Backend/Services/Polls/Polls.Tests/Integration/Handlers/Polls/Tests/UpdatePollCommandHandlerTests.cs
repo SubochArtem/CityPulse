@@ -28,7 +28,6 @@ public sealed class UpdatePollCommandHandlerTests(PollsWebAppFactory factory) : 
     private const int NewEndsInDays = 15;
     private const int ShortEndsInDays = 2;
     private const int ExpiredEditWindowDays = 2;
-    private const string ValueProperty = "value";
     private const string TitleProperty = "title";
 
     private static readonly TimeSpan DateTolerance = TimeSpan.FromMilliseconds(1);
@@ -113,7 +112,6 @@ public sealed class UpdatePollCommandHandlerTests(PollsWebAppFactory factory) : 
         var returnedTitle = JsonDocument
             .Parse(await response.Content.ReadAsStringAsync())
             .RootElement
-            .GetProperty(ValueProperty)
             .GetProperty(TitleProperty)
             .GetString();
         Assert.Equal(NewTitle, returnedTitle);

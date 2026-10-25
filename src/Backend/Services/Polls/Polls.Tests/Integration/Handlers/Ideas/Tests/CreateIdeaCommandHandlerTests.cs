@@ -23,7 +23,6 @@ public sealed class CreateIdeaCommandHandlerTests(PollsWebAppFactory factory) : 
     private const string IdeaDescription = "Along the river";
     private const string SecondImageFileName = "second.jpg";
     private const int ExpiredDays = -1;
-    private const string ValueProperty = "value";
     private const string IdProperty = "id";
 
     private sealed record PollInCity(City City, Poll Poll);
@@ -78,7 +77,6 @@ public sealed class CreateIdeaCommandHandlerTests(PollsWebAppFactory factory) : 
         var returnedId = JsonDocument
             .Parse(await response.Content.ReadAsStringAsync())
             .RootElement
-            .GetProperty(ValueProperty)
             .GetProperty(IdProperty)
             .GetGuid();
         Assert.Equal(stored.Id, returnedId);

@@ -15,7 +15,6 @@ namespace Polls.Tests.Integration.Handlers.Ideas.Tests;
 public sealed class GetIdeaWithPollQueryHandlerTests(PollsWebAppFactory factory) : PollsApiTestBase(factory)
 {
     private const string PollImageFileName = "poll.jpg";
-    private const string ValueProperty = "value";
     private const string IdProperty = "id";
     private const string PollProperty = "poll";
     private const string TitleProperty = "title";
@@ -35,8 +34,7 @@ public sealed class GetIdeaWithPollQueryHandlerTests(PollsWebAppFactory factory)
     private static async Task<JsonElement> ReadValueAsync(HttpResponseMessage response) =>
         JsonDocument
             .Parse(await response.Content.ReadAsStringAsync())
-            .RootElement
-            .GetProperty(ValueProperty);
+            .RootElement;
 
     [Fact]
     public async Task Handle_IdeaExists_ReturnsItWithItsPoll()

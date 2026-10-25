@@ -22,7 +22,6 @@ public sealed class GetPollWithIdeasQueryHandlerTests(PollsWebAppFactory factory
     private const string ThirdIdeaTitle = "Fountain";
     private const string FirstImageFileName = "first.jpg";
     private const string SecondImageFileName = "second.jpg";
-    private const string ValueProperty = "value";
     private const string IdProperty = "id";
     private const string IdeasProperty = "ideas";
     private const string TitleProperty = "title";
@@ -44,8 +43,7 @@ public sealed class GetPollWithIdeasQueryHandlerTests(PollsWebAppFactory factory
     private static async Task<JsonElement> ReadValueAsync(HttpResponseMessage response) =>
         JsonDocument
             .Parse(await response.Content.ReadAsStringAsync())
-            .RootElement
-            .GetProperty(ValueProperty);
+            .RootElement;
 
     private async Task<Poll> SeedPollAsync(PollStatus status = PollStatus.Active)
     {

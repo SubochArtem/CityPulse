@@ -17,7 +17,6 @@ public sealed class GetPollByIdQueryHandlerTests(PollsWebAppFactory factory) : P
     private const string FirstImageFileName = "first.jpg";
     private const string SecondImageFileName = "second.jpg";
     private const decimal PollBudget = 1500.5m;
-    private const string ValueProperty = "value";
     private const string IdProperty = "id";
     private const string TitleProperty = "title";
     private const string DescriptionProperty = "description";
@@ -39,8 +38,7 @@ public sealed class GetPollByIdQueryHandlerTests(PollsWebAppFactory factory) : P
     private static async Task<JsonElement> ReadValueAsync(HttpResponseMessage response) =>
         JsonDocument
             .Parse(await response.Content.ReadAsStringAsync())
-            .RootElement
-            .GetProperty(ValueProperty);
+            .RootElement;
 
     private async Task<Guid> SeedPollAsync(
         PollStatus status = PollStatus.Active,

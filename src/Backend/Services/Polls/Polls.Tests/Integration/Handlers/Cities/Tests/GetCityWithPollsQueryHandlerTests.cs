@@ -19,7 +19,6 @@ public sealed class GetCityWithPollsQueryHandlerTests(PollsWebAppFactory factory
     private const string FirstPollImageFileName = "poll-first.jpg";
     private const string SecondPollImageFileName = "poll-second.jpg";
     private const string PollsSegment = "polls";
-    private const string ValueProperty = "value";
     private const string IdProperty = "id";
     private const string TitleProperty = "title";
     private const string StatusProperty = "status";
@@ -34,8 +33,7 @@ public sealed class GetCityWithPollsQueryHandlerTests(PollsWebAppFactory factory
     private static async Task<JsonElement> ReadValueAsync(HttpResponseMessage response) =>
         JsonDocument
             .Parse(await response.Content.ReadAsStringAsync())
-            .RootElement
-            .GetProperty(ValueProperty);
+            .RootElement;
 
     private static Poll BuildPoll(Guid cityId, PollStatus status, params string[] imageFileNames)
     {

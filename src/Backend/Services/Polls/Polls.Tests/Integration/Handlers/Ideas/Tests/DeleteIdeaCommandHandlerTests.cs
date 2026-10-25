@@ -34,7 +34,7 @@ public sealed class DeleteIdeaCommandHandlerTests(PollsWebAppFactory factory) : 
 
         var response = await DeleteAsUserAsync(graph.Idea.Id, owner);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Equal(0, await CountIdeasAsync(graph.Idea.Id));
     }
 
@@ -155,7 +155,7 @@ public sealed class DeleteIdeaCommandHandlerTests(PollsWebAppFactory factory) : 
 
         var response = await DeleteAsUserAsync(graph.Idea.Id, owner);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Equal(0, await CountIdeasAsync(graph.Idea.Id));
     }
 
@@ -184,7 +184,7 @@ public sealed class DeleteIdeaCommandHandlerTests(PollsWebAppFactory factory) : 
 
         var response = await DeleteAsAdminAsync(graph.Idea.Id);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Equal(0, await CountIdeasAsync(graph.Idea.Id));
     }
 }

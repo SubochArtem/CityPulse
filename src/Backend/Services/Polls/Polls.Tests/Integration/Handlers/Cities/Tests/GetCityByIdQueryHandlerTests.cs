@@ -14,7 +14,6 @@ public sealed class GetCityByIdQueryHandlerTests(PollsWebAppFactory factory) : P
     private const string CityDescription = "A city in the middle of nowhere";
     private const string FirstImageFileName = "first.jpg";
     private const string SecondImageFileName = "second.jpg";
-    private const string ValueProperty = "value";
     private const string IdProperty = "id";
     private const string TitleProperty = "title";
     private const string DescriptionProperty = "description";
@@ -32,8 +31,7 @@ public sealed class GetCityByIdQueryHandlerTests(PollsWebAppFactory factory) : P
     private static async Task<JsonElement> ReadValueAsync(HttpResponseMessage response) =>
         JsonDocument
             .Parse(await response.Content.ReadAsStringAsync())
-            .RootElement
-            .GetProperty(ValueProperty);
+            .RootElement;
 
     [Fact]
     public async Task Handle_CityExists_ReturnsItsData()

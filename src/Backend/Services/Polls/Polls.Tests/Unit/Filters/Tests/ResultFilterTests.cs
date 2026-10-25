@@ -93,14 +93,35 @@ public sealed class ResultFilterTests
     }
 
     [Fact]
-    public void OnActionExecuted_ResultSucceeded_LeavesResultUnchanged()
+    public void OnActionExecuted_ResultSucceededWithValue_ReplacesResultWithOkContainingValue()
     {
-        var original = new ObjectResult(Result<string>.Success("value"));
-        var context = BuildExecutedContext(original);
+        const string value = "value";
+        var context = BuildExecutedContext(new ObjectResult(Result<string>.Success(value)));
 
         _sut.OnActionExecuted(context);
 
-        Assert.Same(original, context.Result);
+        var ok = Assert.IsType<OkObjectResult>(context.Result);
+        Assert.Same(value, ok.Value);
+    }
+
+    [Fact]
+    public void OnActionExecuted_ResultSucceededWithUnit_ReplacesResultWithNoContent()
+    {
+        var context = BuildExecutedContext(new ObjectResult(Result<MediatR.Unit>.Success(MediatR.Unit.Value)));
+
+        _sut.OnActionExecuted(context);
+
+        Assert.IsType<NoContentResult>(context.Result);
+    }
+
+    [Fact]
+    public void OnActionExecuted_ResultSucceededWithNullValue_ReplacesResultWithNoContent()
+    {
+        var context = BuildExecutedContext(new ObjectResult(Result<string?>.Success(null)));
+
+        _sut.OnActionExecuted(context);
+
+        Assert.IsType<NoContentResult>(context.Result);
     }
 
     [Fact]

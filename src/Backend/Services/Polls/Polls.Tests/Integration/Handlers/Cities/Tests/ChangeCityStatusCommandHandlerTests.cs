@@ -72,7 +72,7 @@ public sealed class ChangeCityStatusCommandHandlerTests(PollsWebAppFactory facto
 
         var response = await ChangeStatusAsync(graph.City.Id, (int)CityStatus.Inactive);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Equal(CityStatus.Inactive, await GetCityStatusAsync(graph.City.Id));
         Assert.Equal(PollStatus.Suspended, await GetPollStatusAsync(graph.Poll.Id));
         Assert.Equal(IdeaAccessStatus.RestrictedByContext, await GetIdeaStatusAsync(graph.Idea.Id));
@@ -88,7 +88,7 @@ public sealed class ChangeCityStatusCommandHandlerTests(PollsWebAppFactory facto
 
         var response = await ChangeStatusAsync(graph.City.Id, (int)CityStatus.Active);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Equal(CityStatus.Active, await GetCityStatusAsync(graph.City.Id));
         Assert.Equal(PollStatus.Active, await GetPollStatusAsync(graph.Poll.Id));
         Assert.Equal(IdeaAccessStatus.Active, await GetIdeaStatusAsync(graph.Idea.Id));
@@ -124,7 +124,7 @@ public sealed class ChangeCityStatusCommandHandlerTests(PollsWebAppFactory facto
 
         var response = await ChangeStatusAsync(graph.City.Id, (int)CityStatus.Active);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Equal(PollStatus.Active, await GetPollStatusAsync(graph.Poll.Id));
         Assert.Equal(IdeaAccessStatus.Active, await GetIdeaStatusAsync(graph.Idea.Id));
     }

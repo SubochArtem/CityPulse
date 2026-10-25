@@ -41,7 +41,7 @@ public sealed class ChangeIdeaApprovalStatusCommandHandlerTests(PollsWebAppFacto
 
         var response = await ChangeStatusAsync(graph.Idea.Id, (int)target);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         var stored = await LoadIdeaAsync(graph.Idea.Id);
         Assert.Equal(target, stored.ApprovalStatus);
         Assert.Equal(IdeaAccessStatus.RestrictedByContext, stored.AccessStatus);
@@ -55,7 +55,7 @@ public sealed class ChangeIdeaApprovalStatusCommandHandlerTests(PollsWebAppFacto
 
         var response = await ChangeStatusAsync(graph.Idea.Id, (int)IdeaApprovalStatus.Deferred);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         var stored = await LoadIdeaAsync(graph.Idea.Id);
         Assert.Equal(IdeaApprovalStatus.Deferred, stored.ApprovalStatus);
         Assert.Null(stored.UpdatedAt);
@@ -85,7 +85,7 @@ public sealed class ChangeIdeaApprovalStatusCommandHandlerTests(PollsWebAppFacto
 
         var response = await ChangeStatusAsync(graph.Idea.Id, (int)IdeaApprovalStatus.Approved);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Equal(IdeaApprovalStatus.Approved, (await LoadIdeaAsync(graph.Idea.Id)).ApprovalStatus);
     }
 
