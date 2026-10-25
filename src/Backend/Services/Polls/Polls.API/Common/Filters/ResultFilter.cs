@@ -1,3 +1,4 @@
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Polls.Domain.Common;
@@ -13,8 +14,14 @@ public class ResultFilter : IActionFilter
 
     public void OnActionExecuted(ActionExecutedContext context)
     {
-        if (context.Result is not ObjectResult { Value: Result { IsSuccess: false } result })
+        if (context.Result is not ObjectResult { Value: Result result })
             return;
+
+        if (result.IsSuccess)
+        {
+            UnwrapSuccess(context, result);
+            return;
+        }
 
         var statusCode = GetStatusCode(result.Error.Type);
 
@@ -34,6 +41,18 @@ public class ResultFilter : IActionFilter
         context.Result = new ObjectResult(problemDetails)
         {
             StatusCode = statusCode
+        };
+    }
+
+    private static void UnwrapSuccess(ActionExecutedContext context, Result result)
+    {
+        if (result is not IResultWithValue resultWithValue)
+            return;
+
+        context.Result = resultWithValue.GetValue() switch
+        {
+            null or Unit => new NoContentResult(),
+            var value => new OkObjectResult(value)
         };
     }
 
