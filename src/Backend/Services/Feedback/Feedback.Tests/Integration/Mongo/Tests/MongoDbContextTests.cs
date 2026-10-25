@@ -15,12 +15,16 @@ public sealed class MongoDbContextTests(MongoFixture fixture) : MongoTestsBase(f
     private const string UniqueField = "unique";
     private const string PartialFilterField = "partialFilterExpression";
     private const string UniqueLikeIndex = "UserId_1_IdeaId_1";
+    private const string IdeaIndex = "IdeaId_1_CreatedAt_-1";
+    private const string UserIndex = "UserId_1_CreatedAt_-1";
+    private const string CreatedAtIndex = "CreatedAt_-1";
+    private const string RepeatedText = "same text";
 
     private static readonly string[] ExpectedIndexes =
     [
-        "IdeaId_1_CreatedAt_-1",
-        "UserId_1_CreatedAt_-1",
-        "CreatedAt_-1",
+        IdeaIndex,
+        UserIndex,
+        CreatedAtIndex,
         UniqueLikeIndex
     ];
 
@@ -89,8 +93,8 @@ public sealed class MongoDbContextTests(MongoFixture fixture) : MongoTestsBase(f
         var ideaId = Guid.NewGuid();
 
         await SeedAsync(
-            FeedbackItems.Comment(userId, ideaId, "same text"),
-            FeedbackItems.Comment(userId, ideaId, "same text"),
+            FeedbackItems.Comment(userId, ideaId, RepeatedText),
+            FeedbackItems.Comment(userId, ideaId, RepeatedText),
             FeedbackItems.Like(userId, ideaId));
 
         Assert.Equal(3, (await ReadAllAsync()).Count);

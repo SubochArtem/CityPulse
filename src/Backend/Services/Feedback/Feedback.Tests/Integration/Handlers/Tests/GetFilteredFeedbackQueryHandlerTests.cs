@@ -10,6 +10,11 @@ public sealed class GetFilteredFeedbackQueryHandlerTests(MongoFixture fixture) :
 {
     private const string GreatIdeaText = "Great idea for the park";
     private const string OtherText = "Please fix the road";
+    private const string GreatSearchTerm = "great";
+    private const string SequentialTextPrefix = "comment";
+    private const string LiteralVersionText = "version a.b released";
+    private const string LookalikeVersionText = "version axb released";
+    private const string RegexSearchTerm = "a.b";
     private const int TotalItems = 25;
     private const int PageSize = 10;
     private const int UnknownKind = 99;
@@ -37,7 +42,7 @@ public sealed class GetFilteredFeedbackQueryHandlerTests(MongoFixture fixture) :
             .Select(index => FeedbackItems.Comment(
                 userId,
                 ideaId,
-                $"comment {index}",
+                $"{SequentialTextPrefix} {index}",
                 BaseTime.AddMinutes(index)))
             .ToList();
 
@@ -188,10 +193,10 @@ public sealed class GetFilteredFeedbackQueryHandlerTests(MongoFixture fixture) :
     [Fact]
     public async Task Handle_SearchTermContainsRegexCharacters_MatchesThemLiterally()
     {
-        var literal = FeedbackItems.Comment(text: "version a.b released");
-        await SeedAsync(literal, FeedbackItems.Comment(text: "version axb released"));
+        var literal = FeedbackItems.Comment(text: LiteralVersionText);
+        await SeedAsync(literal, FeedbackItems.Comment(text: LookalikeVersionText));
 
-        var (ids, _, _) = await QueryAsync(new FeedbackFilter { SearchTerm = "a.b" });
+        var (ids, _, _) = await QueryAsync(new FeedbackFilter { SearchTerm = RegexSearchTerm });
 
         Assert.Equal([literal.Id], ids);
     }
@@ -202,7 +207,7 @@ public sealed class GetFilteredFeedbackQueryHandlerTests(MongoFixture fixture) :
         var comment = FeedbackItems.Comment(text: GreatIdeaText);
         await SeedAsync(comment, FeedbackItems.Like());
 
-        var (ids, totalCount, _) = await QueryAsync(new FeedbackFilter { SearchTerm = "great" });
+        var (ids, totalCount, _) = await QueryAsync(new FeedbackFilter { SearchTerm = GreatSearchTerm });
 
         Assert.Equal([comment.Id], ids);
         Assert.Equal(1, totalCount);
@@ -268,7 +273,7 @@ public sealed class GetFilteredFeedbackQueryHandlerTests(MongoFixture fixture) :
             IdeaId = ideaId,
             UserId = userId,
             Kind = FeedbackKind.Comment,
-            SearchTerm = "great",
+            SearchTerm = GreatSearchTerm,
             CreatedFrom = BaseTime,
             CreatedTo = BaseTime.AddDays(1)
         };
