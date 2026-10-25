@@ -1,5 +1,5 @@
+using CityPulse.Common.Api.Errors;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace CityPulse.Common.Api.Middleware;
@@ -35,13 +35,12 @@ public class ExceptionHandlerMiddleware(
         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
         context.Response.ContentType = ContentType;
 
-        var problemDetails = new ProblemDetails
-        {
-            Status = StatusCodes.Status500InternalServerError,
-            Title = InternalServerErrorTitle,
-            Detail = InternalServerErrorDetail,
-            Instance = context.Request.Path
-        };
+        var problemDetails = ProblemDetailsFactory.Create(
+            StatusCodes.Status500InternalServerError,
+            InternalServerErrorTitle,
+            InternalServerErrorDetail,
+            context.Request.Path,
+            [InternalServerErrorDetail]);
 
         await context.Response.WriteAsJsonAsync(problemDetails, context.RequestAborted);
     }
