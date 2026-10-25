@@ -51,7 +51,7 @@ public sealed class GetPollsQueryHandlerTests(PollsWebAppFactory factory) : Poll
         PollType type = PollType.UserVote,
         params string[] imageFileNames)
     {
-        var poll = PollIntegrationHelpers.BuildPoll(cityId, status, type, null, imageFileNames);
+        var poll = PollIntegrationHelpers.BuildPoll(cityId, status, type, imageFileNames);
         poll.Title = title ?? poll.Id.ToString();
 
         return poll;

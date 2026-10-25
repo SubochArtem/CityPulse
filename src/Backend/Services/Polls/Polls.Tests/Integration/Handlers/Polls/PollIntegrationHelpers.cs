@@ -52,7 +52,6 @@ internal static class PollIntegrationHelpers
         Guid cityId,
         PollStatus status = PollStatus.Active,
         PollType type = PollType.UserVote,
-        DateTimeOffset? createdAt = null,
         params string[] imageFileNames)
     {
         var id = Guid.NewGuid();
@@ -62,7 +61,6 @@ internal static class PollIntegrationHelpers
         poll.CityId = cityId;
         poll.Status = status;
         poll.Type = type;
-        poll.CreatedAt = createdAt ?? poll.CreatedAt;
         poll.Images = imageFileNames
             .Select((fileName, order) => new PollImage
             {

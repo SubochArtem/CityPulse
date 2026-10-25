@@ -48,7 +48,7 @@ public sealed class GetPollByIdQueryHandlerTests(PollsWebAppFactory factory) : P
         params string[] imageFileNames)
     {
         var city = CityIntegrationHelpers.BuildCity();
-        var poll = PollIntegrationHelpers.BuildPoll(city.Id, status, type, null, imageFileNames);
+        var poll = PollIntegrationHelpers.BuildPoll(city.Id, status, type, imageFileNames);
         poll.Title = PollTitle;
         poll.Description = PollDescription;
         await SeedAsync(city, poll);
