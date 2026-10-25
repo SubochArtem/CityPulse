@@ -2,6 +2,7 @@ using MediatR;
 using Polls.Application.Common.Interfaces;
 using Polls.Domain.Common;
 using Polls.Domain.Ideas;
+using Polls.Domain.Ideas.Enums;
 
 namespace Polls.Application.Ideas.Commands.ChangeAccessStatus;
 
@@ -16,6 +17,9 @@ public sealed class ChangeIdeaAccessStatusCommandHandler(
         var idea = await unitOfWork.Ideas.GetByIdAsync(command.Id, cancellationToken);
         if (idea is null)
             return IdeaErrors.NotFound(command.Id);
+
+        if (command.NewIdeaAccessStatus == IdeaAccessStatus.Undefined)
+            return IdeaErrors.InvalidStatus(command.NewIdeaAccessStatus);
         
         if (idea.AccessStatus == command.NewIdeaAccessStatus)
             return Result<Unit>.Success(Unit.Value);

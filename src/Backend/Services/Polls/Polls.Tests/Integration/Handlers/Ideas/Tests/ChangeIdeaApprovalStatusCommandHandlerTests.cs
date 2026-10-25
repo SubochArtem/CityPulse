@@ -102,15 +102,15 @@ public sealed class ChangeIdeaApprovalStatusCommandHandlerTests(PollsWebAppFacto
     }
 
     [Fact]
-    public async Task ChangeStatus_StatusIsUndefined_StoresIt()
+    public async Task ChangeStatus_StatusIsUndefined_ReturnsConflictAndChangesNothing()
     {
         var graph = IdeaIntegrationHelpers.BuildGraph();
         await SeedAsync(graph.Entities);
 
         var response = await ChangeStatusAsync(graph.Idea.Id, (int)IdeaApprovalStatus.Undefined);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal(IdeaApprovalStatus.Undefined, (await LoadIdeaAsync(graph.Idea.Id)).ApprovalStatus);
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        Assert.Equal(IdeaApprovalStatus.Pending, (await LoadIdeaAsync(graph.Idea.Id)).ApprovalStatus);
     }
 
     [Fact]

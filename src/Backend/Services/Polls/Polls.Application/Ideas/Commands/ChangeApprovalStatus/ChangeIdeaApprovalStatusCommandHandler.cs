@@ -2,6 +2,7 @@ using MediatR;
 using Polls.Application.Common.Interfaces;
 using Polls.Domain.Common;
 using Polls.Domain.Ideas;
+using Polls.Domain.Ideas.Enums;
 
 namespace Polls.Application.Ideas.Commands.ChangeApprovalStatus;
 
@@ -17,6 +18,9 @@ public sealed class ChangeIdeaApprovalStatusCommandHandler(
 
         if (idea is null)
             return IdeaErrors.NotFound(command.Id);
+
+        if (command.NewApprovalStatus == IdeaApprovalStatus.Undefined)
+            return IdeaErrors.InvalidStatus(command.NewApprovalStatus);
         
         if (idea.ApprovalStatus == command.NewApprovalStatus)
             return Result<Unit>.Success(Unit.Value);
