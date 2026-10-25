@@ -1,11 +1,13 @@
 using System.Net;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using Polls.Domain.Authorization;
 using Polls.Domain.Cities;
 using Polls.Domain.Cities.Enums;
 using Polls.Domain.Ideas;
 using Polls.Domain.Polls;
 using Polls.Tests.Infrastructure;
+using Polls.Tests.Integration.Handlers.Polls;
 using Polls.Tests.TestData;
 using Xunit;
 
@@ -88,11 +90,49 @@ public sealed class DeleteCityCommandHandlerTests(PollsWebAppFactory factory) : 
     }
 
     [Fact]
-    public async Task Handle_CityDoesNotExist_ReturnsNotFound()
+    public async Task Handle_CityHasPolls_CancelsTheirScheduledJobsOnly()
+    {
+        var target = await SeedCityGraphAsync();
+        var secondPoll = PollIntegrationHelpers.BuildPoll(target.City.Id);
+        var other = await SeedCityGraphAsync();
+        await SeedAsync(secondPoll);
+
+        await DeleteAsync(target.City.Id);
+
+        Factory.PollScheduler.Verify(
+            x => x.CancelAsync(target.Poll.Id, It.IsAny<CancellationToken>()),
+            Times.Once);
+        Factory.PollScheduler.Verify(
+            x => x.CancelAsync(secondPoll.Id, It.IsAny<CancellationToken>()),
+            Times.Once);
+        Factory.PollScheduler.Verify(
+            x => x.CancelAsync(other.Poll.Id, It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_CityHasNoPolls_DoesNotCancelAnything()
+    {
+        var city = CityIntegrationHelpers.BuildCity();
+        await SeedAsync(city);
+
+        var response = await DeleteAsync(city.Id);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Factory.PollScheduler.Verify(
+            x => x.CancelAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_CityDoesNotExist_ReturnsNotFoundAndCancelsNothing()
     {
         var response = await DeleteAsync(Guid.NewGuid());
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Factory.PollScheduler.Verify(
+            x => x.CancelAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
