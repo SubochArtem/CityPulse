@@ -73,13 +73,14 @@ public sealed class ErrorOrResultFilterTests
     }
 
     [Fact]
-    public void OnActionExecuted_SingleError_DoesNotAddErrorsExtension()
+    public void OnActionExecuted_SingleError_AddsErrorsExtensionWithThatDescription()
     {
         var context = BuildExecutedContext(FailureResult(Error.Conflict(ErrorCode, FirstDescription)));
 
         _sut.OnActionExecuted(context);
 
-        Assert.DoesNotContain(ErrorsKey, ProblemOf(context).Extensions.Keys);
+        var errors = Assert.IsType<string[]>(ProblemOf(context).Extensions[ErrorsKey]);
+        Assert.Equal([FirstDescription], errors);
     }
 
     [Fact]
