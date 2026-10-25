@@ -104,15 +104,15 @@ public sealed class ChangeIdeaAccessStatusCommandHandlerTests(PollsWebAppFactory
     }
 
     [Fact]
-    public async Task ChangeStatus_StatusIsUndefined_StoresIt()
+    public async Task ChangeStatus_StatusIsUndefined_ReturnsConflictAndChangesNothing()
     {
         var graph = IdeaIntegrationHelpers.BuildGraph();
         await SeedAsync(graph.Entities);
 
         var response = await ChangeStatusAsync(graph.Idea.Id, (int)IdeaAccessStatus.Undefined);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal(IdeaAccessStatus.Undefined, (await LoadIdeaAsync(graph.Idea.Id)).AccessStatus);
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        Assert.Equal(IdeaAccessStatus.Active, (await LoadIdeaAsync(graph.Idea.Id)).AccessStatus);
     }
 
     [Fact]

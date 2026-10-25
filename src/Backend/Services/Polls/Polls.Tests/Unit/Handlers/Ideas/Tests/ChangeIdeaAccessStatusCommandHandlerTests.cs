@@ -22,6 +22,8 @@ public sealed class ChangeIdeaAccessStatusCommandHandlerTests
 
     protected override void SetStatus(Idea idea, IdeaAccessStatus status) => idea.AccessStatus = status;
 
+    protected override Error ExpectedInvalidStatusError(IdeaAccessStatus status) => IdeaErrors.InvalidStatus(status);
+
     protected override Task<Result<MediatRUnit>> HandleAsync(
         ChangeIdeaAccessStatusCommand command,
         CancellationToken cancellationToken) =>

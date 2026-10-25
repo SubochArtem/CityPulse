@@ -12,12 +12,15 @@ public abstract class ChangeIdeaStatusHandlerTestsBase<TCommand, TStatus> : Hand
     where TStatus : struct, Enum
 {
     private static readonly TStatus[] Statuses = Enum.GetValues<TStatus>();
+    private static readonly TStatus UndefinedStatus = default;
 
     protected abstract TCommand Build(Guid id, TStatus status);
 
     protected abstract TStatus GetStatus(Idea idea);
 
     protected abstract void SetStatus(Idea idea, TStatus status);
+
+    protected abstract Error ExpectedInvalidStatusError(TStatus status);
 
     protected abstract Task<Result<MediatRUnit>> HandleAsync(TCommand command, CancellationToken cancellationToken);
 
@@ -41,9 +44,29 @@ public abstract class ChangeIdeaStatusHandlerTestsBase<TCommand, TStatus> : Hand
     }
 
     [Fact]
+    public async Task Handle_StatusIsUndefined_ReturnsInvalidStatusErrorAndSavesNothing()
+    {
+        foreach (var currentStatus in Statuses)
+        {
+            var idea = IdeaFakers.Ideas().Generate();
+            SetStatus(idea, currentStatus);
+            SetupIdea(idea, idea.Id);
+
+            var result = await HandleAsync(Build(idea.Id, UndefinedStatus), CancellationToken.None);
+
+            Assert.False(result.IsSuccess);
+            Assert.Equal(ExpectedInvalidStatusError(UndefinedStatus), result.Error);
+            Assert.Equal(currentStatus, GetStatus(idea));
+        }
+
+        UnitOfWork.Ideas.Verify(x => x.Update(It.IsAny<Idea>()), Times.Never);
+        UnitOfWork.Mock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
     public async Task Handle_StatusIsAlreadySet_ReturnsSuccessAndSavesNothing()
     {
-        foreach (var status in Statuses)
+        foreach (var status in Statuses.Where(status => !status.Equals(UndefinedStatus)))
         {
             var idea = IdeaFakers.Ideas().Generate();
             SetStatus(idea, status);
