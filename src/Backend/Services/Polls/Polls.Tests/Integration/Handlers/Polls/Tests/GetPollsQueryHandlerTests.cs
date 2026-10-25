@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Polls.Domain.Authorization;
 using Polls.Domain.Cities;
 using Polls.Domain.Polls;
@@ -81,6 +82,22 @@ public sealed class GetPollsQueryHandlerTests(PollsWebAppFactory factory) : Poll
             .GetProperty(ItemsProperty)
             .EnumerateArray()
             .Select(item => item.GetProperty(TitleProperty).GetString()!)
+            .ToArray();
+
+    private const int OldestAgeDays = 3;
+    private const int MiddleAgeDays = 2;
+    private const int NewestAgeDays = 1;
+
+    private Task SetCreatedAtAsync(Guid id, DateTimeOffset createdAt) =>
+        ExecuteDbAsync(context => context.Polls
+            .Where(x => x.Id == id)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.CreatedAt, createdAt)));
+
+    private static Guid[] Ids(JsonElement value) =>
+        value
+            .GetProperty(ItemsProperty)
+            .EnumerateArray()
+            .Select(item => item.GetProperty(IdProperty).GetGuid())
             .ToArray();
 
     [Fact]
@@ -249,6 +266,42 @@ public sealed class GetPollsQueryHandlerTests(PollsWebAppFactory factory) : Poll
 
         Assert.Equal(TotalPolls, ids.Count);
         Assert.Equal(TotalPolls, ids.Distinct().Count());
+    }
+
+    [Fact]
+    public async Task Handle_Always_ReturnsNewestFirst()
+    {
+        var city = await SeedCityAsync();
+        var oldest = BuildPoll(city.Id);
+        var middle = BuildPoll(city.Id);
+        var newest = BuildPoll(city.Id);
+        await SeedAsync(oldest, middle, newest);
+        var now = DateTimeOffset.UtcNow;
+        await SetCreatedAtAsync(oldest.Id, now.AddDays(-OldestAgeDays));
+        await SetCreatedAtAsync(middle.Id, now.AddDays(-MiddleAgeDays));
+        await SetCreatedAtAsync(newest.Id, now.AddDays(-NewestAgeDays));
+
+        var (_, value) = await GetAsAdminAsync();
+
+        Assert.Equal([newest.Id, middle.Id, oldest.Id], Ids(value));
+    }
+
+    [Fact]
+    public async Task Handle_ItemsCreatedAtSameMoment_OrdersThemById()
+    {
+        var city = await SeedCityAsync();
+        var first = BuildPoll(city.Id);
+        var second = BuildPoll(city.Id);
+        var third = BuildPoll(city.Id);
+        await SeedAsync(first, second, third);
+        var createdAt = DateTimeOffset.UtcNow.AddDays(-NewestAgeDays);
+        foreach (var item in new[] { first.Id, second.Id, third.Id })
+            await SetCreatedAtAsync(item, createdAt);
+
+        var (_, value) = await GetAsAdminAsync("IncludeImages=false");
+
+        var expected = new[] { first.Id, second.Id, third.Id }.OrderBy(id => id.ToString(), StringComparer.Ordinal);
+        Assert.Equal(expected, Ids(value));
     }
 
     [Fact]
