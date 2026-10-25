@@ -26,7 +26,6 @@ public sealed class GetIdeasQueryHandlerTests(PollsWebAppFactory factory) : Poll
     private const int TotalIdeas = 5;
     private const int PageSize = 2;
     private const int LastPage = 3;
-    private const string ValueProperty = "value";
     private const string ItemsProperty = "items";
     private const string TitleProperty = "title";
     private const string IdProperty = "id";
@@ -68,7 +67,7 @@ public sealed class GetIdeasQueryHandlerTests(PollsWebAppFactory factory) : Poll
         if (!response.IsSuccessStatusCode)
             return (response.StatusCode, default);
 
-        return (response.StatusCode, JsonDocument.Parse(body).RootElement.GetProperty(ValueProperty));
+        return (response.StatusCode, JsonDocument.Parse(body).RootElement);
     }
 
     private Task<(HttpStatusCode Status, JsonElement Value)> GetAsAdminAsync(string query = "") =>
