@@ -75,6 +75,28 @@ public sealed class CityMappingProfileTests
     }
 
     [Fact]
+    public void Map_CityWithImagesStoredOutOfOrderToCityDto_ReturnsImagesSortedByOrder()
+    {
+        var city = BuildCityWithImages();
+        city.Images = city.Images.Reverse().ToList();
+
+        var dto = _mapper.Map<CityDto>(city);
+
+        Assert.Equal(city.Images.OrderBy(i => i.Order).Select(i => i.Id), dto.Images.Select(i => i.Id));
+    }
+
+    [Fact]
+    public void Map_CityWithImagesStoredOutOfOrderToCityWithPollsDto_ReturnsImagesSortedByOrder()
+    {
+        var city = BuildCityWithImages();
+        city.Images = city.Images.Reverse().ToList();
+
+        var dto = _mapper.Map<CityWithPollsDto>(city);
+
+        Assert.Equal(city.Images.OrderBy(i => i.Order).Select(i => i.Id), dto.Images.Select(i => i.Id));
+    }
+
+    [Fact]
     public void Map_CityWithoutImagesToCityDto_ReturnsEmptyImages()
     {
         var city = CityFakers.Cities().Generate();
