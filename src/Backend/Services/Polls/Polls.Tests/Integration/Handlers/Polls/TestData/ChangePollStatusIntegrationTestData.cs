@@ -1,7 +1,7 @@
 using Polls.Domain.Polls.Enums;
 using Xunit;
 
-namespace Polls.Tests.Integration.Polls.TestData;
+namespace Polls.Tests.Integration.Handlers.Polls.TestData;
 
 public static class ChangePollStatusIntegrationTestData
 {
