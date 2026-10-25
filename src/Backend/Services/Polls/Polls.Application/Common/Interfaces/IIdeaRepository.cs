@@ -15,6 +15,10 @@ public interface IIdeaRepository : IRepository<Idea>
         Guid id,
         CancellationToken cancellationToken = default);
     
+    Task<Idea?> GetForUpdateAsync(
+        Guid id,
+        CancellationToken cancellationToken = default);
+
     Task<Idea?> GetByIdWithImagesAsync(
         Guid id,
         CancellationToken cancellationToken = default);

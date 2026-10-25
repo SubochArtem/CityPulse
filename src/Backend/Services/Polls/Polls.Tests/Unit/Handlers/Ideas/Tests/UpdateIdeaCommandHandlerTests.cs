@@ -45,13 +45,12 @@ public sealed class UpdateIdeaCommandHandlerTests : HandlerTestsBase
 
     private void SetupIdea(Idea? idea, Guid id) =>
         UnitOfWork.Ideas
-            .Setup(x => x.GetWithPollAsync(id, It.IsAny<CancellationToken>()))
+            .Setup(x => x.GetForUpdateAsync(id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(idea);
 
     private void SetupSuccessfulUpdate(Idea idea)
     {
         SetupIdea(idea, idea.Id);
-        UnitOfWork.Ideas.Setup(x => x.Update(idea));
         UnitOfWork.SetupSaveChanges();
     }
 
@@ -65,7 +64,7 @@ public sealed class UpdateIdeaCommandHandlerTests : HandlerTestsBase
 
         Assert.False(result.IsSuccess);
         Assert.Equal(IdeaErrors.NotFound(idea.Id), result.Error);
-        UnitOfWork.Ideas.Verify(x => x.Update(It.IsAny<Idea>()), Times.Never);
+        UnitOfWork.Mock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Theory]
@@ -82,7 +81,6 @@ public sealed class UpdateIdeaCommandHandlerTests : HandlerTestsBase
         Assert.False(result.IsSuccess);
         Assert.Equal(violation.ExpectedError(idea), result.Error);
         Assert.Equal(originalTitle, idea.Title);
-        UnitOfWork.Ideas.Verify(x => x.Update(It.IsAny<Idea>()), Times.Never);
         UnitOfWork.Mock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -113,7 +111,7 @@ public sealed class UpdateIdeaCommandHandlerTests : HandlerTestsBase
         Assert.True(result.IsSuccess);
         Assert.Equal(NewTitle, idea.Title);
         Assert.Equal(NewDescription, idea.Description);
-        UnitOfWork.Ideas.Verify(x => x.Update(idea), Times.Once);
+        UnitOfWork.Ideas.Verify(x => x.Update(It.IsAny<Idea>()), Times.Never);
         UnitOfWork.Mock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -172,7 +170,6 @@ public sealed class UpdateIdeaCommandHandlerTests : HandlerTestsBase
         var idea = IdeaFakers.IdeaWithImages("first.jpg");
         var foreignImageId = Guid.NewGuid();
         SetupIdea(idea, idea.Id);
-        UnitOfWork.Ideas.Setup(x => x.Update(idea));
 
         var result = await _sut.Handle(BuildCommand(idea, imagesToDelete: [foreignImageId]), CancellationToken.None);
 

@@ -39,6 +39,16 @@ public class IdeaRepository(ApplicationDbContext context, IDateTimeProvider date
             .FirstOrDefaultAsync(i => i.Id == id, cancellationToken);
     }
 
+    public async Task<Idea?> GetForUpdateAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .Include(i => i.Images)
+            .Include(i => i.Poll)
+            .FirstOrDefaultAsync(i => i.Id == id, cancellationToken);
+    }
+
     public async Task<Idea?> GetByIdWithImagesAsync(
         Guid id,
         CancellationToken cancellationToken = default)

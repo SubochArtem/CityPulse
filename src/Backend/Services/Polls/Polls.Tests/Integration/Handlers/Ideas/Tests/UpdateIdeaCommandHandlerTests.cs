@@ -6,6 +6,7 @@ using Polls.Application.Common.Models;
 using Polls.Domain.Authorization;
 using Polls.Domain.Ideas;
 using Polls.Domain.Ideas.Enums;
+using Polls.Domain.Polls;
 using Polls.Domain.Polls.Enums;
 using Polls.Tests.Infrastructure;
 using Polls.Tests.Infrastructure.Constants;
@@ -26,6 +27,9 @@ public sealed class UpdateIdeaCommandHandlerTests(PollsWebAppFactory factory) : 
 
     private Task<Idea> LoadIdeaAsync(Guid id) =>
         QueryDbAsync(context => context.Ideas.Include(x => x.Images).SingleAsync(x => x.Id == id));
+
+    private Task<Poll> LoadPollAsync(Guid id) =>
+        QueryDbAsync(context => context.Polls.SingleAsync(x => x.Id == id));
 
     private Task<HttpResponseMessage> UpdateAsUserAsync(Guid id, Guid userId, MultipartFormDataContent form) =>
         CreateClient([Permissions.Ideas.UpdateOwn], userId)
@@ -72,6 +76,22 @@ public sealed class UpdateIdeaCommandHandlerTests(PollsWebAppFactory factory) : 
             .GetProperty(TitleProperty)
             .GetString();
         Assert.Equal(NewTitle, returnedTitle);
+    }
+
+    [Fact]
+    public async Task Handle_ValidRequest_DoesNotTouchThePoll()
+    {
+        var owner = Guid.NewGuid();
+        var graph = IdeaIntegrationHelpers.BuildGraph(owner);
+        await SeedAsync(graph.Entities);
+        var pollBefore = await LoadPollAsync(graph.Poll.Id);
+
+        await UpdateAsUserAsync(graph.Idea.Id, owner, ValidForm());
+
+        var pollAfter = await LoadPollAsync(graph.Poll.Id);
+        Assert.Equal(pollBefore.Title, pollAfter.Title);
+        Assert.Equal(pollBefore.Status, pollAfter.Status);
+        Assert.Equal(pollBefore.UpdatedAt, pollAfter.UpdatedAt);
     }
 
     [Fact]
