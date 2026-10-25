@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Polls.Domain.Authorization;
 using Polls.Domain.Cities.Enums;
 using Polls.Tests.Infrastructure;
@@ -47,6 +48,22 @@ public sealed class GetCitiesQueryHandlerTests(PollsWebAppFactory factory) : Pol
             .GetProperty(ItemsProperty)
             .EnumerateArray()
             .Select(item => item.GetProperty(TitleProperty).GetString()!)
+            .ToArray();
+
+    private const int OldestAgeDays = 3;
+    private const int MiddleAgeDays = 2;
+    private const int NewestAgeDays = 1;
+
+    private Task SetCreatedAtAsync(Guid id, DateTimeOffset createdAt) =>
+        ExecuteDbAsync(context => context.Cities
+            .Where(x => x.Id == id)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.CreatedAt, createdAt)));
+
+    private static Guid[] Ids(JsonElement value) =>
+        value
+            .GetProperty(ItemsProperty)
+            .EnumerateArray()
+            .Select(item => item.GetProperty(IdProperty).GetGuid())
             .ToArray();
 
     [Fact]
@@ -143,6 +160,42 @@ public sealed class GetCitiesQueryHandlerTests(PollsWebAppFactory factory) : Pol
 
         Assert.Equal(TotalCities, ids.Count);
         Assert.Equal(TotalCities, ids.Distinct().Count());
+    }
+
+    [Fact]
+    public async Task Handle_Always_ReturnsNewestFirst()
+    {
+
+        var oldest = CityIntegrationHelpers.BuildCity();
+        var middle = CityIntegrationHelpers.BuildCity();
+        var newest = CityIntegrationHelpers.BuildCity();
+        await SeedAsync(oldest, middle, newest);
+        var now = DateTimeOffset.UtcNow;
+        await SetCreatedAtAsync(oldest.Id, now.AddDays(-OldestAgeDays));
+        await SetCreatedAtAsync(middle.Id, now.AddDays(-MiddleAgeDays));
+        await SetCreatedAtAsync(newest.Id, now.AddDays(-NewestAgeDays));
+
+        var (_, value) = await GetAsync();
+
+        Assert.Equal([newest.Id, middle.Id, oldest.Id], Ids(value));
+    }
+
+    [Fact]
+    public async Task Handle_ItemsCreatedAtSameMoment_OrdersThemById()
+    {
+
+        var first = CityIntegrationHelpers.BuildCity();
+        var second = CityIntegrationHelpers.BuildCity();
+        var third = CityIntegrationHelpers.BuildCity();
+        await SeedAsync(first, second, third);
+        var createdAt = DateTimeOffset.UtcNow.AddDays(-NewestAgeDays);
+        foreach (var item in new[] { first.Id, second.Id, third.Id })
+            await SetCreatedAtAsync(item, createdAt);
+
+        var (_, value) = await GetAsync("IncludeImages=false");
+
+        var expected = new[] { first.Id, second.Id, third.Id }.OrderBy(id => id.ToString(), StringComparer.Ordinal);
+        Assert.Equal(expected, Ids(value));
     }
 
     [Fact]
