@@ -14,9 +14,9 @@ public sealed class IdeaMappingProfile : Profile
         CreateMap<IdeaImage, ImageDto>()
             .ForMember(d => d.Url, opt => opt.MapFrom<ImageUrlResolver>());
         CreateMap<Idea, IdeaDto>()
-            .ForMember(d => d.Images, opt => opt.MapFrom(src => src.Images));
+            .ForMember(d => d.Images, opt => opt.MapFrom(src => src.Images.OrderBy(i => i.Order)));
         CreateMap<Idea, IdeaWithPollDto>()
             .ForMember(dest => dest.Poll, opt => opt.MapFrom(src => src.Poll))
-            .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images));
+            .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images.OrderBy(i => i.Order)));
     }
 }
