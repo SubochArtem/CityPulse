@@ -7,6 +7,7 @@ using Polls.Domain.Ideas.Enums;
 using Polls.Domain.Polls;
 using Polls.Domain.Polls.Enums;
 using Polls.Tests.Infrastructure;
+using Polls.Tests.Integration.Polls.TestData;
 using Polls.Tests.TestData;
 using Xunit;
 
@@ -116,10 +117,9 @@ public sealed class ChangePollStatusTests(PollsWebAppFactory factory) : PollsApi
     }
 
     [Theory]
-    [InlineData(PollStatus.Undefined)]
-    [InlineData(PollStatus.Finished)]
-    [InlineData(PollStatus.Cancelled)]
-    [InlineData(PollStatus.Inactive)]
+    [MemberData(
+        nameof(ChangePollStatusIntegrationTestData.NotSupportedStatuses),
+        MemberType = typeof(ChangePollStatusIntegrationTestData))]
     public async Task ChangeStatus_StatusIsNotSupported_ReturnsConflictAndChangesNothing(PollStatus status)
     {
         var graph = await SeedPollGraphAsync(PollStatus.Active, IdeaAccessStatus.Active);
