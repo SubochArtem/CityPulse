@@ -58,9 +58,20 @@ public sealed class IdeaFilterValidatorTests
         result.ShouldNotHaveValidationErrorFor(x => x.ApprovalStatus);
     }
 
+    [Fact]
+    public void Validate_PollIdIsEmpty_ShouldHaveValidationError()
+    {
+        var filter = new IdeaFilter { PollId = Guid.Empty };
+
+        var result = _validator.TestValidate(filter);
+
+        result.ShouldHaveValidationErrorFor(x => x.PollId)
+            .WithErrorMessage(ValidationConstants.Poll.IdRequired);
+    }
+
     [Theory]
     [MemberData(nameof(IdeaFilterValidatorTestData.PollIds), MemberType = typeof(IdeaFilterValidatorTestData))]
-    public void Validate_PollIdHasAnyValue_ShouldNotHaveValidationError(Guid? pollId)
+    public void Validate_PollIdIsNullOrProvided_ShouldNotHaveValidationError(Guid? pollId)
     {
         var filter = new IdeaFilter { PollId = pollId };
 
