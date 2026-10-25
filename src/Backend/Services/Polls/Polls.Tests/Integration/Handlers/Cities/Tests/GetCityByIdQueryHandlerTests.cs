@@ -93,7 +93,7 @@ public sealed class GetCityByIdQueryHandlerTests(PollsWebAppFactory factory) : P
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var images = (await ReadValueAsync(response)).GetProperty(ImagesProperty);
-        Assert.Equivalent(
+        Assert.Equal(
             new[]
             {
                 EnvironmentConstants.ImageStorage.UrlPrefix + FirstImageFileName,

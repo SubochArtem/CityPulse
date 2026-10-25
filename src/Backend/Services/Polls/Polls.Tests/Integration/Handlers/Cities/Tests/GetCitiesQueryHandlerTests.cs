@@ -157,7 +157,7 @@ public sealed class GetCitiesQueryHandlerTests(PollsWebAppFactory factory) : Pol
         var (_, value) = await GetAsync();
 
         var images = value.GetProperty(ItemsProperty)[0].GetProperty(ImagesProperty);
-        Assert.Equivalent(
+        Assert.Equal(
             new[]
             {
                 EnvironmentConstants.ImageStorage.UrlPrefix + FirstImageFileName,
