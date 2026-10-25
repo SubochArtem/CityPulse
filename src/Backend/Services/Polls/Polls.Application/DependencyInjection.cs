@@ -2,6 +2,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Polls.Application.Common.Behaviors;
+using Polls.Application.Images.Resolvers;
 
 namespace Polls.Application;
 
@@ -14,6 +15,8 @@ public static class DependencyInjection
 
         services.AddAutoMapper(cfg =>
             cfg.AddMaps(typeof(DependencyInjection).Assembly));
+
+        services.AddTransient<ImageUrlResolver>();
 
         services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
 
