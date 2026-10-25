@@ -14,6 +14,15 @@ public class PollScheduleJobRepository(ApplicationDbContext db) : IPollScheduleJ
             .FirstOrDefaultAsync(j => j.PollId == pollId, cancellationToken);
     }
 
+    public async Task<IReadOnlyList<PollScheduleJob>> GetByPollIdsAsync(
+        IReadOnlyCollection<Guid> pollIds,
+        CancellationToken cancellationToken = default)
+    {
+        return await db.PollScheduleJobs
+            .Where(j => pollIds.Contains(j.PollId))
+            .ToListAsync(cancellationToken);
+    }
+
     public void Create(PollScheduleJob job)
     {
         db.PollScheduleJobs.Add(job);
