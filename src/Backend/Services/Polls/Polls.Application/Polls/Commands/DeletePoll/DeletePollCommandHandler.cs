@@ -9,7 +9,8 @@ using Polls.Domain.Polls;
 namespace Polls.Application.Polls.Commands.DeletePoll;
 
 public sealed class DeletePollCommandHandler(
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IPollScheduler pollScheduler)
     : IRequestHandler<DeletePollCommand, Result<Unit>>
 {
     public async Task<Result<Unit>> Handle(
@@ -35,6 +36,8 @@ public sealed class DeletePollCommandHandler(
                 return guardResult.Error;
         }
         
+        await pollScheduler.CancelAsync(poll.Id, cancellationToken);
+
         if (poll.Images.Count > 0)
         {
             var deletedImages = poll.Images
