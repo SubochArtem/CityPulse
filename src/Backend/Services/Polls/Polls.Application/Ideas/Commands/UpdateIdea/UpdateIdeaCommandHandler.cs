@@ -23,7 +23,7 @@ public sealed class UpdateIdeaCommandHandler(
         UpdateIdeaCommand command,
         CancellationToken cancellationToken)
     {
-        var idea = await unitOfWork.Ideas.GetWithPollAsync(command.Id, cancellationToken);
+        var idea = await unitOfWork.Ideas.GetForUpdateAsync(command.Id, cancellationToken);
         if (idea is null)
             return IdeaErrors.NotFound(command.Id);
 
@@ -37,8 +37,6 @@ public sealed class UpdateIdeaCommandHandler(
         idea.Title = command.Title;
         idea.Description = command.Description;
 
-        unitOfWork.Ideas.Update(idea);
-        
         var imageChanges = new ImageChanges(
             ToAdd: command.ImagesToAdd, 
             ToDeleteIds: command.ImagesToDelete);
