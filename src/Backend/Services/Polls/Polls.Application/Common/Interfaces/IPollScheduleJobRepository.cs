@@ -8,6 +8,10 @@ public interface IPollScheduleJobRepository
         Guid pollId,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<PollScheduleJob>> GetByPollIdsAsync(
+        IReadOnlyCollection<Guid> pollIds,
+        CancellationToken cancellationToken = default);
+
     void Create(PollScheduleJob job);
 
     void Delete(PollScheduleJob job);

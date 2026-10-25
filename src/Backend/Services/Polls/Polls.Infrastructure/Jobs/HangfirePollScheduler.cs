@@ -33,14 +33,26 @@ public class HangfirePollScheduler(
         await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task CancelAsync(Guid pollId, CancellationToken cancellationToken = default)
+    public Task CancelAsync(Guid pollId, CancellationToken cancellationToken = default) =>
+        CancelRangeAsync([pollId], cancellationToken);
+
+    public async Task CancelRangeAsync(
+        IReadOnlyCollection<Guid> pollIds,
+        CancellationToken cancellationToken = default)
     {
-        var existing = await unitOfWork.PollScheduleJobs.GetByPollIdAsync(pollId, cancellationToken);
-        if (existing is null)
+        if (pollIds.Count == 0)
             return;
 
-        backgroundJobClient.Delete(existing.HangfireJobId);
-        unitOfWork.PollScheduleJobs.Delete(existing);
+        var existing = await unitOfWork.PollScheduleJobs.GetByPollIdsAsync(pollIds, cancellationToken);
+        if (existing.Count == 0)
+            return;
+
+        foreach (var job in existing)
+        {
+            backgroundJobClient.Delete(job.HangfireJobId);
+            unitOfWork.PollScheduleJobs.Delete(job);
+        }
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

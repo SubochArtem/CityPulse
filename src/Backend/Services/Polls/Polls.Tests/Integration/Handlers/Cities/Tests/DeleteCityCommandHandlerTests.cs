@@ -1,11 +1,13 @@
 using System.Net;
 using Microsoft.EntityFrameworkCore;
+using Moq;
 using Polls.Domain.Authorization;
 using Polls.Domain.Cities;
 using Polls.Domain.Cities.Enums;
 using Polls.Domain.Ideas;
 using Polls.Domain.Polls;
 using Polls.Tests.Infrastructure;
+using Polls.Tests.Integration.Handlers.Polls;
 using Polls.Tests.TestData;
 using Xunit;
 
@@ -88,11 +90,49 @@ public sealed class DeleteCityCommandHandlerTests(PollsWebAppFactory factory) : 
     }
 
     [Fact]
-    public async Task Handle_CityDoesNotExist_ReturnsNotFound()
+    public async Task Handle_CityHasPolls_CancelsTheirScheduledJobsInOneBatch()
+    {
+        var target = await SeedCityGraphAsync();
+        var secondPoll = PollIntegrationHelpers.BuildPoll(target.City.Id);
+        await SeedCityGraphAsync();
+        await SeedAsync(secondPoll);
+        IReadOnlyCollection<Guid>? cancelled = null;
+        Factory.PollScheduler
+            .Setup(x => x.CancelRangeAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .Callback<IReadOnlyCollection<Guid>, CancellationToken>((ids, _) => cancelled = ids.ToList())
+            .Returns(Task.CompletedTask);
+
+        await DeleteAsync(target.City.Id);
+
+        Assert.Equivalent(new[] { target.Poll.Id, secondPoll.Id }, cancelled);
+        Factory.PollScheduler.Verify(
+            x => x.CancelRangeAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_CityHasNoPolls_DoesNotCancelAnything()
+    {
+        var city = CityIntegrationHelpers.BuildCity();
+        await SeedAsync(city);
+
+        var response = await DeleteAsync(city.Id);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Factory.PollScheduler.Verify(
+            x => x.CancelRangeAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_CityDoesNotExist_ReturnsNotFoundAndCancelsNothing()
     {
         var response = await DeleteAsync(Guid.NewGuid());
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Factory.PollScheduler.Verify(
+            x => x.CancelRangeAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

@@ -6,7 +6,9 @@ using Polls.Domain.Images;
 
 namespace Polls.Application.Cities.Commands.DeleteCity;
 
-public sealed class DeleteCityCommandHandler(IUnitOfWork unitOfWork)
+public sealed class DeleteCityCommandHandler(
+    IUnitOfWork unitOfWork,
+    IPollScheduler pollScheduler)
     : IRequestHandler<DeleteCityCommand, Result<Unit>>
 {
     public async Task<Result<Unit>> Handle(
@@ -16,6 +18,10 @@ public sealed class DeleteCityCommandHandler(IUnitOfWork unitOfWork)
         var city = await unitOfWork.Cities.GetByIdWithImagesAsync(command.Id, cancellationToken);
         if (city is null)
             return CityErrors.NotFound(command.Id);
+
+        var pollIds = await unitOfWork.Polls.GetIdsByCityAsync(city.Id, cancellationToken);
+        if (pollIds.Count > 0)
+            await pollScheduler.CancelRangeAsync(pollIds, cancellationToken);
 
         if (city.Images.Count > 0)
         {

@@ -7,6 +7,10 @@ public interface IPollScheduler
         DateTimeOffset endsAt, 
         CancellationToken cancellationToken = default);
     
+    Task CancelRangeAsync(
+        IReadOnlyCollection<Guid> pollIds,
+        CancellationToken cancellationToken = default);
+
     Task CancelAsync(
         Guid pollId, 
         CancellationToken cancellationToken = default);

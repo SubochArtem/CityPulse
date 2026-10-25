@@ -49,6 +49,17 @@ public class PollRepository(ApplicationDbContext context) : Repository<Poll>(con
             .FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
     }
     
+    public async Task<IReadOnlyList<Guid>> GetIdsByCityAsync(
+        Guid cityId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .AsNoTracking()
+            .Where(p => p.CityId == cityId)
+            .Select(p => p.Id)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task UpdateStatusByCityAsync(
         Guid cityId, 
         PollStatus source, 

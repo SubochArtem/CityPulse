@@ -68,6 +68,9 @@ public sealed class PollsWebAppFactory : WebApplicationFactory<Program>, IAsyncL
         PollScheduler
             .Setup(x => x.CancelAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
+        PollScheduler
+            .Setup(x => x.CancelRangeAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
