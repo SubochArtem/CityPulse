@@ -36,7 +36,7 @@ public sealed class TestAuthenticationHandler(
         return Task.FromResult(AuthenticateResult.Success(ticket));
     }
 
-    private IEnumerable<string> GetPermissions() =>
+    private string[] GetPermissions() =>
         Request.Headers.TryGetValue(AuthConstants.Headers.Permissions, out var permissions)
             ? permissions
                 .ToString()
