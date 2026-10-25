@@ -14,9 +14,9 @@ public sealed class PollMappingProfile : Profile
         CreateMap<PollImage, ImageDto>()
             .ForMember(d => d.Url, opt => opt.MapFrom<ImageUrlResolver>());
         CreateMap<Poll, PollDto>()
-            .ForMember(d => d.Images, opt => opt.MapFrom(src => src.Images));
+            .ForMember(d => d.Images, opt => opt.MapFrom(src => src.Images.OrderBy(i => i.Order)));
         CreateMap<Poll, PollWithIdeasDto>()
             .ForMember(dest => dest.Ideas, opt => opt.MapFrom(src => src.Ideas))
-            .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images));
+            .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images.OrderBy(i => i.Order)));
     }
 }

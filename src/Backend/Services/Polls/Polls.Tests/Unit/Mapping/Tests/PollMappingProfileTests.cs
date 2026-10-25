@@ -64,6 +64,28 @@ public sealed class PollMappingProfileTests
     }
 
     [Fact]
+    public void Map_PollWithImagesStoredOutOfOrderToPollDto_ReturnsImagesSortedByOrder()
+    {
+        var poll = PollFakers.PollWithImages("first.jpg", "second.png");
+        poll.Images = poll.Images.Reverse().ToList();
+
+        var dto = _mapper.Map<PollDto>(poll);
+
+        Assert.Equal(poll.Images.OrderBy(i => i.Order).Select(i => i.Id), dto.Images.Select(i => i.Id));
+    }
+
+    [Fact]
+    public void Map_PollWithImagesStoredOutOfOrderToPollWithIdeasDto_ReturnsImagesSortedByOrder()
+    {
+        var poll = PollFakers.PollWithImages("first.jpg", "second.png");
+        poll.Images = poll.Images.Reverse().ToList();
+
+        var dto = _mapper.Map<PollWithIdeasDto>(poll);
+
+        Assert.Equal(poll.Images.OrderBy(i => i.Order).Select(i => i.Id), dto.Images.Select(i => i.Id));
+    }
+
+    [Fact]
     public void Map_PollWithoutImagesToPollDto_ReturnsEmptyImages()
     {
         var poll = PollFakers.Polls().Generate();

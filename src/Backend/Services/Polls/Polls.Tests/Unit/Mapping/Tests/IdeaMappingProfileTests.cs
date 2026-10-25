@@ -53,6 +53,28 @@ public sealed class IdeaMappingProfileTests
     }
 
     [Fact]
+    public void Map_IdeaWithImagesStoredOutOfOrderToIdeaDto_ReturnsImagesSortedByOrder()
+    {
+        var idea = IdeaFakers.IdeaWithImages("first.jpg", "second.png");
+        idea.Images = idea.Images.Reverse().ToList();
+
+        var dto = _mapper.Map<IdeaDto>(idea);
+
+        Assert.Equal(idea.Images.OrderBy(i => i.Order).Select(i => i.Id), dto.Images.Select(i => i.Id));
+    }
+
+    [Fact]
+    public void Map_IdeaWithImagesStoredOutOfOrderToIdeaWithPollDto_ReturnsImagesSortedByOrder()
+    {
+        var idea = IdeaFakers.IdeaWithImages("first.jpg", "second.png");
+        idea.Images = idea.Images.Reverse().ToList();
+
+        var dto = _mapper.Map<IdeaWithPollDto>(idea);
+
+        Assert.Equal(idea.Images.OrderBy(i => i.Order).Select(i => i.Id), dto.Images.Select(i => i.Id));
+    }
+
+    [Fact]
     public void Map_IdeaWithoutImagesToIdeaDto_ReturnsEmptyImages()
     {
         var idea = IdeaFakers.IdeaWithPoll();
