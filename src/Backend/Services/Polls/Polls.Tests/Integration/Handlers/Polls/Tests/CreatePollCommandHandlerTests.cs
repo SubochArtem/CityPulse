@@ -21,7 +21,6 @@ public sealed class CreatePollCommandHandlerTests(PollsWebAppFactory factory) : 
     private const string SecondImageFileName = "second.jpg";
     private const decimal Budget = 1500.5m;
     private const int EndsInDays = 10;
-    private const string ValueProperty = "value";
     private const string IdProperty = "id";
 
     private static readonly TimeSpan DateTolerance = TimeSpan.FromMilliseconds(1);
@@ -81,7 +80,6 @@ public sealed class CreatePollCommandHandlerTests(PollsWebAppFactory factory) : 
         var returnedId = JsonDocument
             .Parse(await response.Content.ReadAsStringAsync())
             .RootElement
-            .GetProperty(ValueProperty)
             .GetProperty(IdProperty)
             .GetGuid();
         Assert.Equal(stored.Id, returnedId);

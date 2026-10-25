@@ -27,7 +27,6 @@ public sealed class GetPollsQueryHandlerTests(PollsWebAppFactory factory) : Poll
     private const int SoonDays = 5;
     private const int LaterDays = 20;
     private const int CutoffDays = 10;
-    private const string ValueProperty = "value";
     private const string ItemsProperty = "items";
     private const string TitleProperty = "title";
     private const string IdProperty = "id";
@@ -68,7 +67,7 @@ public sealed class GetPollsQueryHandlerTests(PollsWebAppFactory factory) : Poll
         if (!response.IsSuccessStatusCode)
             return (response.StatusCode, default);
 
-        return (response.StatusCode, JsonDocument.Parse(body).RootElement.GetProperty(ValueProperty));
+        return (response.StatusCode, JsonDocument.Parse(body).RootElement);
     }
 
     private Task<(HttpStatusCode Status, JsonElement Value)> GetAsAdminAsync(string query = "") =>
