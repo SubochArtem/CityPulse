@@ -25,7 +25,6 @@ public sealed class UpdateCityCommandHandlerTests(PollsWebAppFactory factory) : 
     private const string AddedImageFileName = "added.jpg";
     private const double NewLatitude = 12.5;
     private const double NewLongitude = -45.75;
-    private const string ValueProperty = "value";
     private const string TitleProperty = "title";
 
     private Task<HttpResponseMessage> UpdateAsync(Guid id, MultipartFormDataContent form) =>
@@ -71,7 +70,6 @@ public sealed class UpdateCityCommandHandlerTests(PollsWebAppFactory factory) : 
         var returnedTitle = JsonDocument
             .Parse(await response.Content.ReadAsStringAsync())
             .RootElement
-            .GetProperty(ValueProperty)
             .GetProperty(TitleProperty)
             .GetString();
         Assert.Equal(NewTitle, returnedTitle);

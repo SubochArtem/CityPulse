@@ -48,7 +48,7 @@ public sealed class DeleteCityCommandHandlerTests(PollsWebAppFactory factory) : 
 
         var response = await DeleteAsync(graph.City.Id);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Equal(0, await QueryDbAsync(context => context.Cities.CountAsync()));
     }
 
@@ -118,7 +118,7 @@ public sealed class DeleteCityCommandHandlerTests(PollsWebAppFactory factory) : 
 
         var response = await DeleteAsync(city.Id);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Factory.PollScheduler.Verify(
             x => x.CancelRangeAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<CancellationToken>()),
             Times.Never);

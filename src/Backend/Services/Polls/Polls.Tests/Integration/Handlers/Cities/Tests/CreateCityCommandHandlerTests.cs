@@ -20,7 +20,6 @@ public sealed class CreateCityCommandHandlerTests(PollsWebAppFactory factory) : 
     private const string SecondImageFileName = "second.jpg";
     private const double Latitude = 48.5;
     private const double Longitude = -12.25;
-    private const string ValueProperty = "value";
     private const string IdProperty = "id";
 
     private Task<HttpResponseMessage> CreateAsync(MultipartFormDataContent form) =>
@@ -28,7 +27,7 @@ public sealed class CreateCityCommandHandlerTests(PollsWebAppFactory factory) : 
             .PostAsync(CityIntegrationHelpers.AdminCitiesRoute, form);
 
     private static Guid ReadCreatedId(string body) =>
-        JsonDocument.Parse(body).RootElement.GetProperty(ValueProperty).GetProperty(IdProperty).GetGuid();
+        JsonDocument.Parse(body).RootElement.GetProperty(IdProperty).GetGuid();
 
     private void VerifyUploadCalls(Times times) =>
         Factory.ImageStorage.Verify(
