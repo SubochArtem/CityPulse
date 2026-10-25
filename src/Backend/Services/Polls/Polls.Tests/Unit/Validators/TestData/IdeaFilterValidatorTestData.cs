@@ -40,7 +40,6 @@ public static class IdeaFilterValidatorTestData
     public static TheoryData<Guid?> PollIds => new()
     {
         null,
-        Guid.Empty,
         Guid.Parse("6b1f2c1e-4d8a-4f6e-9a57-1c2d3e4f5a6b")
     };
 }

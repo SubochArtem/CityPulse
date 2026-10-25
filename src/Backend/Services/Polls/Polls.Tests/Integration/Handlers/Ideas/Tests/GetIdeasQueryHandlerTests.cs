@@ -146,18 +146,6 @@ public sealed class GetIdeasQueryHandlerTests(PollsWebAppFactory factory) : Poll
     }
 
     [Fact]
-    public async Task Handle_EmptyPollFilter_ReturnsEmptyListInsteadOfBadRequest()
-    {
-        var poll = await SeedPollAsync();
-        await SeedAsync(BuildIdea(poll.Id, FirstTitle));
-
-        var (status, value) = await GetAsAdminAsync($"PollId={Guid.Empty}");
-
-        Assert.Equal(HttpStatusCode.OK, status);
-        Assert.Empty(Titles(value));
-    }
-
-    [Fact]
     public async Task Handle_AccessStatusFilter_ReturnsOnlyIdeasWithThatStatus()
     {
         var poll = await SeedPollAsync();

@@ -9,6 +9,11 @@ public sealed class IdeaFilterValidator : BaseFilterValidator<IdeaFilter>
 {
     public IdeaFilterValidator()
     {
+        RuleFor(x => x.PollId)
+            .NotEqual(Guid.Empty)
+            .WithMessage(ValidationConstants.Poll.IdRequired)
+            .When(x => x.PollId.HasValue);
+
         RuleFor(x => x.AccessStatus)
             .IsInEnum()
             .WithMessage(ValidationConstants.Idea.InvalidAccessStatus)

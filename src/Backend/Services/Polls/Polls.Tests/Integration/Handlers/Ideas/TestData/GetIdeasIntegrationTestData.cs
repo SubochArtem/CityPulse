@@ -18,6 +18,7 @@ public static class GetIdeasIntegrationTestData
     {
         new IdeaFilterQueryCase($"AccessStatus={UnsupportedValue}"),
         new IdeaFilterQueryCase($"ApprovalStatus={UnsupportedValue}"),
+        new IdeaFilterQueryCase($"PollId={Guid.Empty}"),
         new IdeaFilterQueryCase($"Page={InvalidPage}"),
         new IdeaFilterQueryCase($"PageSize={InvalidPageSize}"),
         new IdeaFilterQueryCase($"PageSize={ValidationConstants.Pagination.MaxPageSize + 1}")
