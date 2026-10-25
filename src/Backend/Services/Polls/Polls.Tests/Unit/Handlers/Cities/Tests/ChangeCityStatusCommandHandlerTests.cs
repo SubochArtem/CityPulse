@@ -20,7 +20,6 @@ public sealed class ChangeCityStatusCommandHandlerTests : HandlerTestsBase
     private const string SaveStep = "save";
     private const string PollsStep = "polls";
     private const string IdeasStep = "ideas";
-    private const string CommitStep = "commit";
     private const string DatabaseFailureMessage = "database failure";
 
     private static readonly DateTimeOffset Now = new(2026, 10, 24, 12, 0, 0, TimeSpan.Zero);
@@ -39,7 +38,7 @@ public sealed class ChangeCityStatusCommandHandlerTests : HandlerTestsBase
             .Setup(x => x.GetByIdAsync(id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(city);
 
-    private Mock<IUnitOfWorkTransaction> SetupFlow(
+    private void SetupFlow(
         City city,
         PollStatus pollSource,
         PollStatus pollTarget,
@@ -84,16 +83,7 @@ public sealed class ChangeCityStatusCommandHandlerTests : HandlerTestsBase
         else
             ideas.Callback(() => calls.Add(IdeasStep)).ReturnsAsync(0);
 
-        var transaction = UnitOfWork.SetupTransaction();
-        transaction
-            .Setup(x => x.CommitAsync(It.IsAny<CancellationToken>()))
-            .Callback(() => calls.Add(CommitStep))
-            .Returns(Task.CompletedTask);
-        transaction
-            .Setup(x => x.RollbackAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        return transaction;
+        UnitOfWork.SetupExecuteInTransaction();
     }
 
     [Fact]
@@ -106,7 +96,11 @@ public sealed class ChangeCityStatusCommandHandlerTests : HandlerTestsBase
 
         Assert.False(result.IsSuccess);
         Assert.Equal(CityErrors.NotFound(id), result.Error);
-        UnitOfWork.Mock.Verify(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+        UnitOfWork.Mock.Verify(
+            x => x.ExecuteInTransactionAsync(
+                It.IsAny<Func<CancellationToken, Task>>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]
@@ -120,7 +114,11 @@ public sealed class ChangeCityStatusCommandHandlerTests : HandlerTestsBase
 
         Assert.True(result.IsSuccess);
         Assert.Equal(CityStatus.Active, city.Status);
-        UnitOfWork.Mock.Verify(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+        UnitOfWork.Mock.Verify(
+            x => x.ExecuteInTransactionAsync(
+                It.IsAny<Func<CancellationToken, Task>>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Theory]
@@ -136,7 +134,11 @@ public sealed class ChangeCityStatusCommandHandlerTests : HandlerTestsBase
         Assert.False(result.IsSuccess);
         Assert.Equal(CityErrors.InvalidStatus(status), result.Error);
         Assert.Equal(CityStatus.Active, city.Status);
-        UnitOfWork.Mock.Verify(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()), Times.Never);
+        UnitOfWork.Mock.Verify(
+            x => x.ExecuteInTransactionAsync(
+                It.IsAny<Func<CancellationToken, Task>>(),
+                It.IsAny<CancellationToken>()),
+            Times.Never);
         _logger.Verify(
             x => x.Log(
                 LogLevel.Warning,
@@ -149,7 +151,7 @@ public sealed class ChangeCityStatusCommandHandlerTests : HandlerTestsBase
 
     [Theory]
     [MemberData(nameof(ChangeCityStatusTestData.Transitions), MemberType = typeof(ChangeCityStatusTestData))]
-    public async Task Handle_StatusChanges_UpdatesCityPollsAndIdeasAndCommits(
+    public async Task Handle_StatusChanges_UpdatesCityPollsAndIdeas(
         CityStatus currentStatus,
         CityStatus newStatus,
         PollStatus pollSource,
@@ -159,7 +161,7 @@ public sealed class ChangeCityStatusCommandHandlerTests : HandlerTestsBase
     {
         var city = CityFakers.Cities().Generate();
         city.Status = currentStatus;
-        var transaction = SetupFlow(city, pollSource, pollTarget, ideaSource, ideaTarget);
+        SetupFlow(city, pollSource, pollTarget, ideaSource, ideaTarget);
 
         var result = await _sut.Handle(new ChangeCityStatusCommand(city.Id, newStatus), CancellationToken.None);
 
@@ -171,12 +173,10 @@ public sealed class ChangeCityStatusCommandHandlerTests : HandlerTestsBase
         UnitOfWork.Ideas.Verify(
             x => x.UpdateAccessStatusByCityAsync(city.Id, ideaSource, ideaTarget, It.IsAny<CancellationToken>()),
             Times.Once);
-        transaction.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Once);
-        transaction.Verify(x => x.RollbackAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [Fact]
-    public async Task Handle_StatusChanges_RunsStepsInOrderAndCommitsLast()
+    public async Task Handle_StatusChanges_RunsStepsInOrder()
     {
         var city = CityFakers.Cities().Generate();
         city.Status = CityStatus.Active;
@@ -191,17 +191,17 @@ public sealed class ChangeCityStatusCommandHandlerTests : HandlerTestsBase
 
         await _sut.Handle(new ChangeCityStatusCommand(city.Id, CityStatus.Inactive), CancellationToken.None);
 
-        Assert.Equal([UpdateStep, SaveStep, PollsStep, IdeasStep, CommitStep], calls);
+        Assert.Equal([UpdateStep, SaveStep, PollsStep, IdeasStep], calls);
     }
 
     [Theory]
     [MemberData(nameof(ChangeCityStatusTestData.FailingSteps), MemberType = typeof(ChangeCityStatusTestData))]
-    public async Task Handle_StepFails_RollsBackLogsErrorAndReturnsDatabaseError(FailingStep failingStep)
+    public async Task Handle_StepFails_LogsErrorAndReturnsDatabaseError(FailingStep failingStep)
     {
         var city = CityFakers.Cities().Generate();
         city.Status = CityStatus.Active;
         var failure = new InvalidOperationException(DatabaseFailureMessage);
-        var transaction = SetupFlow(
+        SetupFlow(
             city,
             PollStatus.Active,
             PollStatus.Suspended,
@@ -214,8 +214,6 @@ public sealed class ChangeCityStatusCommandHandlerTests : HandlerTestsBase
 
         Assert.False(result.IsSuccess);
         Assert.Equal(CommonErrors.DatabaseError, result.Error);
-        transaction.Verify(x => x.RollbackAsync(It.IsAny<CancellationToken>()), Times.Once);
-        transaction.Verify(x => x.CommitAsync(It.IsAny<CancellationToken>()), Times.Never);
         _logger.Verify(
             x => x.Log(
                 LogLevel.Error,

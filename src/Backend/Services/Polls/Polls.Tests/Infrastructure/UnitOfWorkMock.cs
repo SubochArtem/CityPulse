@@ -28,15 +28,10 @@ public sealed class UnitOfWorkMock
     public void SetupSaveChanges() =>
         Mock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-    public Mock<IUnitOfWorkTransaction> SetupTransaction()
-    {
-        var transaction = new Mock<IUnitOfWorkTransaction>(MockBehavior.Strict);
-        transaction.Setup(x => x.DisposeAsync()).Returns(ValueTask.CompletedTask);
-
+    public void SetupExecuteInTransaction() =>
         Mock
-            .Setup(x => x.BeginTransactionAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(transaction.Object);
-
-        return transaction;
-    }
+            .Setup(x => x.ExecuteInTransactionAsync(
+                It.IsAny<Func<CancellationToken, Task>>(),
+                It.IsAny<CancellationToken>()))
+            .Returns<Func<CancellationToken, Task>, CancellationToken>((operation, token) => operation(token));
 }

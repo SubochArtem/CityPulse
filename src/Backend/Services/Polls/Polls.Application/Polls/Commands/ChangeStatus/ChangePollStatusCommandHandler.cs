@@ -33,27 +33,29 @@ public sealed class ChangePollStatusCommandHandler(
             return PollErrors.InvalidStatus(command.NewStatus);
         }
 
-        await using var transaction = await unitOfWork.BeginTransactionAsync(cancellationToken);
-        
         try
         {
-            poll.Status = command.NewStatus;
-            unitOfWork.Polls.Update(poll);
-            await unitOfWork.SaveChangesAsync(cancellationToken);
-            
-            await unitOfWork.Ideas.UpdateAccessStatusByPollIdAsync(
-                poll.Id, 
-                sourceStatus,
-                targetStatus,
+            await unitOfWork.ExecuteInTransactionAsync(
+                async token =>
+                {
+                    poll.Status = command.NewStatus;
+                    unitOfWork.Polls.Update(poll);
+                    await unitOfWork.SaveChangesAsync(token);
+
+                    await unitOfWork.Ideas.UpdateAccessStatusByPollIdAsync(
+                        poll.Id,
+                        sourceStatus,
+                        targetStatus,
+                        token);
+                },
                 cancellationToken);
-            
-            await transaction.CommitAsync(cancellationToken);
+
             return Result<Unit>.Success(Unit.Value);
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Error changing poll {PollId} status to {Status}", command.Id, command.NewStatus);
-            await transaction.RollbackAsync(cancellationToken);
+
             return CommonErrors.DatabaseError;
         }
     }

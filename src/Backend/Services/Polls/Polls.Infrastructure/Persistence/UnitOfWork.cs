@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Polls.Application.Common.Interfaces;
 using Polls.Domain.Images;
 
@@ -21,9 +22,19 @@ public sealed class UnitOfWork(
         return context.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<IUnitOfWorkTransaction> BeginTransactionAsync(CancellationToken cancellationToken = default)
+    public async Task ExecuteInTransactionAsync(
+        Func<CancellationToken, Task> operation,
+        CancellationToken cancellationToken = default)
     {
-        var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
-        return new UnitOfWorkTransaction(transaction);
+        var strategy = context.Database.CreateExecutionStrategy();
+
+        await strategy.ExecuteAsync(async token =>
+        {
+            await using var transaction = await context.Database.BeginTransactionAsync(token);
+
+            await operation(token);
+
+            await transaction.CommitAsync(token);
+        }, cancellationToken);
     }
 }
