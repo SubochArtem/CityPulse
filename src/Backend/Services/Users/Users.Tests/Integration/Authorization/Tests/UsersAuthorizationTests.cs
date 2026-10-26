@@ -44,14 +44,14 @@ public sealed class UsersAuthorizationTests(IntegrationTestWebAppFactory factory
     [MemberData(
         nameof(UsersAuthorizationTestData.EndpointsWithAnyPermission),
         MemberType = typeof(UsersAuthorizationTestData))]
-    public async Task Request_WithAnyPermission_ReturnsOk(string method, string route, string permission)
+    public async Task Request_WithAnyPermission_ReturnsSuccess(string method, string route, string permission)
     {
         var user = await SeedUserAsync();
         using var client = CreateClient([permission]);
 
         var response = await SendAsync(client, method, route, user.Id);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.True(response.IsSuccessStatusCode);
     }
 
     [Theory]
