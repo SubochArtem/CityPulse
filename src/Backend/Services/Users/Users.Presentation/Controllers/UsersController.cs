@@ -31,29 +31,32 @@ public class UsersController(IUserService userService) : ControllerBase
 
     [HttpPost("{id:guid}/deactivate")]
     [Authorize(Policy = Policies.DeactivateUser)]
-    public async Task DeactivateUser(
+    public async Task<NoContentResult> DeactivateUser(
         Guid id,
         CancellationToken cancellationToken)
     {
         await userService.DeactivateUserAsync(id, cancellationToken);
+        return NoContent();
     }
 
     [HttpPost("{id:guid}/activate")]
     [Authorize(Policy = Policies.ActivateUser)]
-    public async Task ActivateUser(
+    public async Task<NoContentResult> ActivateUser(
         Guid id,
         CancellationToken cancellationToken)
     {
         await userService.ActivateUserAsync(id, cancellationToken);
+        return NoContent();
     }
 
     [HttpDelete("{id:guid}")]
     [Authorize(Policy = Policies.DeleteUser)]
-    public async Task DeleteUser(
+    public async Task<NoContentResult> DeleteUser(
         Guid id,
         CancellationToken cancellationToken)
     {
         await userService.DeleteUserAsync(id, cancellationToken);
+        return NoContent();
     }
     
     [HttpPatch("{id:guid}")]
