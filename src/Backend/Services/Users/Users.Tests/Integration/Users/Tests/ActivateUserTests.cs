@@ -27,7 +27,7 @@ public sealed class ActivateUserTests(IntegrationTestWebAppFactory factory) : Us
 
         var response = await Client.PostAsync($"{UsersRoute}/{user.Id}/activate", null);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
         var updated = await GetUserFromDbAsync(user.Id);
         Assert.NotNull(updated);
@@ -51,7 +51,7 @@ public sealed class ActivateUserTests(IntegrationTestWebAppFactory factory) : Us
 
         var response = await Client.PostAsync($"{UsersRoute}/{user.Id}/activate", null);
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
         var unchanged = await GetUserFromDbAsync(user.Id);
         Assert.NotNull(unchanged);

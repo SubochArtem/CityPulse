@@ -22,7 +22,7 @@ public sealed class DeleteUserTests(IntegrationTestWebAppFactory factory) : User
 
         var response = await Client.DeleteAsync($"{UsersRoute}/{user.Id}");
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
 
         Assert.Null(await GetUserFromDbAsync(user.Id));
         Assert.NotNull(await GetUserFromDbAsync(otherUser.Id));
