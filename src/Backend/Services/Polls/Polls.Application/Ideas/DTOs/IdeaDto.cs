@@ -12,4 +12,6 @@ public class IdeaDto
     public int AccessStatus { get; init; }
     public int ApprovalStatus { get; init; }
     public IReadOnlyList<ImageDto> Images { get; init; } = [];
+    public DateTimeOffset CreatedAt { get; init; }
+    public DateTimeOffset? UpdatedAt { get; init; }
 }

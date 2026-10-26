@@ -12,4 +12,6 @@ public class CityWithPollsDto
     public int Status { get; init; }
     public required IReadOnlyCollection<PollDto> Polls { get; init; }
     public IReadOnlyList<ImageDto> Images { get; init; } = [];
+    public DateTimeOffset CreatedAt { get; init; }
+    public DateTimeOffset? UpdatedAt { get; init; }
 }

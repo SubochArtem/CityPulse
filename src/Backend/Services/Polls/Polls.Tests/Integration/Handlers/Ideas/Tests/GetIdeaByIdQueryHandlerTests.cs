@@ -14,6 +14,8 @@ public sealed class GetIdeaByIdQueryHandlerTests(PollsWebAppFactory factory) : P
     private const string FirstImageFileName = "first.jpg";
     private const string SecondImageFileName = "second.jpg";
     private const string IdProperty = "id";
+    private const string CreatedAtProperty = "createdAt";
+    private const string UpdatedAtProperty = "updatedAt";
     private const string UserIdProperty = "userId";
     private const string PollIdProperty = "pollId";
     private const string TitleProperty = "title";
@@ -49,6 +51,8 @@ public sealed class GetIdeaByIdQueryHandlerTests(PollsWebAppFactory factory) : P
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var value = await ReadValueAsync(response);
         Assert.Equal(graph.Idea.Id, value.GetProperty(IdProperty).GetGuid());
+        Assert.NotEqual(default, value.GetProperty(CreatedAtProperty).GetDateTimeOffset());
+        Assert.Equal(JsonValueKind.Null, value.GetProperty(UpdatedAtProperty).ValueKind);
         Assert.Equal(graph.Idea.UserId, value.GetProperty(UserIdProperty).GetGuid());
         Assert.Equal(graph.Poll.Id, value.GetProperty(PollIdProperty).GetGuid());
         Assert.Equal(graph.Idea.Title, value.GetProperty(TitleProperty).GetString());

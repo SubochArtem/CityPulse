@@ -13,4 +13,6 @@ public class PollDto
     public decimal BudgetAmount { get; init; }
     public int Status { get; init; }
     public IReadOnlyList<ImageDto> Images { get; init; } = [];
+    public DateTimeOffset CreatedAt { get; init; }
+    public DateTimeOffset? UpdatedAt { get; init; }
 }

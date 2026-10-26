@@ -14,4 +14,6 @@ public class IdeaWithPollDto
     public int ApprovalStatus { get; init; }
     public required PollDto Poll { get; init; }
     public IReadOnlyList<ImageDto> Images { get; init; } = [];
+    public DateTimeOffset CreatedAt { get; init; }
+    public DateTimeOffset? UpdatedAt { get; init; }
 }
