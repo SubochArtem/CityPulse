@@ -68,7 +68,7 @@ public sealed class ClientErrorsTests(IntegrationTestWebAppFactory factory) : Us
     }
 
     [Fact]
-    public async Task MalformedJsonBody_ReturnsValidationProblemWithoutParserDetails()
+    public async Task MalformedJsonBody_ReturnsSingleInvalidBodyError()
     {
         var user = await SeedUserAsync();
         using var body = new StringContent(MalformedJson, Encoding.UTF8, JsonContentType);
@@ -79,8 +79,8 @@ public sealed class ClientErrorsTests(IntegrationTestWebAppFactory factory) : Us
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         var problem = await ReadProblemAsync(response);
         AssertProblem(problem, HttpStatusCode.BadRequest, ValidationTitle, route);
-        Assert.Contains(
-            InvalidBodyMessage,
-            problem.GetProperty(ErrorsProperty).EnumerateArray().Select(e => e.GetString()));
+        Assert.Equal(InvalidBodyMessage, problem.GetProperty(DetailProperty).GetString());
+        var error = Assert.Single(problem.GetProperty(ErrorsProperty).EnumerateArray());
+        Assert.Equal(InvalidBodyMessage, error.GetString());
     }
 }
