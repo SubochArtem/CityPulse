@@ -5,8 +5,6 @@ namespace Users.Tests.Integration.Users.TestData;
 
 public static class UpdateUserValidationTestData
 {
-    public const string NicknameKey = "Nickname";
-
     public static TheoryData<string, string> InvalidNicknames => new()
     {
         { "", ValidationConstants.Nickname.Required },

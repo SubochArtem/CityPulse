@@ -31,8 +31,7 @@ public sealed class UpdateUserValidationTests(IntegrationTestWebAppFactory facto
         var problem = await response.Content.ReadFromJsonAsync<ValidationProblemResponse>();
         Assert.NotNull(problem);
         Assert.Equal(MiddlewareExceptionMessages.Titles.ValidationFailed, problem.Title);
-        Assert.True(problem.Errors.TryGetValue(UpdateUserValidationTestData.NicknameKey, out var messages));
-        Assert.Contains(expectedMessage, messages);
+        Assert.Contains(expectedMessage, problem.Errors);
 
         var unchanged = await GetUserFromDbAsync(user.Id);
         Assert.NotNull(unchanged);

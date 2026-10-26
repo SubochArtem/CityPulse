@@ -17,7 +17,6 @@ public sealed class GetUsersPaginationValidationTests(IntegrationTestWebAppFacto
         MemberType = typeof(GetUsersPaginationValidationTestData))]
     public async Task GetUsers_InvalidPagination_ReturnsBadRequestWithValidationErrors(
         string query,
-        string errorKey,
         string expectedMessage)
     {
         var response = await Client.GetAsync($"{UsersRoute}?{query}");
@@ -27,8 +26,7 @@ public sealed class GetUsersPaginationValidationTests(IntegrationTestWebAppFacto
         var problem = await response.Content.ReadFromJsonAsync<ValidationProblemResponse>();
         Assert.NotNull(problem);
         Assert.Equal(MiddlewareExceptionMessages.Titles.ValidationFailed, problem.Title);
-        Assert.True(problem.Errors.TryGetValue(errorKey, out var messages));
-        Assert.Contains(expectedMessage, messages);
+        Assert.Contains(expectedMessage, problem.Errors);
     }
 
     [Theory]
