@@ -1,6 +1,6 @@
+using CityPulse.Common.Api.Errors;
 using FluentValidation;
 using Grpc.Core;
-using Microsoft.AspNetCore.Mvc;
 using Users.Business.Exceptions;
 
 namespace Users.Presentation.Middleware;
@@ -129,21 +129,16 @@ public class ExceptionHandlerMiddleware(
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = MiddlewareConstants.ContentType;
 
-        var problemDetails = new ProblemDetails
-        {
-            Status = statusCode,
-            Title = title,
-            Detail = detail,
-            Instance = context.Request.Path
-        };
+        var errors = ex is ValidationException validationEx
+            ? validationEx.Errors.Select(e => e.ErrorMessage).ToArray()
+            : [detail];
 
-        if (ex is ValidationException validationEx)
-            problemDetails.Extensions[MiddlewareConstants.ProblemExtensionKeys] =
-                validationEx.Errors
-                    .GroupBy(e => e.PropertyName)
-                    .ToDictionary(
-                        g => g.Key,
-                        g => g.Select(e => e.ErrorMessage).ToList());
+        var problemDetails = ProblemDetailsFactory.Create(
+            statusCode,
+            title,
+            detail,
+            context.Request.Path,
+            errors);
 
         await context.Response.WriteAsJsonAsync(problemDetails);
     }
