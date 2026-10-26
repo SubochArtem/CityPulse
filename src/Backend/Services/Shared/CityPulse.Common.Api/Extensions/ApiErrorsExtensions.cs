@@ -33,11 +33,23 @@ public static class ApiErrorsExtensions
 
     private static ObjectResult CreateInvalidModelStateResponse(ActionContext context)
     {
-        var errors = context.ModelState
-            .SelectMany(entry => entry.Value!.Errors.Select(error => GetMessage(entry.Key, error)))
+        var entries = context.ModelState
+            .SelectMany(entry => entry.Value!.Errors.Select(error => (entry.Key, Error: error)))
+            .ToList();
+
+        var bodyErrors = entries
+            .Where(entry => IsBodyError(entry.Key, entry.Error))
+            .Select(entry => GetBodyMessage(entry.Key, entry.Error))
             .Distinct()
-            .DefaultIfEmpty(InvalidValueMessage)
             .ToArray();
+
+        var errors = bodyErrors.Length > 0
+            ? bodyErrors
+            : entries
+                .Select(entry => GetFieldMessage(entry.Error))
+                .Distinct()
+                .DefaultIfEmpty(InvalidValueMessage)
+                .ToArray();
 
         var problemDetails = ProblemDetailsFactory.Create(
             StatusCodes.Status400BadRequest,
@@ -49,13 +61,21 @@ public static class ApiErrorsExtensions
         return new ObjectResult(problemDetails) { StatusCode = StatusCodes.Status400BadRequest };
     }
 
-    private static string GetMessage(string key, ModelError error)
-    {
-        if (error.Exception is not null || key.StartsWith(JsonPathPrefix, StringComparison.Ordinal))
-            return InvalidBodyMessage;
+    private static bool IsBodyError(string key, ModelError error) =>
+        error.Exception is not null
+        || key.Length == 0
+        || key.StartsWith(JsonPathPrefix, StringComparison.Ordinal);
 
-        return string.IsNullOrWhiteSpace(error.ErrorMessage) ? InvalidValueMessage : error.ErrorMessage;
+    private static string GetBodyMessage(string key, ModelError error)
+    {
+        if (error.Exception is null && key.Length == 0 && !string.IsNullOrWhiteSpace(error.ErrorMessage))
+            return error.ErrorMessage;
+
+        return InvalidBodyMessage;
     }
+
+    private static string GetFieldMessage(ModelError error) =>
+        string.IsNullOrWhiteSpace(error.ErrorMessage) ? InvalidValueMessage : error.ErrorMessage;
 
     private static async Task WriteStatusCodeProblemAsync(StatusCodeContext context)
     {
