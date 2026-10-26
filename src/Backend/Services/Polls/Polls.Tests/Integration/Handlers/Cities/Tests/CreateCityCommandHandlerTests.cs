@@ -43,7 +43,7 @@ public sealed class CreateCityCommandHandlerTests(PollsWebAppFactory factory) : 
             Longitude,
             CityDescription));
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var stored = await QueryDbAsync(context => context.Cities.SingleAsync());
         Assert.Equal(CityTitle, stored.Title);
         Assert.Equal(CityDescription, stored.Description);
@@ -71,7 +71,7 @@ public sealed class CreateCityCommandHandlerTests(PollsWebAppFactory factory) : 
             Longitude,
             imageFileNames: [CityIntegrationHelpers.ImageFileName, SecondImageFileName]));
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var images = await QueryDbAsync(context => context.CityImages.OrderBy(x => x.Order).ToListAsync());
         Assert.Equal([0, 1], images.Select(x => x.Order));
         Assert.All(images, image => Assert.StartsWith(EnvironmentConstants.ImageStorage.UploadedPrefix, image.FileName));

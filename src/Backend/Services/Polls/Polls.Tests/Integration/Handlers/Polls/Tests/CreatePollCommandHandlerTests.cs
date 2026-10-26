@@ -68,7 +68,7 @@ public sealed class CreatePollCommandHandlerTests(PollsWebAppFactory factory) : 
 
         var response = await CreateAsAdminAsync(city.Id, ValidForm(PollType.ManagerVote, endsAt));
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var stored = await QueryDbAsync(context => context.Polls.SingleAsync());
         Assert.Equal(city.Id, stored.CityId);
         Assert.Equal(PollTitle, stored.Title);
@@ -108,7 +108,7 @@ public sealed class CreatePollCommandHandlerTests(PollsWebAppFactory factory) : 
             city.Id,
             ValidForm(imageFileNames: [PollIntegrationHelpers.ImageFileName, SecondImageFileName]));
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var images = await QueryDbAsync(context => context.PollImages.OrderBy(x => x.Order).ToListAsync());
         Assert.Equal([0, 1], images.Select(x => x.Order));
         Assert.All(images, image => Assert.StartsWith(EnvironmentConstants.ImageStorage.UploadedPrefix, image.FileName));
@@ -149,7 +149,7 @@ public sealed class CreatePollCommandHandlerTests(PollsWebAppFactory factory) : 
 
         var response = await CreateAsAdminAsync(city.Id, ValidForm(PollType.ManagerVote));
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.Equal(2, await QueryDbAsync(context => context.Polls.CountAsync()));
     }
 
@@ -161,7 +161,7 @@ public sealed class CreatePollCommandHandlerTests(PollsWebAppFactory factory) : 
 
         var response = await CreateAsAdminAsync(city.Id, ValidForm(PollType.UserVote));
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.Equal(2, await QueryDbAsync(context => context.Polls.CountAsync()));
     }
 
@@ -174,7 +174,7 @@ public sealed class CreatePollCommandHandlerTests(PollsWebAppFactory factory) : 
 
         var response = await CreateAsAdminAsync(city.Id, ValidForm(PollType.UserVote));
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.Equal(2, await QueryDbAsync(context => context.Polls.CountAsync()));
     }
 
@@ -212,7 +212,7 @@ public sealed class CreatePollCommandHandlerTests(PollsWebAppFactory factory) : 
 
         var response = await CreateAsUserAsync(city.Id, city.Id, ValidForm());
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.Equal(city.Id, (await QueryDbAsync(context => context.Polls.SingleAsync())).CityId);
     }
 
@@ -238,6 +238,6 @@ public sealed class CreatePollCommandHandlerTests(PollsWebAppFactory factory) : 
             $"{PollIntegrationHelpers.AdminPollsRoute}/{PollIntegrationHelpers.CitiesSegment}/{city.Id}",
             ValidForm());
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
 }
