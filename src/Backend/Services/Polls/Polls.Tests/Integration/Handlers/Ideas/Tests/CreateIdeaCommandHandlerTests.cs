@@ -66,7 +66,7 @@ public sealed class CreateIdeaCommandHandlerTests(PollsWebAppFactory factory) : 
 
         var response = await CreateAsUserAsync(target.Poll.Id, userId, target.City.Id, ValidForm());
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var stored = await QueryDbAsync(context => context.Ideas.SingleAsync());
         Assert.Equal(userId, stored.UserId);
         Assert.Equal(target.Poll.Id, stored.PollId);
@@ -93,7 +93,7 @@ public sealed class CreateIdeaCommandHandlerTests(PollsWebAppFactory factory) : 
             target.City.Id,
             ValidForm([IdeaIntegrationHelpers.ImageFileName, SecondImageFileName]));
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var images = await QueryDbAsync(context => context.IdeaImages.OrderBy(x => x.Order).ToListAsync());
         Assert.Equal([0, 1], images.Select(x => x.Order));
         Assert.All(images, image => Assert.StartsWith(EnvironmentConstants.ImageStorage.UploadedPrefix, image.FileName));
@@ -191,7 +191,7 @@ public sealed class CreateIdeaCommandHandlerTests(PollsWebAppFactory factory) : 
 
         var response = await CreateAsAdminAsync(target.Poll.Id, adminId, ValidForm());
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.Equal(adminId, (await QueryDbAsync(context => context.Ideas.SingleAsync())).UserId);
     }
 
@@ -204,7 +204,7 @@ public sealed class CreateIdeaCommandHandlerTests(PollsWebAppFactory factory) : 
 
         var response = await CreateAsAdminAsync(target.Poll.Id, Guid.NewGuid(), ValidForm());
 
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         Assert.Equal(1, await QueryDbAsync(context => context.Ideas.CountAsync()));
     }
 }
