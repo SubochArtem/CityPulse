@@ -108,6 +108,33 @@ public sealed class GetUsersTests(IntegrationTestWebAppFactory factory) : UsersA
     }
 
     [Fact]
+    public async Task GetUsers_NoFilters_ReturnsNewestUsersFirst()
+    {
+        var users = await SeedUsersAsync(GetUsersTestData.SeededNicknames);
+
+        var result = await GetPagedAsync(UsersRoute);
+
+        Assert.Equal(
+            users.OrderByDescending(u => u.CreatedAt).Select(u => u.Id),
+            result.Items.Select(u => u.Id));
+    }
+
+    [Fact]
+    public async Task GetUsers_AllPages_ReturnEveryUserExactlyOnceInStableOrder()
+    {
+        var users = await SeedUsersAsync(Enumerable.Range(0, SeededUsersCount).Select(i => $"user_{i}"));
+
+        var ids = new List<Guid>();
+        for (var page = 1; page <= LastPage; page++)
+        {
+            var result = await GetPagedAsync($"{UsersRoute}?Page={page}&PageSize={PageSizeTwo}");
+            ids.AddRange(result.Items.Select(u => u.Id));
+        }
+
+        Assert.Equal(users.OrderByDescending(u => u.CreatedAt).Select(u => u.Id), ids);
+    }
+
+    [Fact]
     public async Task GetUsers_PageBeyondLastPage_ReturnsEmptyItemsWithTotalCount()
     {
         await SeedUsersAsync(Enumerable.Range(0, SeededUsersCount).Select(i => $"user_{i}"));
