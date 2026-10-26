@@ -26,6 +26,8 @@ public static class DependencyInjection
         services.AddControllers(options =>
             options.Filters.Add<ResultFilter>());
 
+        services.AddUnifiedApiErrors();
+
         services.AddGrpc();
 
         services.AddCityPulseAuthentication(configuration);
@@ -42,6 +44,7 @@ public static class DependencyInjection
     public static void UsePresentation(this WebApplication app)
     {
         app.UseMiddleware<ExceptionHandlerMiddleware>();
+        app.UseUnifiedStatusCodePages();
         app.UseSwaggerConfiguration(SwaggerTitle);
         app.UseAuthentication();
         app.UseAuthorization();
