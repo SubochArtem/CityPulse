@@ -20,5 +20,7 @@ public class UserQueryBuilder(IQueryable<User> query)
         return this;
     }
 
-    public IQueryable<User> Build() => _query;
+    public IQueryable<User> Build() => _query
+        .OrderByDescending(u => u.CreatedAt)
+        .ThenBy(u => u.Id);
 }
