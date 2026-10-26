@@ -31,7 +31,7 @@ public static class ApiErrorsExtensions
         return app.UseStatusCodePages(WriteStatusCodeProblemAsync);
     }
 
-    private static IActionResult CreateInvalidModelStateResponse(ActionContext context)
+    private static ObjectResult CreateInvalidModelStateResponse(ActionContext context)
     {
         var errors = context.ModelState
             .SelectMany(entry => entry.Value!.Errors.Select(error => GetMessage(entry.Key, error)))
