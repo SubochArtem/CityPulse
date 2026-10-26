@@ -13,6 +13,7 @@ using Feedback.API.Infrastructure.Redis;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 
 namespace Feedback.API;
@@ -65,7 +66,11 @@ public static class DependencyInjection
             options.Address = new Uri(settings.IdeasServiceUrl);
         });
 
-        services.AddScoped<IIdeaService, IdeaGrpcClient>();
+        services.AddScoped<IdeaGrpcClient>();
+        services.AddScoped<IIdeaService>(sp => new CachedIdeaService(
+            sp.GetRequiredService<IdeaGrpcClient>(),
+            sp.GetRequiredService<IDistributedCache>(),
+            sp.GetRequiredService<ILogger<CachedIdeaService>>()));
 
         services.AddCityPulseAuthentication(configuration);
 
