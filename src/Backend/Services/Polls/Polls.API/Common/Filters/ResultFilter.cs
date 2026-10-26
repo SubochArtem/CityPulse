@@ -45,6 +45,8 @@ public class ResultFilter : IActionFilter
         context.Result = resultWithValue.GetValue() switch
         {
             null or Unit => new NoContentResult(),
+            var value when HttpMethods.IsPost(context.HttpContext.Request.Method) =>
+                new ObjectResult(value) { StatusCode = StatusCodes.Status201Created },
             var value => new OkObjectResult(value)
         };
     }
