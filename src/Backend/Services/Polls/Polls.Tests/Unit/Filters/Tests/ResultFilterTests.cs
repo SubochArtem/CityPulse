@@ -21,16 +21,17 @@ public sealed class ResultFilterTests
 
     private readonly ResultFilter _sut = new();
 
-    private static ActionContext BuildActionContext()
+    private static ActionContext BuildActionContext(string method = "GET")
     {
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Path = RequestPath;
+        httpContext.Request.Method = method;
 
         return new ActionContext(httpContext, new RouteData(), new ActionDescriptor());
     }
 
-    private static ActionExecutedContext BuildExecutedContext(IActionResult? result) =>
-        new(BuildActionContext(), [], new object()) { Result = result };
+    private static ActionExecutedContext BuildExecutedContext(IActionResult? result, string method = "GET") =>
+        new(BuildActionContext(method), [], new object()) { Result = result };
 
     private static ObjectResult ResultOf(ActionExecutedContext context) =>
         Assert.IsType<ObjectResult>(context.Result);
@@ -103,6 +104,19 @@ public sealed class ResultFilterTests
 
         var ok = Assert.IsType<OkObjectResult>(context.Result);
         Assert.Same(value, ok.Value);
+    }
+
+    [Fact]
+    public void OnActionExecuted_ResultSucceededWithValueOnPost_ReplacesResultWithCreatedContainingValue()
+    {
+        const string value = "value";
+        var context = BuildExecutedContext(new ObjectResult(Result<string>.Success(value)), HttpMethods.Post);
+
+        _sut.OnActionExecuted(context);
+
+        var created = Assert.IsType<ObjectResult>(context.Result);
+        Assert.Equal(StatusCodes.Status201Created, created.StatusCode);
+        Assert.Same(value, created.Value);
     }
 
     [Fact]
