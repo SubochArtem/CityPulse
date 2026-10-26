@@ -13,7 +13,10 @@ using Feedback.API.Infrastructure.Redis;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Options;
+using StackExchange.Redis;
 
 namespace Feedback.API;
 
@@ -47,12 +50,19 @@ public static class DependencyInjection
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        services.AddStackExchangeRedisCache(options =>
-        {
-            var settings = configuration.GetSection(RedisSettings.SectionName).Get<RedisSettings>()!;
-            options.Configuration = settings.ConnectionString;
-            options.InstanceName = settings.InstanceName;
-        });
+        services.AddStackExchangeRedisCache(_ => { });
+        services.AddOptions<RedisCacheOptions>()
+            .Configure<IOptions<RedisSettings>>((options, redis) =>
+            {
+                var settings = redis.Value;
+                var configurationOptions = ConfigurationOptions.Parse(settings.ConnectionString);
+                configurationOptions.ConnectTimeout = settings.ConnectTimeoutMs;
+                configurationOptions.SyncTimeout = settings.SyncTimeoutMs;
+                configurationOptions.AsyncTimeout = settings.AsyncTimeoutMs;
+                configurationOptions.AbortOnConnectFail = false;
+                options.ConfigurationOptions = configurationOptions;
+                options.InstanceName = settings.InstanceName;
+            });
 
         services.AddOptions<GrpcSettings>()
             .Bind(configuration.GetSection(GrpcSettings.SectionName))
@@ -65,7 +75,11 @@ public static class DependencyInjection
             options.Address = new Uri(settings.IdeasServiceUrl);
         });
 
-        services.AddScoped<IIdeaService, IdeaGrpcClient>();
+        services.AddScoped<IdeaGrpcClient>();
+        services.AddScoped<IIdeaService>(sp => new CachedIdeaService(
+            sp.GetRequiredService<IdeaGrpcClient>(),
+            sp.GetRequiredService<IDistributedCache>(),
+            sp.GetRequiredService<ILogger<CachedIdeaService>>()));
 
         services.AddCityPulseAuthentication(configuration);
 
