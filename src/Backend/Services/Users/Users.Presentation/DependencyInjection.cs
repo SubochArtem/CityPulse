@@ -16,6 +16,7 @@ public static class DependencyInjection
     {
         services.AddHttpContextAccessor();
         services.AddControllers();
+        services.AddUnifiedApiErrors();
         services.AddSwaggerConfiguration(SwaggerTitle, SwaggerDescription);
         services.AddPermissionAuthorization();
 
@@ -27,6 +28,7 @@ public static class DependencyInjection
     public static void UsePresentation(this WebApplication app)
     {
         app.UseGlobalExceptionHandler();
+        app.UseUnifiedStatusCodePages();
         app.UseSwaggerConfiguration(SwaggerTitle);
         app.UseAuthentication();
         app.UseAuthorization();
