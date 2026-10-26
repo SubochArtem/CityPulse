@@ -9,6 +9,7 @@ using Feedback.API.Common.Interfaces;
 using Feedback.API.Common.Services;
 using Feedback.API.Infrastructure.Grpc;
 using Feedback.API.Infrastructure.Mongo;
+using Feedback.API.Infrastructure.Redis;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -40,6 +41,18 @@ public static class DependencyInjection
         services.Configure<MongoDbSettings>(configuration.GetSection(MongoDbSettings.SectionName));
         services.AddSingleton<MongoDbContext>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+
+        services.AddOptions<RedisSettings>()
+            .Bind(configuration.GetSection(RedisSettings.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddStackExchangeRedisCache(options =>
+        {
+            var settings = configuration.GetSection(RedisSettings.SectionName).Get<RedisSettings>()!;
+            options.Configuration = settings.ConnectionString;
+            options.InstanceName = settings.InstanceName;
+        });
 
         services.AddOptions<GrpcSettings>()
             .Bind(configuration.GetSection(GrpcSettings.SectionName))

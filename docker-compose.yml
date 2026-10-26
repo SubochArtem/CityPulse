@@ -42,6 +42,15 @@ services:
     volumes:
       - mongodb_data:/data/db
 
+  redis:
+    image: redis:7
+    container_name: citypulse_redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
   users-db:
     image: postgres:18
     container_name: citypulse_users_db
@@ -70,6 +79,7 @@ volumes:
   minio_data:
   rabbitmq_data:
   mongodb_data:
+  redis_data:
   users_db_data:
   polls_db_data:
     
