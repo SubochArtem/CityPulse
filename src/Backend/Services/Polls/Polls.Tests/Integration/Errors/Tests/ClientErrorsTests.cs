@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text;
 using System.Text.Json;
 using Polls.Domain.Authorization;
 using Polls.Tests.Infrastructure;
@@ -20,6 +21,9 @@ public sealed class ClientErrorsTests(PollsWebAppFactory factory) : PollsApiTest
     private const string ForbiddenTitle = "Forbidden";
     private const string ValidationTitle = "Validation";
     private const string TitleRequiredMessage = "The Title field is required.";
+    private const string InvalidBodyMessage = "The request body is invalid.";
+    private const string JsonContentType = "application/json";
+    private const string MalformedJson = "{bad";
 
     private static async Task<JsonElement> ReadProblemAsync(HttpResponseMessage response) =>
         JsonDocument.Parse(await response.Content.ReadAsStringAsync()).RootElement;
@@ -91,5 +95,21 @@ public sealed class ClientErrorsTests(PollsWebAppFactory factory) : PollsApiTest
         Assert.Contains(
             TitleRequiredMessage,
             problem.GetProperty(ErrorsProperty).EnumerateArray().Select(e => e.GetString()));
+    }
+
+    [Fact]
+    public async Task MalformedJsonBody_ReturnsSingleInvalidBodyError()
+    {
+        var route = $"api/v1/admin/polls/{Guid.NewGuid()}/status";
+        using var body = new StringContent(MalformedJson, Encoding.UTF8, JsonContentType);
+
+        var response = await CreateClient([Permissions.Polls.ChangeStatusAny]).PatchAsync(route, body);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var problem = await ReadProblemAsync(response);
+        AssertProblem(problem, HttpStatusCode.BadRequest, ValidationTitle, route);
+        Assert.Equal(InvalidBodyMessage, problem.GetProperty(DetailProperty).GetString());
+        var error = Assert.Single(problem.GetProperty(ErrorsProperty).EnumerateArray());
+        Assert.Equal(InvalidBodyMessage, error.GetString());
     }
 }
