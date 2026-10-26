@@ -15,6 +15,8 @@ public sealed class GetCityByIdQueryHandlerTests(PollsWebAppFactory factory) : P
     private const string FirstImageFileName = "first.jpg";
     private const string SecondImageFileName = "second.jpg";
     private const string IdProperty = "id";
+    private const string CreatedAtProperty = "createdAt";
+    private const string UpdatedAtProperty = "updatedAt";
     private const string TitleProperty = "title";
     private const string DescriptionProperty = "description";
     private const string StatusProperty = "status";
@@ -45,6 +47,8 @@ public sealed class GetCityByIdQueryHandlerTests(PollsWebAppFactory factory) : P
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var value = await ReadValueAsync(response);
         Assert.Equal(city.Id, value.GetProperty(IdProperty).GetGuid());
+        Assert.NotEqual(default, value.GetProperty(CreatedAtProperty).GetDateTimeOffset());
+        Assert.Equal(JsonValueKind.Null, value.GetProperty(UpdatedAtProperty).ValueKind);
         Assert.Equal(CityTitle, value.GetProperty(TitleProperty).GetString());
         Assert.Equal(CityDescription, value.GetProperty(DescriptionProperty).GetString());
         Assert.Equal((int)CityStatus.Active, value.GetProperty(StatusProperty).GetInt32());

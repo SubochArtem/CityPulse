@@ -18,6 +18,8 @@ public sealed class GetPollByIdQueryHandlerTests(PollsWebAppFactory factory) : P
     private const string SecondImageFileName = "second.jpg";
     private const decimal PollBudget = 1500.5m;
     private const string IdProperty = "id";
+    private const string CreatedAtProperty = "createdAt";
+    private const string UpdatedAtProperty = "updatedAt";
     private const string TitleProperty = "title";
     private const string DescriptionProperty = "description";
     private const string CityIdProperty = "cityId";
@@ -69,6 +71,8 @@ public sealed class GetPollByIdQueryHandlerTests(PollsWebAppFactory factory) : P
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var value = await ReadValueAsync(response);
         Assert.Equal(poll.Id, value.GetProperty(IdProperty).GetGuid());
+        Assert.NotEqual(default, value.GetProperty(CreatedAtProperty).GetDateTimeOffset());
+        Assert.Equal(JsonValueKind.Null, value.GetProperty(UpdatedAtProperty).ValueKind);
         Assert.Equal(PollTitle, value.GetProperty(TitleProperty).GetString());
         Assert.Equal(PollDescription, value.GetProperty(DescriptionProperty).GetString());
         Assert.Equal(city.Id, value.GetProperty(CityIdProperty).GetGuid());
