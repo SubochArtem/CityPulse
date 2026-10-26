@@ -24,9 +24,13 @@ public class ErrorOrResultFilter : IActionFilter
 
         var value = errorOr.GetType().GetProperty(ValuePropertyName)?.GetValue(errorOr);
 
-        context.Result = value is null or Success or Created or Updated or Deleted
-            ? new NoContentResult()
-            : new OkObjectResult(value);
+        context.Result = value switch
+        {
+            null or Success or Created or Updated or Deleted => new NoContentResult(),
+            _ when HttpMethods.IsPost(context.HttpContext.Request.Method) =>
+                new ObjectResult(value) { StatusCode = StatusCodes.Status201Created },
+            _ => new OkObjectResult(value)
+        };
     }
 
     private static ObjectResult CreateProblemResult(List<Error> errors, PathString path)
