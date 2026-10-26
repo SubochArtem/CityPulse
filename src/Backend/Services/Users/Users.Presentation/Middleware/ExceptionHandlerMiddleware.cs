@@ -140,6 +140,6 @@ public class ExceptionHandlerMiddleware(
             context.Request.Path,
             errors);
 
-        await context.Response.WriteAsJsonAsync(problemDetails);
+        await context.Response.WriteAsJsonAsync(problemDetails, context.RequestAborted);
     }
 }
