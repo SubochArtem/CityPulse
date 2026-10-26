@@ -15,4 +15,6 @@ public class PollWithIdeasDto
     public int Status { get; init; }
     public required IReadOnlyCollection<IdeaDto> Ideas { get; init; }
     public IReadOnlyList<ImageDto> Images { get; init; } = [];
+    public DateTimeOffset CreatedAt { get; init; }
+    public DateTimeOffset? UpdatedAt { get; init; }
 }
