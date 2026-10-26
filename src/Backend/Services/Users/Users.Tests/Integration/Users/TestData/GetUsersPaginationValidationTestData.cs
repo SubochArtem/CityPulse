@@ -5,16 +5,13 @@ namespace Users.Tests.Integration.Users.TestData;
 
 public static class GetUsersPaginationValidationTestData
 {
-    public const string PageKey = "Page";
-    public const string PageSizeKey = "PageSize";
-
-    public static TheoryData<string, string, string> InvalidPagination => new()
+    public static TheoryData<string, string> InvalidPagination => new()
     {
-        { "Page=0", PageKey, ValidationConstants.Pagination.PageInvalid },
-        { "Page=-1", PageKey, ValidationConstants.Pagination.PageInvalid },
-        { "PageSize=0", PageSizeKey, ValidationConstants.Pagination.PageSizeTooSmall },
-        { "PageSize=-5", PageSizeKey, ValidationConstants.Pagination.PageSizeTooSmall },
-        { "PageSize=101", PageSizeKey, ValidationConstants.Pagination.PageSizeTooLarge }
+        { "Page=0", ValidationConstants.Pagination.PageInvalid },
+        { "Page=-1", ValidationConstants.Pagination.PageInvalid },
+        { "PageSize=0", ValidationConstants.Pagination.PageSizeTooSmall },
+        { "PageSize=-5", ValidationConstants.Pagination.PageSizeTooSmall },
+        { "PageSize=101", ValidationConstants.Pagination.PageSizeTooLarge }
     };
 
     public static TheoryData<string> BoundaryPagination => new()
