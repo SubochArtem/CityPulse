@@ -7,3 +7,10 @@ var app = builder.Build();
 app.UseGateway();
 
 await app.RunAsync();
+
+public partial class Program
+{
+    protected Program()
+    {
+    }
+}
