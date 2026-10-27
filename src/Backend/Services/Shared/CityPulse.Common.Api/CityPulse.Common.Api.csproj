@@ -15,8 +15,13 @@
     </ItemGroup>
 
     <ItemGroup>
+        <InternalsVisibleTo Include="CityPulse.Common.Api.Tests"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="CityPulse.Contracts.Auth" Version="1.0.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.11"/>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
     </ItemGroup>
 
