@@ -1,8 +1,9 @@
+using Gateway.API;
+
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddReverseProxy()
-    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+builder.Services.AddGateway(builder.Configuration);
 
 var app = builder.Build();
-app.MapReverseProxy();
+app.UseGateway();
 
 await app.RunAsync();
