@@ -1,10 +1,8 @@
-using System.Text;
+using CityPulse.Common.Api.Caching;
 using ErrorOr;
 using Feedback.API.Common.Errors;
 using Feedback.API.Common.Interfaces;
-using Feedback.API.Infrastructure.Redis;
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Logging.Abstractions;
+using Feedback.API.Infrastructure.Caching;
 using Moq;
 using Xunit;
 
@@ -12,50 +10,71 @@ namespace Feedback.Tests.Unit.Services.Tests;
 
 public sealed class CachedIdeaServiceTests
 {
+    private const string CacheKeyPrefix = "idea-city:";
+
+    private static readonly TimeSpan ExpectedTtl = TimeSpan.FromMinutes(2);
+
     private readonly Mock<IIdeaService> _inner = new(MockBehavior.Strict);
-    private readonly Mock<IDistributedCache> _cache = new(MockBehavior.Strict);
+    private readonly Mock<ICacheStore> _cache = new(MockBehavior.Strict);
     private readonly CachedIdeaService _sut;
 
     public CachedIdeaServiceTests()
     {
-        _sut = new CachedIdeaService(_inner.Object, _cache.Object, NullLogger<CachedIdeaService>.Instance);
+        _sut = new CachedIdeaService(_inner.Object, _cache.Object);
     }
 
-    private void SetupCacheGet(string? value) =>
+    private static string KeyFor(Guid ideaId, bool includeOnlyActive) =>
+        $"{CacheKeyPrefix}{ideaId}:{includeOnlyActive}";
+
+    private void SetupCacheGet(
+        Guid ideaId,
+        bool includeOnlyActive,
+        IdeaCityCache? cached,
+        Action<CancellationToken>? onCalled = null) =>
         _cache
-            .Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(value is null ? null : Encoding.UTF8.GetBytes(value));
+            .Setup(c => c.GetAsync<IdeaCityCache>(KeyFor(ideaId, includeOnlyActive), It.IsAny<CancellationToken>()))
+            .Callback<string, CancellationToken>((_, token) => onCalled?.Invoke(token))
+            .ReturnsAsync(cached);
 
-    private void SetupInner(Guid ideaId, bool includeOnlyActive, ErrorOr<Guid> result) =>
-        _inner
-            .Setup(s => s.GetIdeaCityAsync(ideaId, includeOnlyActive, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(result);
-
-    private void SetupCacheSet(Action<string, byte[], DistributedCacheEntryOptions>? onCalled = null) =>
+    private void SetupCacheSet(
+        Guid ideaId,
+        bool includeOnlyActive,
+        Action<IdeaCityCache, TimeSpan, CancellationToken>? onCalled = null) =>
         _cache
             .Setup(c => c.SetAsync(
-                It.IsAny<string>(),
-                It.IsAny<byte[]>(),
-                It.IsAny<DistributedCacheEntryOptions>(),
+                KeyFor(ideaId, includeOnlyActive),
+                It.IsAny<IdeaCityCache>(),
+                It.IsAny<TimeSpan>(),
                 It.IsAny<CancellationToken>()))
-            .Callback<string, byte[], DistributedCacheEntryOptions, CancellationToken>(
-                (key, value, options, _) => onCalled?.Invoke(key, value, options))
+            .Callback<string, IdeaCityCache, TimeSpan, CancellationToken>(
+                (_, value, ttl, token) => onCalled?.Invoke(value, ttl, token))
             .Returns(Task.CompletedTask);
+
+    private void SetupInner(
+        Guid ideaId,
+        bool includeOnlyActive,
+        ErrorOr<Guid> result,
+        Action<CancellationToken>? onCalled = null) =>
+        _inner
+            .Setup(s => s.GetIdeaCityAsync(ideaId, includeOnlyActive, It.IsAny<CancellationToken>()))
+            .Callback<Guid, bool, CancellationToken>((_, _, token) => onCalled?.Invoke(token))
+            .ReturnsAsync(result);
 
     private void VerifyNothingStored() =>
         _cache.Verify(c => c.SetAsync(
             It.IsAny<string>(),
-            It.IsAny<byte[]>(),
-            It.IsAny<DistributedCacheEntryOptions>(),
+            It.IsAny<IdeaCityCache>(),
+            It.IsAny<TimeSpan>(),
             It.IsAny<CancellationToken>()), Times.Never);
 
     [Fact]
     public async Task GetIdeaCityAsync_CacheHit_ReturnsCachedCityWithoutCallingInner()
     {
+        var ideaId = Guid.NewGuid();
         var cityId = Guid.NewGuid();
-        SetupCacheGet(cityId.ToString());
+        SetupCacheGet(ideaId, true, new IdeaCityCache(cityId));
 
-        var result = await _sut.GetIdeaCityAsync(Guid.NewGuid(), true);
+        var result = await _sut.GetIdeaCityAsync(ideaId, true);
 
         Assert.False(result.IsError);
         Assert.Equal(cityId, result.Value);
@@ -65,35 +84,67 @@ public sealed class CachedIdeaServiceTests
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
-    public async Task GetIdeaCityAsync_CacheMiss_CallsInnerAndStoresCityUnderIdeaKey(bool includeOnlyActive)
+    public async Task GetIdeaCityAsync_CacheMiss_ReturnsCityFromInner(bool includeOnlyActive)
     {
         var ideaId = Guid.NewGuid();
         var cityId = Guid.NewGuid();
-        string? storedKey = null;
-        string? storedValue = null;
-        DistributedCacheEntryOptions? storedOptions = null;
-        SetupCacheGet(null);
+        SetupCacheGet(ideaId, includeOnlyActive, null);
         SetupInner(ideaId, includeOnlyActive, cityId);
-        SetupCacheSet((key, value, options) =>
-        {
-            storedKey = key;
-            storedValue = Encoding.UTF8.GetString(value);
-            storedOptions = options;
-        });
+        SetupCacheSet(ideaId, includeOnlyActive);
 
         var result = await _sut.GetIdeaCityAsync(ideaId, includeOnlyActive);
 
+        Assert.False(result.IsError);
         Assert.Equal(cityId, result.Value);
-        Assert.Equal($"idea-city:{ideaId}:{includeOnlyActive}", storedKey);
-        Assert.Equal(cityId.ToString(), storedValue);
-        Assert.Equal(TimeSpan.FromMinutes(2), storedOptions?.AbsoluteExpirationRelativeToNow);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task GetIdeaCityAsync_CacheMiss_StoresCityUnderIdeaKeyWithTtl(bool includeOnlyActive)
+    {
+        var ideaId = Guid.NewGuid();
+        var cityId = Guid.NewGuid();
+        IdeaCityCache? storedValue = null;
+        TimeSpan? storedTtl = null;
+        SetupCacheGet(ideaId, includeOnlyActive, null);
+        SetupInner(ideaId, includeOnlyActive, cityId);
+        SetupCacheSet(ideaId, includeOnlyActive, (value, ttl, _) =>
+        {
+            storedValue = value;
+            storedTtl = ttl;
+        });
+
+        await _sut.GetIdeaCityAsync(ideaId, includeOnlyActive);
+
+        Assert.Equal(new IdeaCityCache(cityId), storedValue);
+        Assert.Equal(ExpectedTtl, storedTtl);
+    }
+
+    [Fact]
+    public async Task GetIdeaCityAsync_CacheMiss_PassesCancellationTokenToInnerAndCache()
+    {
+        var ideaId = Guid.NewGuid();
+        using var cts = new CancellationTokenSource();
+        CancellationToken? getToken = null;
+        CancellationToken? innerToken = null;
+        CancellationToken? setToken = null;
+        SetupCacheGet(ideaId, true, null, token => getToken = token);
+        SetupInner(ideaId, true, Guid.NewGuid(), token => innerToken = token);
+        SetupCacheSet(ideaId, true, (_, _, token) => setToken = token);
+
+        await _sut.GetIdeaCityAsync(ideaId, true, cts.Token);
+
+        Assert.Equal(cts.Token, getToken);
+        Assert.Equal(cts.Token, innerToken);
+        Assert.Equal(cts.Token, setToken);
     }
 
     [Fact]
     public async Task GetIdeaCityAsync_IdeaNotFound_ReturnsErrorAndDoesNotCacheIt()
     {
         var ideaId = Guid.NewGuid();
-        SetupCacheGet(null);
+        SetupCacheGet(ideaId, true, null);
         SetupInner(ideaId, true, FeedbackErrors.IdeaNotFound);
 
         var result = await _sut.GetIdeaCityAsync(ideaId, true);
@@ -107,7 +158,7 @@ public sealed class CachedIdeaServiceTests
     public async Task GetIdeaCityAsync_IdeasServiceUnavailable_ReturnsErrorAndDoesNotCacheIt()
     {
         var ideaId = Guid.NewGuid();
-        SetupCacheGet(null);
+        SetupCacheGet(ideaId, true, null);
         SetupInner(ideaId, true, FeedbackErrors.IdeasServiceUnavailable);
 
         var result = await _sut.GetIdeaCityAsync(ideaId, true);
@@ -115,54 +166,5 @@ public sealed class CachedIdeaServiceTests
         Assert.True(result.IsError);
         Assert.Equal(FeedbackErrors.IdeasServiceUnavailable, result.FirstError);
         VerifyNothingStored();
-    }
-
-    [Fact]
-    public async Task GetIdeaCityAsync_CacheReadFails_FallsBackToInner()
-    {
-        var ideaId = Guid.NewGuid();
-        var cityId = Guid.NewGuid();
-        _cache
-            .Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new InvalidOperationException("redis down"));
-        SetupInner(ideaId, true, cityId);
-        SetupCacheSet();
-
-        var result = await _sut.GetIdeaCityAsync(ideaId, true);
-
-        Assert.False(result.IsError);
-        Assert.Equal(cityId, result.Value);
-    }
-
-    [Fact]
-    public async Task GetIdeaCityAsync_CacheWriteFails_StillReturnsInnerResult()
-    {
-        var ideaId = Guid.NewGuid();
-        var cityId = Guid.NewGuid();
-        SetupCacheGet(null);
-        SetupInner(ideaId, true, cityId);
-        _cache
-            .Setup(c => c.SetAsync(
-                It.IsAny<string>(),
-                It.IsAny<byte[]>(),
-                It.IsAny<DistributedCacheEntryOptions>(),
-                It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new InvalidOperationException("redis down"));
-
-        var result = await _sut.GetIdeaCityAsync(ideaId, true);
-
-        Assert.False(result.IsError);
-        Assert.Equal(cityId, result.Value);
-    }
-
-    [Fact]
-    public async Task GetIdeaCityAsync_CacheReadCancelled_PropagatesCancellation()
-    {
-        _cache
-            .Setup(c => c.GetAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new OperationCanceledException());
-
-        await Assert.ThrowsAsync<OperationCanceledException>(
-            () => _sut.GetIdeaCityAsync(Guid.NewGuid(), true));
     }
 }
