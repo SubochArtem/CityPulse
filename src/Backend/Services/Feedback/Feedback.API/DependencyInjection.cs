@@ -1,4 +1,5 @@
 using CityPulse.Common.Api.Auth;
+using CityPulse.Common.Api.Caching;
 using CityPulse.Common.Api.Extensions;
 using CityPulse.Common.Api.Middleware;
 using CityPulse.Common.Api.Swagger;
@@ -7,16 +8,13 @@ using Feedback.API.Common.Behaviors;
 using Feedback.API.Common.Filters;
 using Feedback.API.Common.Interfaces;
 using Feedback.API.Common.Services;
+using Feedback.API.Infrastructure.Caching;
 using Feedback.API.Infrastructure.Grpc;
 using Feedback.API.Infrastructure.Mongo;
-using Feedback.API.Infrastructure.Redis;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.StackExchangeRedis;
 using Microsoft.Extensions.Options;
-using StackExchange.Redis;
 
 namespace Feedback.API;
 
@@ -45,24 +43,7 @@ public static class DependencyInjection
         services.AddSingleton<MongoDbContext>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 
-        services.AddOptions<RedisSettings>()
-            .Bind(configuration.GetSection(RedisSettings.SectionName))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
-        services.AddStackExchangeRedisCache(_ => { });
-        services.AddOptions<RedisCacheOptions>()
-            .Configure<IOptions<RedisSettings>>((options, redis) =>
-            {
-                var settings = redis.Value;
-                var configurationOptions = ConfigurationOptions.Parse(settings.ConnectionString);
-                configurationOptions.ConnectTimeout = settings.ConnectTimeoutMs;
-                configurationOptions.SyncTimeout = settings.SyncTimeoutMs;
-                configurationOptions.AsyncTimeout = settings.AsyncTimeoutMs;
-                configurationOptions.AbortOnConnectFail = false;
-                options.ConfigurationOptions = configurationOptions;
-                options.InstanceName = settings.InstanceName;
-            });
+        services.AddCityPulseRedisCache(configuration);
 
         services.AddOptions<GrpcSettings>()
             .Bind(configuration.GetSection(GrpcSettings.SectionName))
@@ -78,8 +59,7 @@ public static class DependencyInjection
         services.AddScoped<IdeaGrpcClient>();
         services.AddScoped<IIdeaService>(sp => new CachedIdeaService(
             sp.GetRequiredService<IdeaGrpcClient>(),
-            sp.GetRequiredService<IDistributedCache>(),
-            sp.GetRequiredService<ILogger<CachedIdeaService>>()));
+            sp.GetRequiredService<ICacheStore>()));
 
         services.AddCityPulseAuthentication(configuration);
 
