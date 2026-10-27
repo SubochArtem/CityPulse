@@ -10,6 +10,8 @@ jobs:
   build:
     name: Build and analyze
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: Set up JDK 17
@@ -26,16 +28,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-
-      - name: Authenticate GitHub Packages
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          dotnet nuget update source github \
-            --username "SubochArtem" \
-            --password "$GH_TOKEN" \
-            --store-password-in-clear-text \
-            --configfile nuget.config
 
       - name: Cache SonarQube Cloud packages
         uses: actions/cache@v4
