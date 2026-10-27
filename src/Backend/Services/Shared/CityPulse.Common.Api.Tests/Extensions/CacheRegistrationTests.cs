@@ -10,8 +10,18 @@ namespace CityPulse.Common.Api.Tests.Extensions;
 
 public sealed class CacheRegistrationTests
 {
+    private const string ConnectionStringKey = "Redis:ConnectionString";
+    private const string InstanceNameKey = "Redis:InstanceName";
+    private const string ConnectTimeoutKey = "Redis:ConnectTimeoutMs";
+    private const string SyncTimeoutKey = "Redis:SyncTimeoutMs";
+    private const string AsyncTimeoutKey = "Redis:AsyncTimeoutMs";
+
     private const string ConnectionString = "localhost:6379";
     private const string InstanceName = "test:";
+    private const int ConnectTimeoutMs = 300;
+    private const int SyncTimeoutMs = 400;
+    private const int AsyncTimeoutMs = 600;
+    private const int InvalidTimeoutMs = 0;
 
     private static ServiceProvider BuildProvider(Dictionary<string, string?> settings)
     {
@@ -28,9 +38,19 @@ public sealed class CacheRegistrationTests
 
     private static Dictionary<string, string?> ValidSettings() => new()
     {
-        ["Redis:ConnectionString"] = ConnectionString,
-        ["Redis:InstanceName"] = InstanceName
+        [ConnectionStringKey] = ConnectionString,
+        [InstanceNameKey] = InstanceName,
+        [ConnectTimeoutKey] = ConnectTimeoutMs.ToString(),
+        [SyncTimeoutKey] = SyncTimeoutMs.ToString(),
+        [AsyncTimeoutKey] = AsyncTimeoutMs.ToString()
     };
+
+    private static RedisCacheOptions ResolveRedisCacheOptions(ServiceProvider provider) =>
+        provider.GetRequiredService<IOptions<RedisCacheOptions>>().Value;
+
+    private static void AssertValidationFails(ServiceProvider provider) =>
+        Assert.Throws<OptionsValidationException>(
+            () => provider.GetRequiredService<IOptions<RedisSettings>>().Value);
 
     [Fact]
     public void AddCityPulseRedisCache_ValidSettings_ResolvesRedisCacheStore()
@@ -56,31 +76,14 @@ public sealed class CacheRegistrationTests
     [Fact]
     public void AddCityPulseRedisCache_TimeoutsProvided_AppliesThemToRedisOptions()
     {
-        var settings = ValidSettings();
-        settings["Redis:ConnectTimeoutMs"] = "300";
-        settings["Redis:SyncTimeoutMs"] = "400";
-        settings["Redis:AsyncTimeoutMs"] = "600";
-        using var provider = BuildProvider(settings);
-
-        var options = provider.GetRequiredService<IOptions<RedisCacheOptions>>().Value;
-
-        Assert.NotNull(options.ConfigurationOptions);
-        Assert.Equal(300, options.ConfigurationOptions.ConnectTimeout);
-        Assert.Equal(400, options.ConfigurationOptions.SyncTimeout);
-        Assert.Equal(600, options.ConfigurationOptions.AsyncTimeout);
-    }
-
-    [Fact]
-    public void AddCityPulseRedisCache_TimeoutsNotProvided_UsesDefaultOfFiveHundredMilliseconds()
-    {
         using var provider = BuildProvider(ValidSettings());
 
-        var options = provider.GetRequiredService<IOptions<RedisCacheOptions>>().Value;
+        var options = ResolveRedisCacheOptions(provider);
 
         Assert.NotNull(options.ConfigurationOptions);
-        Assert.Equal(500, options.ConfigurationOptions.ConnectTimeout);
-        Assert.Equal(500, options.ConfigurationOptions.SyncTimeout);
-        Assert.Equal(500, options.ConfigurationOptions.AsyncTimeout);
+        Assert.Equal(ConnectTimeoutMs, options.ConfigurationOptions.ConnectTimeout);
+        Assert.Equal(SyncTimeoutMs, options.ConfigurationOptions.SyncTimeout);
+        Assert.Equal(AsyncTimeoutMs, options.ConfigurationOptions.AsyncTimeout);
     }
 
     [Fact]
@@ -88,7 +91,7 @@ public sealed class CacheRegistrationTests
     {
         using var provider = BuildProvider(ValidSettings());
 
-        var options = provider.GetRequiredService<IOptions<RedisCacheOptions>>().Value;
+        var options = ResolveRedisCacheOptions(provider);
 
         Assert.NotNull(options.ConfigurationOptions);
         Assert.False(options.ConfigurationOptions.AbortOnConnectFail);
@@ -99,41 +102,36 @@ public sealed class CacheRegistrationTests
     {
         using var provider = BuildProvider(ValidSettings());
 
-        var options = provider.GetRequiredService<IOptions<RedisCacheOptions>>().Value;
+        var options = ResolveRedisCacheOptions(provider);
 
         Assert.Equal(InstanceName, options.InstanceName);
     }
 
-    [Fact]
-    public void AddCityPulseRedisCache_ConnectionStringIsMissing_FailsValidation()
+    [Theory]
+    [InlineData(ConnectionStringKey)]
+    [InlineData(InstanceNameKey)]
+    [InlineData(ConnectTimeoutKey)]
+    [InlineData(SyncTimeoutKey)]
+    [InlineData(AsyncTimeoutKey)]
+    public void AddCityPulseRedisCache_SettingIsMissing_FailsValidation(string missingKey)
     {
         var settings = ValidSettings();
-        settings.Remove("Redis:ConnectionString");
+        settings.Remove(missingKey);
         using var provider = BuildProvider(settings);
 
-        Assert.Throws<OptionsValidationException>(
-            () => provider.GetRequiredService<IOptions<RedisSettings>>().Value);
+        AssertValidationFails(provider);
     }
 
-    [Fact]
-    public void AddCityPulseRedisCache_InstanceNameIsMissing_FailsValidation()
+    [Theory]
+    [InlineData(ConnectTimeoutKey)]
+    [InlineData(SyncTimeoutKey)]
+    [InlineData(AsyncTimeoutKey)]
+    public void AddCityPulseRedisCache_TimeoutIsOutOfRange_FailsValidation(string timeoutKey)
     {
         var settings = ValidSettings();
-        settings.Remove("Redis:InstanceName");
+        settings[timeoutKey] = InvalidTimeoutMs.ToString();
         using var provider = BuildProvider(settings);
 
-        Assert.Throws<OptionsValidationException>(
-            () => provider.GetRequiredService<IOptions<RedisSettings>>().Value);
-    }
-
-    [Fact]
-    public void AddCityPulseRedisCache_TimeoutIsZero_FailsValidation()
-    {
-        var settings = ValidSettings();
-        settings["Redis:SyncTimeoutMs"] = "0";
-        using var provider = BuildProvider(settings);
-
-        Assert.Throws<OptionsValidationException>(
-            () => provider.GetRequiredService<IOptions<RedisSettings>>().Value);
+        AssertValidationFails(provider);
     }
 }

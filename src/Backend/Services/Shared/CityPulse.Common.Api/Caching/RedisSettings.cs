@@ -13,11 +13,11 @@ public class RedisSettings
     public required string InstanceName { get; init; }
 
     [Range(1, 60000)]
-    public int ConnectTimeoutMs { get; init; } = 500;
+    public required int ConnectTimeoutMs { get; init; }
 
     [Range(1, 60000)]
-    public int SyncTimeoutMs { get; init; } = 500;
+    public required int SyncTimeoutMs { get; init; }
 
     [Range(1, 60000)]
-    public int AsyncTimeoutMs { get; init; } = 500;
+    public required int AsyncTimeoutMs { get; init; }
 }
