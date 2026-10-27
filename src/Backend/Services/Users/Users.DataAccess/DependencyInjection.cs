@@ -1,3 +1,5 @@
+using CityPulse.Common.Api.Caching;
+using CityPulse.Common.Api.Extensions;
 using CityPulse.Contracts.Grpc.Protos;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
@@ -63,9 +65,14 @@ public static class DependencyInjection
             options.Address = new Uri(settings.CitiesServiceUrl);
         });
 
-        services
-            .AddScoped<ICityService, CityGrpcService>()
-            .AddScoped<IEventPublisher, EventPublisherAdapter>();
+        services.AddCityPulseRedisCache(configuration);
+
+        services.AddScoped<CityGrpcService>();
+        services.AddScoped<ICityService>(sp => new CachedCityService(
+            sp.GetRequiredService<CityGrpcService>(),
+            sp.GetRequiredService<ICacheStore>()));
+
+        services.AddScoped<IEventPublisher, EventPublisherAdapter>();
 
         services.AddOptions<RabbitMqSettings>()
             .Bind(configuration.GetSection(RabbitMqSettings.SectionName))
