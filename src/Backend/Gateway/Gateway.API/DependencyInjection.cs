@@ -45,8 +45,7 @@ public static class DependencyInjection
                             TokenLimit = limits.TokenLimit,
                             TokensPerPeriod = limits.TokensPerPeriod,
                             ReplenishmentPeriod = TimeSpan.FromSeconds(limits.ReplenishmentPeriodSeconds),
-                            AutoReplenishment = true,
-                            QueueLimit = 0
+                            QueueLimit = limits.QueueLimit
                         }));
             });
 
