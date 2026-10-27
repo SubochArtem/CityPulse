@@ -11,6 +11,9 @@ namespace CityPulse.Common.Api.Tests.Caching;
 public sealed class RedisCacheStoreTests
 {
     private const string Key = "city:1";
+    private const string SampleName = "Minsk";
+    private const string InvalidJson = "not a json";
+    private const string RedisDownMessage = "redis down";
 
     private static readonly TimeSpan Ttl = TimeSpan.FromMinutes(1);
 
@@ -67,7 +70,7 @@ public sealed class RedisCacheStoreTests
     [Fact]
     public async Task GetAsync_KeyExists_ReturnsDeserializedValue()
     {
-        var sample = new Sample(Guid.NewGuid(), "Minsk");
+        var sample = new Sample(Guid.NewGuid(), SampleName);
         SetupGet(JsonSerializer.SerializeToUtf8Bytes(sample));
 
         var result = await _sut.GetAsync<Sample>(Key);
@@ -78,7 +81,7 @@ public sealed class RedisCacheStoreTests
     [Fact]
     public async Task GetAsync_StoredValueIsNotValidJson_ReturnsNull()
     {
-        SetupGet(Encoding.UTF8.GetBytes("not a json"));
+        SetupGet(Encoding.UTF8.GetBytes(InvalidJson));
 
         var result = await _sut.GetAsync<Sample>(Key);
 
@@ -88,7 +91,7 @@ public sealed class RedisCacheStoreTests
     [Fact]
     public async Task GetAsync_CacheThrows_ReturnsNull()
     {
-        SetupGetThrows(new InvalidOperationException("redis down"));
+        SetupGetThrows(new InvalidOperationException(RedisDownMessage));
 
         var result = await _sut.GetAsync<Sample>(Key);
 
@@ -107,7 +110,7 @@ public sealed class RedisCacheStoreTests
     [Fact]
     public async Task SetAsync_ValidValue_StoresJsonWithTtl()
     {
-        var sample = new Sample(Guid.NewGuid(), "Minsk");
+        var sample = new Sample(Guid.NewGuid(), SampleName);
         byte[]? storedBytes = null;
         DistributedCacheEntryOptions? storedOptions = null;
         SetupSet((value, options) =>
@@ -126,10 +129,10 @@ public sealed class RedisCacheStoreTests
     [Fact]
     public async Task SetAsync_CacheThrows_DoesNotThrow()
     {
-        SetupSetThrows(new InvalidOperationException("redis down"));
+        SetupSetThrows(new InvalidOperationException(RedisDownMessage));
 
         var exception = await Record.ExceptionAsync(
-            () => _sut.SetAsync(Key, new Sample(Guid.NewGuid(), "Minsk"), Ttl));
+            () => _sut.SetAsync(Key, new Sample(Guid.NewGuid(), SampleName), Ttl));
 
         Assert.Null(exception);
     }
@@ -140,6 +143,6 @@ public sealed class RedisCacheStoreTests
         SetupSetThrows(new OperationCanceledException());
 
         await Assert.ThrowsAsync<OperationCanceledException>(
-            () => _sut.SetAsync(Key, new Sample(Guid.NewGuid(), "Minsk"), Ttl));
+            () => _sut.SetAsync(Key, new Sample(Guid.NewGuid(), SampleName), Ttl));
     }
 }
