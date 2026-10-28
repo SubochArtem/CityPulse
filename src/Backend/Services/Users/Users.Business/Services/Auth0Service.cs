@@ -1,9 +1,12 @@
+using System.Net;
 using Auth0.AuthenticationApi;
 using Auth0.AuthenticationApi.Models;
+using Auth0.Core.Exceptions;
 using Auth0.ManagementApi;
 using Auth0.ManagementApi.Models;
 using Microsoft.Extensions.Options;
 using Users.Business.Configurations;
+using Users.Business.Constants;
 using Users.Business.DTOs;
 using Users.Business.Exceptions;
 using Users.Business.Helpers;
@@ -15,49 +18,53 @@ public class Auth0Service(
     IOptions<Auth0Settings> settings,
     IHttpClientFactory httpClientFactory) : IIdentityProvider
 {
+    private const string TokenRequestFailedMessage = "Auth0 token request failed";
+    private const string ManagementRequestFailedMessage = "Auth0 Management API request failed";
+    private const string UnreachableMessage = "Auth0 is unreachable";
+
     private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
     private readonly SemaphoreSlim _semaphore = new(1, 1);
     private readonly Auth0Settings _settings = settings.Value;
     private ManagementApiClient? _managementClient;
     private DateTime _tokenExpiresAt = DateTime.MinValue;
 
-    public async Task BlockUserAsync(
+    public Task BlockUserAsync(
         string identityId,
-        CancellationToken cancellationToken = default)
-    {
-        var client = await GetManagementClientAsync(cancellationToken);
-        await client.Users.UpdateAsync(
+        CancellationToken cancellationToken = default) =>
+        ExecuteAsync(
             identityId,
-            new UserUpdateRequest { Blocked = true },
+            client => client.Users.UpdateAsync(
+                identityId,
+                new UserUpdateRequest { Blocked = true },
+                cancellationToken),
             cancellationToken);
-    }
 
-    public async Task UnblockUserAsync(
+    public Task UnblockUserAsync(
         string identityId,
-        CancellationToken cancellationToken = default)
-    {
-        var client = await GetManagementClientAsync(cancellationToken);
-        await client.Users.UpdateAsync(
+        CancellationToken cancellationToken = default) =>
+        ExecuteAsync(
             identityId,
-            new UserUpdateRequest { Blocked = false },
+            client => client.Users.UpdateAsync(
+                identityId,
+                new UserUpdateRequest { Blocked = false },
+                cancellationToken),
             cancellationToken);
-    }
 
-    public async Task DeleteUserAsync(
+    public Task DeleteUserAsync(
         string identityId,
-        CancellationToken cancellationToken = default)
-    {
-        var client = await GetManagementClientAsync(cancellationToken);
-        await client.Users.DeleteAsync(identityId, cancellationToken);
-    }
-    
-    public async Task UpdateUserProfileAsync(
+        CancellationToken cancellationToken = default) =>
+        ExecuteAsync(
+            identityId,
+            client => client.Users.DeleteAsync(identityId, cancellationToken),
+            cancellationToken);
+
+    public Task UpdateUserProfileAsync(
         string identityId,
         UpdateUserProfileDto updateUserProfileDto,
         CancellationToken cancellationToken = default)
     {
         if (updateUserProfileDto.Nickname is null && updateUserProfileDto.CityId is null)
-            return;
+            return Task.CompletedTask;
 
         var userUpdateRequest = new UserUpdateRequest();
 
@@ -67,8 +74,37 @@ public class Auth0Service(
         if (updateUserProfileDto.CityId is not null)
             userUpdateRequest.UserMetadata = new { city_id = updateUserProfileDto.CityId.ToString() };
 
+        return ExecuteAsync(
+            identityId,
+            client => client.Users.UpdateAsync(identityId, userUpdateRequest, cancellationToken),
+            cancellationToken);
+    }
+
+    private async Task ExecuteAsync(
+        string identityId,
+        Func<ManagementApiClient, Task> operation,
+        CancellationToken cancellationToken)
+    {
         var client = await GetManagementClientAsync(cancellationToken);
-        await client.Users.UpdateAsync(identityId, userUpdateRequest, cancellationToken);
+
+        try
+        {
+            await operation(client);
+        }
+        catch (ErrorApiException exception) when (exception.StatusCode == HttpStatusCode.NotFound)
+        {
+            throw new UserNotFoundException(identityId, IdentitySources.Auth0);
+        }
+        catch (ErrorApiException exception)
+        {
+            throw new Auth0Exception(
+                $"{ManagementRequestFailedMessage} with status {(int)exception.StatusCode}.",
+                exception);
+        }
+        catch (HttpRequestException exception)
+        {
+            throw new Auth0Exception(UnreachableMessage, exception);
+        }
     }
 
     private async Task<ManagementApiClient> GetManagementClientAsync(
@@ -90,12 +126,26 @@ public class Auth0Service(
                 UriHelper.BuildHttpsUri(_settings.Domain),
                 new HttpClientAuthenticationConnection(httpClient));
 
-            var tokenResponse = await authClient.GetTokenAsync(new ClientCredentialsTokenRequest
+            AccessTokenResponse tokenResponse;
+            try
             {
-                ClientId = _settings.ManagementApiClientId,
-                ClientSecret = _settings.ManagementApiClientSecret,
-                Audience = _settings.ManagementApiAudience
-            }, cancellationToken);
+                tokenResponse = await authClient.GetTokenAsync(new ClientCredentialsTokenRequest
+                {
+                    ClientId = _settings.ManagementApiClientId,
+                    ClientSecret = _settings.ManagementApiClientSecret,
+                    Audience = _settings.ManagementApiAudience
+                }, cancellationToken);
+            }
+            catch (ErrorApiException exception)
+            {
+                throw new Auth0Exception(
+                    $"{TokenRequestFailedMessage} with status {(int)exception.StatusCode}.",
+                    exception);
+            }
+            catch (HttpRequestException exception)
+            {
+                throw new Auth0Exception(UnreachableMessage, exception);
+            }
 
             if (tokenResponse is not { AccessToken: { Length: > 0 } accessToken })
                 throw new Auth0Exception("Invalid token response");

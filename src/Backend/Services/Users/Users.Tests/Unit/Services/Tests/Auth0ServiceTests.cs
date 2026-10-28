@@ -5,10 +5,12 @@ using Auth0.Core.Exceptions;
 using Microsoft.Extensions.Options;
 using Moq;
 using Users.Business.Configurations;
+using Users.Business.Constants;
 using Users.Business.DTOs;
 using Users.Business.Exceptions;
 using Users.Business.Services;
 using Users.Tests.Infrastructure;
+using Users.Tests.Unit.Services.TestData;
 using Xunit;
 
 namespace Users.Tests.Unit.Services.Tests;
@@ -26,6 +28,9 @@ public sealed class Auth0ServiceTests
     private const string ExpectedAuthorization = $"Bearer {AccessToken}";
     private const string EmptyJsonObject = "{}";
     private const string InvalidTokenResponseMessage = "Invalid token response";
+    private const string UnreachableMessage = "Auth0 is unreachable";
+    private const string ManagementFailedMessage = "Auth0 Management API request failed with status 500.";
+    private const string TokenFailedMessagePrefix = "Auth0 token request failed with status";
     private const string ClientCredentialsGrantType = "client_credentials";
 
     private const string BlockedField = "blocked";
@@ -51,6 +56,8 @@ public sealed class Auth0ServiceTests
     private string _accessToken = AccessToken;
     private HttpStatusCode _tokenStatusCode = HttpStatusCode.OK;
     private HttpStatusCode _managementStatusCode = HttpStatusCode.OK;
+    private Exception? _tokenException;
+    private Exception? _managementException;
     private readonly StubHttpMessageHandler _handler;
     private readonly Auth0Service _sut;
 
@@ -81,6 +88,9 @@ public sealed class Auth0ServiceTests
     {
         if (request.Uri!.AbsolutePath == TokenPath)
         {
+            if (_tokenException is not null)
+                throw _tokenException;
+
             var tokenJson = JsonSerializer.Serialize(new
             {
                 access_token = _accessToken,
@@ -92,6 +102,9 @@ public sealed class Auth0ServiceTests
                 Content = new StringContent(tokenJson)
             };
         }
+
+        if (_managementException is not null)
+            throw _managementException;
 
         return new HttpResponseMessage(_managementStatusCode)
         {
@@ -244,21 +257,80 @@ public sealed class Auth0ServiceTests
         Assert.Empty(ManagementRequests);
     }
 
-    [Fact]
-    public async Task BlockUserAsync_TokenEndpointFails_ThrowsAndSendsNoManagementRequest()
+    [Theory]
+    [MemberData(nameof(Auth0ServiceTestData.TokenErrorStatusCodes), MemberType = typeof(Auth0ServiceTestData))]
+    public async Task BlockUserAsync_TokenEndpointFails_ThrowsAuth0ExceptionAndSendsNoManagementRequest(
+        HttpStatusCode tokenStatusCode)
     {
-        _tokenStatusCode = HttpStatusCode.InternalServerError;
+        _tokenStatusCode = tokenStatusCode;
 
-        await Assert.ThrowsAsync<ErrorApiException>(() => _sut.BlockUserAsync(IdentityId));
+        var exception = await Assert.ThrowsAsync<Auth0Exception>(() => _sut.BlockUserAsync(IdentityId));
 
+        Assert.StartsWith(TokenFailedMessagePrefix, exception.Message);
+        Assert.IsAssignableFrom<ErrorApiException>(exception.InnerException);
         Assert.Empty(ManagementRequests);
     }
 
     [Fact]
-    public async Task BlockUserAsync_ManagementApiFails_ThrowsErrorApiException()
+    public async Task BlockUserAsync_TokenEndpointUnreachable_ThrowsAuth0ExceptionAndSendsNoManagementRequest()
+    {
+        _tokenException = new HttpRequestException();
+
+        var exception = await Assert.ThrowsAsync<Auth0Exception>(() => _sut.BlockUserAsync(IdentityId));
+
+        Assert.Equal(UnreachableMessage, exception.Message);
+        Assert.IsType<HttpRequestException>(exception.InnerException);
+        Assert.Empty(ManagementRequests);
+    }
+
+    [Theory]
+    [MemberData(nameof(Auth0ServiceTestData.Operations), MemberType = typeof(Auth0ServiceTestData))]
+    public async Task Operation_UserMissingInAuth0_ThrowsUserNotFoundException(
+        Func<Auth0Service, string, Task> operation)
+    {
+        _managementStatusCode = HttpStatusCode.NotFound;
+
+        var exception = await Assert.ThrowsAsync<UserNotFoundException>(() => operation(_sut, IdentityId));
+
+        Assert.Equal(IdentityId, exception.IdentityId);
+        Assert.Equal(IdentitySources.Auth0, exception.IdentityProvider);
+    }
+
+    [Theory]
+    [MemberData(nameof(Auth0ServiceTestData.Operations), MemberType = typeof(Auth0ServiceTestData))]
+    public async Task Operation_ManagementApiFails_ThrowsAuth0ExceptionWithStatus(
+        Func<Auth0Service, string, Task> operation)
     {
         _managementStatusCode = HttpStatusCode.InternalServerError;
 
-        await Assert.ThrowsAsync<ErrorApiException>(() => _sut.BlockUserAsync(IdentityId));
+        var exception = await Assert.ThrowsAsync<Auth0Exception>(() => operation(_sut, IdentityId));
+
+        Assert.Equal(ManagementFailedMessage, exception.Message);
+        Assert.IsAssignableFrom<ErrorApiException>(exception.InnerException);
+    }
+
+    [Theory]
+    [MemberData(nameof(Auth0ServiceTestData.ManagementErrorStatusCodes), MemberType = typeof(Auth0ServiceTestData))]
+    public async Task BlockUserAsync_ManagementApiReturnsErrorStatus_ThrowsAuth0Exception(
+        HttpStatusCode managementStatusCode)
+    {
+        _managementStatusCode = managementStatusCode;
+
+        var exception = await Assert.ThrowsAsync<Auth0Exception>(() => _sut.BlockUserAsync(IdentityId));
+
+        Assert.IsAssignableFrom<ErrorApiException>(exception.InnerException);
+    }
+
+    [Theory]
+    [MemberData(nameof(Auth0ServiceTestData.Operations), MemberType = typeof(Auth0ServiceTestData))]
+    public async Task Operation_ManagementApiUnreachable_ThrowsAuth0Exception(
+        Func<Auth0Service, string, Task> operation)
+    {
+        _managementException = new HttpRequestException();
+
+        var exception = await Assert.ThrowsAsync<Auth0Exception>(() => operation(_sut, IdentityId));
+
+        Assert.Equal(UnreachableMessage, exception.Message);
+        Assert.IsType<HttpRequestException>(exception.InnerException);
     }
 }
