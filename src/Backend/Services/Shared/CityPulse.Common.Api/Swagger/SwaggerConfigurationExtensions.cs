@@ -19,10 +19,17 @@ public static class SwaggerConfigurationExtensions
     public static void AddSwaggerConfiguration(
         this IServiceCollection services,
         string title,
-        string description)
+        string description,
+        Action<SwaggerResponseOptions>? configureResponses = null)
     {
+        var responseOptions = new SwaggerResponseOptions();
+        configureResponses?.Invoke(responseOptions);
+
         services.AddSwaggerGen(options =>
         {
+            options.AddOperationFilterInstance(new ResponseSchemaOperationFilter(responseOptions));
+            options.DocumentFilter<UnusedSchemaDocumentFilter>();
+
             options.SwaggerDoc(SwaggerDocVersion, new OpenApiInfo
             {
                 Title = title,
