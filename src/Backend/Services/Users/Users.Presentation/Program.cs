@@ -8,9 +8,11 @@ builder.Services.AddPresentation(builder.Configuration);
 
 var app = builder.Build();
 
+await app.Services.ApplyUsersModuleMigrationsAsync();
+
 app.UsePresentation();
 
-app.Run();
+await app.RunAsync();
 
 public partial class Program
 {
