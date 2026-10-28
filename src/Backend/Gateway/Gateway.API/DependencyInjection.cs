@@ -1,6 +1,7 @@
 using System.Threading.RateLimiting;
 using Gateway.API.Configuration;
 using Gateway.API.Constants;
+using Gateway.API.Extensions;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
@@ -20,6 +21,11 @@ public static class DependencyInjection
 
         services.AddOptions<RateLimitingSettings>()
             .Bind(configuration.GetSection(RateLimitingSettings.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddOptions<SwaggerSettings>()
+            .Bind(configuration.GetSection(SwaggerSettings.SectionName))
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
@@ -61,6 +67,7 @@ public static class DependencyInjection
     {
         app.UseCors();
         app.UseRateLimiter();
+        app.UseGatewaySwagger();
         app.MapHealthChecks(GatewayDefaults.HealthCheckPath);
         app.MapReverseProxy();
     }

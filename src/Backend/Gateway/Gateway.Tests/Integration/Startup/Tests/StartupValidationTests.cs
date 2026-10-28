@@ -29,6 +29,23 @@ public sealed class StartupValidationTests
     }
 
     [Fact]
+    public void Start_SwaggerEnabledWithoutClientId_ShouldFailWithOptionsValidationException()
+    {
+        using var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+        {
+            builder.UseEnvironment(TestConstants.Environment);
+            builder.ConfigureAppConfiguration((_, configuration) =>
+                configuration.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    [TestConstants.ConfigurationKeys.SwaggerEnabled] = bool.TrueString,
+                    [TestConstants.ConfigurationKeys.SwaggerAudience] = TestConstants.Swagger.Audience
+                }));
+        });
+
+        Assert.Throws<OptionsValidationException>(() => factory.CreateClient());
+    }
+
+    [Fact]
     public void Start_DefaultConfiguration_ShouldSucceed()
     {
         using var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>

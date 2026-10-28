@@ -33,8 +33,25 @@ internal static class TestConstants
         public const string AccessControlAllowOrigin = "Access-Control-Allow-Origin";
     }
 
+    public static class Swagger
+    {
+        public const string ClientId = "swagger-test-client";
+        public const string Audience = "https://swagger-test-api";
+        public const string IndexPath = "/swagger/index.html";
+        public const string RedirectPath = "/swagger/oauth2-redirect.html";
+        public const string UpstreamDocumentPath = "/swagger/v1/swagger.json";
+        public const string UsersTitle = "Users";
+        public const string PollsTitle = "Polls";
+        public const string FeedbackTitle = "Feedback";
+
+        public static string DocumentPath(string service) => $"/swagger/{service}/swagger.json";
+    }
+
     public static class ConfigurationKeys
     {
+        public const string SwaggerEnabled = "Swagger:Enabled";
+        public const string SwaggerClientId = "Swagger:ClientId";
+        public const string SwaggerAudience = "Swagger:Audience";
         public const string TokenLimit = "RateLimiting:TokenLimit";
         public const string TokensPerPeriod = "RateLimiting:TokensPerPeriod";
         public const string ReplenishmentPeriodSeconds = "RateLimiting:ReplenishmentPeriodSeconds";

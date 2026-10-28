@@ -40,7 +40,10 @@ public sealed class GatewayWebAppFactory : WebApplicationFactory<Program>, IAsyn
             {
                 [TestConstants.ConfigurationKeys.ClusterAddress(TestConstants.Services.Users)] = _users.Address,
                 [TestConstants.ConfigurationKeys.ClusterAddress(TestConstants.Services.Polls)] = _polls.Address,
-                [TestConstants.ConfigurationKeys.ClusterAddress(TestConstants.Services.Feedback)] = _feedback.Address
+                [TestConstants.ConfigurationKeys.ClusterAddress(TestConstants.Services.Feedback)] = _feedback.Address,
+                [TestConstants.ConfigurationKeys.SwaggerEnabled] = bool.TrueString,
+                [TestConstants.ConfigurationKeys.SwaggerClientId] = TestConstants.Swagger.ClientId,
+                [TestConstants.ConfigurationKeys.SwaggerAudience] = TestConstants.Swagger.Audience
             }));
     }
 }
