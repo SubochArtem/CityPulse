@@ -5,9 +5,9 @@ namespace CityPulse.Common.Api.Swagger;
 
 internal sealed class UnusedSchemaDocumentFilter : IDocumentFilter
 {
-    public void Apply(OpenApiDocument document, DocumentFilterContext context)
+    public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
     {
-        var schemas = document.Components?.Schemas;
+        var schemas = swaggerDoc.Components?.Schemas;
         if (schemas is null || schemas.Count == 0)
         {
             return;
@@ -15,7 +15,7 @@ internal sealed class UnusedSchemaDocumentFilter : IDocumentFilter
 
         var reachable = new HashSet<string>(StringComparer.Ordinal);
         var visited = new HashSet<OpenApiSchema>(ReferenceEqualityComparer.Instance);
-        var pending = new Stack<OpenApiSchema>(CollectOperationSchemas(document));
+        var pending = new Stack<OpenApiSchema>(CollectOperationSchemas(swaggerDoc));
 
         while (pending.Count > 0)
         {
@@ -88,12 +88,10 @@ internal sealed class UnusedSchemaDocumentFilter : IDocumentFilter
             }
 
             var bodies = operation.RequestBody?.Content.Values ?? Enumerable.Empty<OpenApiMediaType>();
-            foreach (var media in bodies.Concat(operation.Responses.Values.SelectMany(response => response.Content.Values)))
+            var mediaTypes = bodies.Concat(operation.Responses.Values.SelectMany(response => response.Content.Values));
+            foreach (var media in mediaTypes.Where(media => media.Schema is not null))
             {
-                if (media.Schema is not null)
-                {
-                    yield return media.Schema;
-                }
+                yield return media.Schema;
             }
         }
     }
