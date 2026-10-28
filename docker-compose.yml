@@ -1,3 +1,18 @@
+x-auth0: &auth0
+  Auth0__Domain: ${AUTH0_DOMAIN:-}
+  Auth0__Audience: ${AUTH0_AUDIENCE:-}
+  Auth0__ClientId: ${AUTH0_CLIENT_ID:-}
+
+x-rabbitmq: &rabbitmq
+  RabbitMq__Host: rabbitmq
+  RabbitMq__Port: 5672
+  RabbitMq__Username: ${RABBITMQ_DEFAULT_USER}
+  RabbitMq__Password: ${RABBITMQ_DEFAULT_PASS}
+  RabbitMq__VirtualHost: /
+
+x-redis: &redis
+  Redis__ConnectionString: redis:6379
+
 services:
   minio:
     image: cgr.dev/chainguard/minio:latest
@@ -31,6 +46,12 @@ services:
       - "15672:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
 
   mongodb:
     image: mongo:8
@@ -41,6 +62,12 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 20s
 
   redis:
     image: redis:7
@@ -50,6 +77,11 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   users-db:
     image: postgres:18
@@ -62,6 +94,12 @@ services:
       - "5432:5432"
     volumes:
       - users_db_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   polls-db:
     image: postgres:18
@@ -74,6 +112,116 @@ services:
       - "5433:5432"
     volumes:
       - polls_db_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  users:
+    profiles: [app]
+    build:
+      context: .
+      dockerfile: src/Backend/Services/Users/Dockerfile
+      secrets:
+        - github_token
+    image: citypulse-users
+    container_name: citypulse_users
+    depends_on:
+      users-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      polls:
+        condition: service_started
+    environment:
+      <<: [*auth0, *rabbitmq, *redis]
+      DatabaseSettings__ApplyMigrationsOnStartup: true
+      ConnectionStrings__DefaultConnection: Host=users-db;Port=5432;Database=CityPulse;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      GrpcSettings__CitiesServiceUrl: http://polls:8081
+      Auth0__ClientSecret: ${AUTH0_CLIENT_SECRET:-}
+      Auth0__ManagementApiClientId: ${AUTH0_MANAGEMENT_API_CLIENT_ID:-}
+      Auth0__ManagementApiClientSecret: ${AUTH0_MANAGEMENT_API_CLIENT_SECRET:-}
+      Auth0__ManagementApiAudience: ${AUTH0_MANAGEMENT_API_AUDIENCE:-}
+      Auth0__WebhookSecret: ${AUTH0_WEBHOOK_SECRET:-}
+
+  polls:
+    profiles: [app]
+    build:
+      context: .
+      dockerfile: src/Backend/Services/Polls/Dockerfile
+      secrets:
+        - github_token
+    image: citypulse-polls
+    container_name: citypulse_polls
+    depends_on:
+      polls-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_started
+      minio-init:
+        condition: service_completed_successfully
+    environment:
+      <<: [*auth0, *rabbitmq]
+      DatabaseSettings__ApplyMigrationsOnStartup: true
+      DatabaseSettings__ConnectionString: Host=polls-db;Port=5432;Database=CityPulse_polls;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      ImageStorage__Endpoint: minio:9000
+      ImageStorage__AccessKey: ${MINIO_ROOT_USER}
+      ImageStorage__SecretKey: ${MINIO_ROOT_PASSWORD}
+      ImageStorage__BucketName: polls-images
+      ImageStorage__UseSsl: false
+      Kestrel__Endpoints__Http1__Url: http://+:8080
+      Kestrel__Endpoints__Http1__Protocols: Http1
+      Kestrel__Endpoints__Http2Only__Url: http://+:8081
+      Kestrel__Endpoints__Http2Only__Protocols: Http2
+
+  feedback:
+    profiles: [app]
+    build:
+      context: .
+      dockerfile: src/Backend/Services/Feedback/Dockerfile
+      secrets:
+        - github_token
+    image: citypulse-feedback
+    container_name: citypulse_feedback
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      polls:
+        condition: service_started
+    environment:
+      <<: [*auth0, *redis]
+      MongoDb__ConnectionString: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
+      GrpcSettings__IdeasServiceUrl: http://polls:8081
+
+  gateway:
+    profiles: [app]
+    build:
+      context: .
+      dockerfile: src/Backend/Gateway/Dockerfile
+    image: citypulse-gateway
+    container_name: citypulse_gateway
+    depends_on:
+      - users
+      - polls
+      - feedback
+    ports:
+      - "8080:8080"
+    environment:
+      ReverseProxy__Clusters__users__Destinations__users__Address: http://users:8080
+      ReverseProxy__Clusters__polls__Destinations__polls__Address: http://polls:8080
+      ReverseProxy__Clusters__feedback__Destinations__feedback__Address: http://feedback:8080
+
+secrets:
+  github_token:
+    environment: GITHUB_TOKEN
 
 volumes:
   minio_data:
@@ -82,4 +230,3 @@ volumes:
   redis_data:
   users_db_data:
   polls_db_data:
-    
