@@ -108,6 +108,18 @@ public sealed class HttpPoliciesTests : IDisposable
         Assert.Equal(2, _handler.Requests.Count);
     }
 
+    [Theory]
+    [MemberData(nameof(HttpPoliciesTestData.NonRetryableStatusCodes), MemberType = typeof(HttpPoliciesTestData))]
+    public async Task SendAsync_ClientErrorStatus_DoesNotRetryAndReturnsIt(HttpStatusCode failureStatus)
+    {
+        AlwaysRespondWith(failureStatus);
+
+        var response = await CompleteAsync(_client.GetAsync(RequestUrl));
+
+        Assert.Equal(failureStatus, response.StatusCode);
+        Assert.Single(_handler.Requests);
+    }
+
     [Fact]
     public async Task SendAsync_HttpRequestExceptionThenSuccess_RetriesAndReturnsSuccess()
     {

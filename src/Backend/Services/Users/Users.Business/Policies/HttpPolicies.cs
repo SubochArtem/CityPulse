@@ -22,8 +22,9 @@ public static class HttpPolicies
                 ShouldHandle = args => args.Outcome switch
                 {
                     { Exception: HttpRequestException } => PredicateResult.True(),
-                    { Result.StatusCode: HttpStatusCode.TooManyRequests } => PredicateResult.True(),
-                    { Result.IsSuccessStatusCode: false } => PredicateResult.True(),
+                    { Result.StatusCode: HttpStatusCode.TooManyRequests or HttpStatusCode.RequestTimeout } =>
+                        PredicateResult.True(),
+                    { Result.StatusCode: >= HttpStatusCode.InternalServerError } => PredicateResult.True(),
                     _ => PredicateResult.False()
                 }
             });

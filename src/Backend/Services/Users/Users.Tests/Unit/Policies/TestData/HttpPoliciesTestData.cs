@@ -11,7 +11,16 @@ public static class HttpPoliciesTestData
         HttpStatusCode.BadGateway,
         HttpStatusCode.ServiceUnavailable,
         HttpStatusCode.TooManyRequests,
-        HttpStatusCode.RequestTimeout,
-        HttpStatusCode.NotFound
+        HttpStatusCode.RequestTimeout
+    };
+
+    public static TheoryData<HttpStatusCode> NonRetryableStatusCodes => new()
+    {
+        HttpStatusCode.BadRequest,
+        HttpStatusCode.Unauthorized,
+        HttpStatusCode.Forbidden,
+        HttpStatusCode.NotFound,
+        HttpStatusCode.Conflict,
+        HttpStatusCode.UnprocessableEntity
     };
 }
