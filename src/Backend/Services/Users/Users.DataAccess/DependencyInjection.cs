@@ -52,6 +52,11 @@ public static class DependencyInjection
                     auditInterceptor);
         });
 
+        services.AddOptions<DatabaseSettings>()
+            .Bind(configuration.GetSection(DatabaseSettings.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         services.AddScoped<IUserRepository, UserRepository>();
 
         services.AddOptions<GrpcSettings>()
