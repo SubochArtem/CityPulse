@@ -215,6 +215,9 @@ services:
     ports:
       - "8080:8080"
     environment:
+      Swagger__Enabled: true
+      Swagger__ClientId: ${AUTH0_CLIENT_ID:-}
+      Swagger__Audience: ${AUTH0_AUDIENCE:-}
       ReverseProxy__Clusters__users__Destinations__users__Address: http://users:8080
       ReverseProxy__Clusters__polls__Destinations__polls__Address: http://polls:8080
       ReverseProxy__Clusters__feedback__Destinations__feedback__Address: http://feedback:8080
