@@ -1,5 +1,4 @@
 using Users.Business;
-using Users.DataAccess.Extensions;
 using Users.Presentation;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +8,7 @@ builder.Services.AddPresentation(builder.Configuration);
 
 var app = builder.Build();
 
-await app.Services.ApplyMigrationsIfEnabledAsync();
+await app.Services.ApplyUsersModuleMigrationsAsync();
 
 app.UsePresentation();
 

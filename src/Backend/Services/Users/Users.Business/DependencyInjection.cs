@@ -10,6 +10,7 @@ using Users.Business.Policies;
 using Users.Business.Services;
 using Users.Business.Validators;
 using Users.DataAccess;
+using Users.DataAccess.Extensions;
 
 namespace Users.Business;
 
@@ -57,4 +58,9 @@ public static class DependencyInjection
 
         return services;
     }
+
+    public static Task ApplyUsersModuleMigrationsAsync(
+        this IServiceProvider services,
+        CancellationToken cancellationToken = default) =>
+        services.ApplyMigrationsIfEnabledAsync(cancellationToken);
 }
