@@ -12,4 +12,5 @@ public class DatabaseOptions
     public string ConnectionString { get; set; } = string.Empty;
     public int MaxRetryCount { get; set; } = DefaultMaxRetryCount;
     public int MaxRetryDelaySeconds { get; set; } = DefaultMaxRetryDelaySeconds;
+    public bool ApplyMigrationsOnStartup { get; set; }
 }
