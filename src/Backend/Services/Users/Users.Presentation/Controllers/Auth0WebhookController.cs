@@ -1,3 +1,4 @@
+using CityPulse.Common.Api.Swagger;
 using Microsoft.AspNetCore.Mvc;
 using Users.Business.Configurations;
 using Users.Business.DTOs;
@@ -11,6 +12,9 @@ namespace Users.Presentation.Controllers;
 public class Auth0WebhookController(IIdentityProviderWebhookService webhookService) : ControllerBase
 {
     [HttpPost]
+    [ProducesResponseType(typeof(GetUserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiProblemDetails), StatusCodes.Status401Unauthorized)]
     public async Task<GetUserDto?> HandleAsync(CancellationToken cancellationToken)
     {
         var rawBody = await HttpContext.Request.ReadRawBodyAsync();
