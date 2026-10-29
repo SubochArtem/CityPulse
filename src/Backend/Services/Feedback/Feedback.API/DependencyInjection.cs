@@ -4,6 +4,7 @@ using CityPulse.Common.Api.Extensions;
 using CityPulse.Common.Api.Middleware;
 using CityPulse.Common.Api.Swagger;
 using CityPulse.Contracts.Grpc.Protos;
+using ErrorOr;
 using Feedback.API.Common.Behaviors;
 using Feedback.API.Common.Filters;
 using Feedback.API.Common.Interfaces;
@@ -22,6 +23,16 @@ public static class DependencyInjection
 {
     private const string SwaggerTitle = "CityPulse Feedback API";
     private const string SwaggerDescription = "Feedback management service with Auth0 authentication";
+
+    private static readonly int[] ProblemStatusCodes =
+    [
+        StatusCodes.Status400BadRequest,
+        StatusCodes.Status401Unauthorized,
+        StatusCodes.Status403Forbidden,
+        StatusCodes.Status404NotFound,
+        StatusCodes.Status409Conflict,
+        StatusCodes.Status503ServiceUnavailable
+    ];
 
     public static IServiceCollection AddPresentation(
         this IServiceCollection services,
@@ -67,7 +78,13 @@ public static class DependencyInjection
         services.AddAuthorization();
 
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerConfiguration(SwaggerTitle, SwaggerDescription);
+        services.AddSwaggerConfiguration(
+            SwaggerTitle,
+            SwaggerDescription,
+            responses => responses
+                .UnwrapResponse(typeof(ErrorOr<>))
+                .TreatAsEmpty(typeof(Success), typeof(Created), typeof(Updated), typeof(Deleted))
+                .DocumentProblems(ProblemStatusCodes));
 
         return services;
     }

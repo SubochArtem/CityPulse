@@ -2,10 +2,12 @@ using CityPulse.Common.Api.Auth;
 using CityPulse.Common.Api.Extensions;
 using CityPulse.Common.Api.Middleware;
 using CityPulse.Common.Api.Swagger;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Polls.API.Common.Filters;
 using Polls.API.Grpc;
 using Polls.API.Mapping;
+using Polls.Domain.Common;
 
 namespace Polls.API;
 
@@ -13,6 +15,16 @@ public static class DependencyInjection
 {
     private const string SwaggerTitle = "CityPulse Polls API";
     private const string SwaggerDescription = "Polls management service with Auth0 authentication";
+
+    private static readonly int[] ProblemStatusCodes =
+    [
+        StatusCodes.Status400BadRequest,
+        StatusCodes.Status401Unauthorized,
+        StatusCodes.Status403Forbidden,
+        StatusCodes.Status404NotFound,
+        StatusCodes.Status409Conflict,
+        StatusCodes.Status500InternalServerError
+    ];
 
     public static IServiceCollection AddPresentation(
         this IServiceCollection services,
@@ -36,7 +48,13 @@ public static class DependencyInjection
         services.AddAuthorization();
 
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerConfiguration(SwaggerTitle, SwaggerDescription);
+        services.AddSwaggerConfiguration(
+            SwaggerTitle,
+            SwaggerDescription,
+            responses => responses
+                .UnwrapResponse(typeof(Result<>))
+                .TreatAsEmpty(typeof(Unit))
+                .DocumentProblems(ProblemStatusCodes));
 
         return services;
     }

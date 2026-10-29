@@ -1,3 +1,4 @@
+using CityPulse.Common.Api.Swagger;
 using Microsoft.AspNetCore.Mvc;
 using Users.Business.Configurations;
 using Users.Business.DTOs;
@@ -10,15 +11,27 @@ namespace Users.Presentation.Controllers;
 [Route("api/v1/[controller]")]
 public class Auth0WebhookController(IIdentityProviderWebhookService webhookService) : ControllerBase
 {
+    private const string JsonContentType = "application/json";
+    private const string ProblemContentType = "application/problem+json";
+
     [HttpPost]
-    public async Task<GetUserDto?> HandleAsync(CancellationToken cancellationToken)
+    [ProducesResponseType(typeof(GetUserDto), StatusCodes.Status200OK, JsonContentType)]
+    [ProducesResponseType(
+        typeof(ApiProblemDetails),
+        StatusCodes.Status400BadRequest,
+        ProblemContentType,
+        JsonContentType)]
+    [ProducesResponseType(
+        typeof(ApiProblemDetails),
+        StatusCodes.Status401Unauthorized,
+        ProblemContentType,
+        JsonContentType)]
+    public async Task<GetUserDto?> HandleAsync(
+        [FromHeader(Name = IdentityProviderConstants.WebhookSignatureHeader)] string? signature,
+        CancellationToken cancellationToken)
     {
         var rawBody = await HttpContext.Request.ReadRawBodyAsync();
-        var signature = HttpContext
-            .Request
-            .Headers[IdentityProviderConstants.WebhookSignatureHeader]
-            .ToString();
 
-        return await webhookService.HandleAsync(rawBody, signature, cancellationToken);
+        return await webhookService.HandleAsync(rawBody, signature ?? string.Empty, cancellationToken);
     }
 }
