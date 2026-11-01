@@ -47,6 +47,7 @@ public static class DependencyInjection
         app.UseSwaggerConfiguration(SwaggerTitle);
         app.UseAuthentication();
         app.UseAuthorization();
+        app.MapCityPulseHealthChecks();
         app.MapControllers();
     }
 }
