@@ -18,30 +18,35 @@ public sealed class StubBackend : IAsyncDisposable
 
     public string Address { get; }
 
-    public static async Task<StubBackend> StartAsync(string name)
+    public static async Task<StubBackend> StartAsync(string name, Func<HttpContext, Task>? responder = null)
     {
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseUrls(TestConstants.LoopbackUrl);
         builder.Logging.ClearProviders();
 
         var app = builder.Build();
-        app.Run(async context =>
-        {
-            using var reader = new StreamReader(context.Request.Body);
-            var body = await reader.ReadToEndAsync();
-
-            await context.Response.WriteAsJsonAsync(new BackendEcho(
-                name,
-                context.Request.Method,
-                context.Request.Path.Value ?? string.Empty,
-                context.Request.QueryString.Value ?? string.Empty,
-                context.Request.Headers.Authorization.ToString(),
-                body));
-        });
+        RequestDelegate handler = responder is null
+            ? context => EchoAsync(name, context)
+            : context => responder(context);
+        app.Run(handler);
 
         await app.StartAsync();
 
         return new StubBackend(app, app.Urls.First());
+    }
+
+    private static async Task EchoAsync(string name, HttpContext context)
+    {
+        using var reader = new StreamReader(context.Request.Body);
+        var body = await reader.ReadToEndAsync();
+
+        await context.Response.WriteAsJsonAsync(new BackendEcho(
+            name,
+            context.Request.Method,
+            context.Request.Path.Value ?? string.Empty,
+            context.Request.QueryString.Value ?? string.Empty,
+            context.Request.Headers.Authorization.ToString(),
+            body));
     }
 
     public async ValueTask DisposeAsync()

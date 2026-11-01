@@ -47,8 +47,16 @@ internal static class TestConstants
         public static string DocumentPath(string service) => $"/swagger/{service}/swagger.json";
     }
 
+    public static class HealthPaths
+    {
+        public const string Live = "/health";
+        public const string Services = "/health/services";
+        public const string ServiceReady = "/health/ready";
+    }
+
     public static class ConfigurationKeys
     {
+        public const string ServiceHealthTimeoutSeconds = "ServiceHealth:TimeoutSeconds";
         public const string SwaggerEnabled = "Swagger:Enabled";
         public const string SwaggerClientId = "Swagger:ClientId";
         public const string SwaggerAudience = "Swagger:Audience";
