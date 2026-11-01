@@ -1,13 +1,17 @@
 using CityPulse.Common.Api.Auth;
 using CityPulse.Common.Api.Extensions;
+using CityPulse.Common.Api.Health;
 using CityPulse.Common.Api.Middleware;
 using CityPulse.Common.Api.Swagger;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Polls.API.Common.Filters;
 using Polls.API.Grpc;
 using Polls.API.Mapping;
 using Polls.Domain.Common;
+using Polls.Infrastructure.Persistence;
+using Polls.Infrastructure.Storage;
 
 namespace Polls.API;
 
@@ -15,6 +19,10 @@ public static class DependencyInjection
 {
     private const string SwaggerTitle = "CityPulse Polls API";
     private const string SwaggerDescription = "Polls management service with Auth0 authentication";
+    private const string PostgresCheckName = "postgres";
+    private const string MinioCheckName = "minio";
+
+    private static readonly TimeSpan HealthCheckTimeout = TimeSpan.FromSeconds(5);
 
     private static readonly int[] ProblemStatusCodes =
     [
@@ -56,6 +64,18 @@ public static class DependencyInjection
                 .TreatAsEmpty(typeof(Unit))
                 .DocumentProblems(ProblemStatusCodes));
 
+        services.AddHealthChecks()
+            .AddDbContextCheck<ApplicationDbContext>(PostgresCheckName, tags: [HealthCheckConstants.ReadyTag])
+            .AddCheck<MinioHealthCheck>(MinioCheckName, tags: [HealthCheckConstants.ReadyTag]);
+
+        services.PostConfigure<HealthCheckServiceOptions>(options =>
+        {
+            foreach (var registration in options.Registrations)
+            {
+                registration.Timeout = HealthCheckTimeout;
+            }
+        });
+
         return services;
     }
 
@@ -66,6 +86,7 @@ public static class DependencyInjection
         app.UseSwaggerConfiguration(SwaggerTitle);
         app.UseAuthentication();
         app.UseAuthorization();
+        app.MapCityPulseHealthChecks();
         app.MapControllers();
         app.MapGrpcService<CitiesGrpcService>();
         app.MapGrpcService<IdeasGrpcService>();
