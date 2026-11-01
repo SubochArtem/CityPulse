@@ -1,10 +1,12 @@
 using CityPulse.Common.Api.Caching;
 using CityPulse.Common.Api.Extensions;
+using CityPulse.Common.Api.Health;
 using CityPulse.Contracts.Grpc.Protos;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Users.DataAccess.Interceptors;
 using Users.DataAccess.Interfaces;
@@ -17,6 +19,10 @@ namespace Users.DataAccess;
 
 public static class DependencyInjection
 {
+    private const string PostgresCheckName = "postgres";
+
+    private static readonly TimeSpan HealthCheckTimeout = TimeSpan.FromSeconds(5);
+
     public static IServiceCollection AddDataAccess(
         this IServiceCollection services,
         IConfiguration configuration)
@@ -104,6 +110,18 @@ public static class DependencyInjection
                 });
                 cfg.ConfigureEndpoints(context);
             });
+        });
+
+        services.AddHealthChecks()
+            .AddDbContextCheck<ApplicationDbContext>(PostgresCheckName, tags: [HealthCheckConstants.ReadyTag])
+            .AddCityPulseRedisCheck();
+
+        services.PostConfigure<HealthCheckServiceOptions>(options =>
+        {
+            foreach (var registration in options.Registrations)
+            {
+                registration.Timeout = HealthCheckTimeout;
+            }
         });
 
         return services;
