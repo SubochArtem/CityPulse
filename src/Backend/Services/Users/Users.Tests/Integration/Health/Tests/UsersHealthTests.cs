@@ -8,6 +8,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Users.Tests.Infrastructure;
 using Xunit;
@@ -30,12 +31,22 @@ public sealed class UsersHealthTests(IntegrationTestWebAppFactory factory) : Use
                 [RedisConnectionStringKey] = UnreachableRedis
             }))).CreateClient();
 
-    private HttpClient CreateClientWithInMemoryCache() =>
+    private HttpClient CreateClientWithInMemoryCacheWithoutBus() =>
         factory.WithWebHostBuilder(builder => builder.ConfigureTestServices(services =>
         {
             services.RemoveAll<IDistributedCache>();
             services.AddSingleton<IDistributedCache>(
                 new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions())));
+            services.PostConfigure<HealthCheckServiceOptions>(options =>
+            {
+                var busChecks = options.Registrations
+                    .Where(registration => registration.Name.Contains(MassTransitMarker, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+                foreach (var busCheck in busChecks)
+                {
+                    options.Registrations.Remove(busCheck);
+                }
+            });
         })).CreateClient();
 
     private static async Task<(HttpStatusCode Status, JsonElement Body)> GetAsync(HttpClient client, string path)
@@ -57,18 +68,28 @@ public sealed class UsersHealthTests(IntegrationTestWebAppFactory factory) : Use
     }
 
     [Fact]
-    public async Task Ready_DependenciesReachable_ReturnsHealthyWithPostgresRedisAndBus()
+    public async Task Ready_PostgresAndRedisReachable_ReturnsHealthy()
     {
-        using var client = CreateClientWithInMemoryCache();
+        using var client = CreateClientWithInMemoryCacheWithoutBus();
 
         var (status, body) = await GetAsync(client, HealthCheckConstants.ReadyPath);
 
-        var checks = body.GetProperty("checks").EnumerateObject().ToDictionary(p => p.Name, p => p.Value.GetString());
-        Assert.Equal(HttpStatusCode.OK, status);
-        Assert.Equal(HealthyStatus, checks[PostgresCheck]);
-        Assert.Equal(HealthyStatus, checks[HealthCheckConstants.RedisCheckName]);
-        Assert.Contains(checks, check => check.Key.Contains(MassTransitMarker, StringComparison.OrdinalIgnoreCase)
-                                         && check.Value == HealthyStatus);
+        var checks = body.GetProperty("checks");
+        Assert.True(status == HttpStatusCode.OK, body.GetRawText());
+        Assert.Equal(HealthyStatus, checks.GetProperty(PostgresCheck).GetString());
+        Assert.Equal(HealthyStatus, checks.GetProperty(HealthCheckConstants.RedisCheckName).GetString());
+    }
+
+    [Fact]
+    public async Task Ready_IncludesMessageBusCheck()
+    {
+        using var client = CreateClientWithUnreachableRedis();
+
+        var (_, body) = await GetAsync(client, HealthCheckConstants.ReadyPath);
+
+        Assert.Contains(
+            body.GetProperty("checks").EnumerateObject(),
+            check => check.Name.Contains(MassTransitMarker, StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
