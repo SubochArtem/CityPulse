@@ -1,3 +1,25 @@
+x-app-healthcheck: &app-healthcheck
+  test:
+    - CMD
+    - bash
+    - -c
+    - "exec 3<>/dev/tcp/127.0.0.1/8080 && printf 'GET /health/ready HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && head -n 1 <&3 | grep -q ' 200 '"
+  interval: 10s
+  timeout: 10s
+  retries: 5
+  start_period: 40s
+
+x-gateway-healthcheck: &gateway-healthcheck
+  test:
+    - CMD
+    - bash
+    - -c
+    - "exec 3<>/dev/tcp/127.0.0.1/8080 && printf 'GET /health HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && head -n 1 <&3 | grep -q ' 200 '"
+  interval: 10s
+  timeout: 5s
+  retries: 5
+  start_period: 20s
+
 x-auth0: &auth0
   Auth0__Domain: ${AUTH0_DOMAIN:-}
   Auth0__Audience: ${AUTH0_AUDIENCE:-}
@@ -136,7 +158,8 @@ services:
       redis:
         condition: service_healthy
       polls:
-        condition: service_started
+        condition: service_healthy
+    healthcheck: *app-healthcheck
     environment:
       <<: [*auth0, *rabbitmq, *redis]
       DatabaseSettings__ApplyMigrationsOnStartup: true
@@ -166,6 +189,7 @@ services:
         condition: service_started
       minio-init:
         condition: service_completed_successfully
+    healthcheck: *app-healthcheck
     environment:
       <<: [*auth0, *rabbitmq]
       DatabaseSettings__ApplyMigrationsOnStartup: true
@@ -195,7 +219,8 @@ services:
       redis:
         condition: service_healthy
       polls:
-        condition: service_started
+        condition: service_healthy
+    healthcheck: *app-healthcheck
     environment:
       <<: [*auth0, *redis]
       MongoDb__ConnectionString: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
@@ -209,9 +234,13 @@ services:
     image: citypulse-gateway
     container_name: citypulse_gateway
     depends_on:
-      - users
-      - polls
-      - feedback
+      users:
+        condition: service_healthy
+      polls:
+        condition: service_healthy
+      feedback:
+        condition: service_healthy
+    healthcheck: *gateway-healthcheck
     ports:
       - "8080:8080"
     environment:
