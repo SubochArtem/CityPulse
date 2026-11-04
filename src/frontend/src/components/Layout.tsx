@@ -2,6 +2,7 @@ import { Link, NavLink, Outlet } from 'react-router'
 import { cn } from '@/lib/utils'
 import { AuthButton } from './AuthButton'
 import { AuthError } from './AuthError'
+import { ThemeToggle } from './ThemeToggle'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   cn(
@@ -21,6 +22,7 @@ export function Layout() {
             <NavLink to="/profile" className={navLinkClass}>
               Profile
             </NavLink>
+            <ThemeToggle />
             <AuthButton />
           </nav>
         </div>
