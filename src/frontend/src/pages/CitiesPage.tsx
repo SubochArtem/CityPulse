@@ -3,14 +3,13 @@ import { type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import type { components } from '@/api/schema/polls'
+import { IsoCityTile } from '@/cities/IsoCityTile'
 import { CITIES_PAGE_SIZE, useCities } from '@/cities/useCities'
 import { Pagination } from '@/components/Pagination'
 import { Alert, AlertTitle } from '@/components/ui/alert'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { coverImage } from '@/lib/images'
 import { useListSearchParams } from '@/lib/useListSearchParams'
-import { cn } from '@/lib/utils'
 
 type City = components['schemas']['CityDto']
 
@@ -34,12 +33,12 @@ export function CitiesPage() {
     content = (
       <>
         <ul
-          className="grid gap-3 transition-opacity sm:grid-cols-2 lg:grid-cols-3 data-[stale=true]:opacity-60"
+          className="grid gap-y-10 transition-opacity sm:grid-cols-2 lg:grid-cols-4 data-[stale=true]:opacity-60"
           data-stale={isPlaceholderData}
         >
-          {data.items?.map((city, index) => (
-            <li key={city.id} className={cn('grid', index === 0 && 'sm:col-span-2 lg:row-span-2')}>
-              <CityTile city={city} featured={index === 0} />
+          {data.items?.map((city) => (
+            <li key={city.id} className="grid">
+              <CityTile city={city} />
             </li>
           ))}
         </ul>
@@ -65,7 +64,7 @@ export function CitiesPage() {
   return (
     <section className="space-y-6">
       <div className="space-y-2">
-        <h1 className="text-4xl font-extrabold tracking-tight">{t('cities.title')}</h1>
+        <h1 className="text-5xl font-medium text-heading">{t('cities.title')}</h1>
         <p className="text-muted-foreground">{t('cities.subtitle')}</p>
       </div>
 
@@ -86,51 +85,44 @@ export function CitiesPage() {
   )
 }
 
-function CityTile({ city, featured }: Readonly<{ city: City; featured: boolean }>) {
-  const cover = coverImage(city.images)
-
+function CityTile({ city }: Readonly<{ city: City }>) {
   return (
     <Link
       to={`/cities/${city.id}`}
-      className={cn(
-        'group relative flex min-h-48 flex-col justify-end overflow-hidden rounded-xl bg-navy p-5 text-navy-foreground outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
-        featured && 'sm:col-span-2 lg:row-span-2 lg:min-h-96',
-      )}
+      className="group flex flex-col items-center pb-2 text-center outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
     >
-      {cover?.url && (
-        <>
-          <img
-            src={cover.url}
-            alt=""
-            loading="lazy"
-            className="absolute inset-0 size-full object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none"
-          />
-          <div className="absolute inset-0 bg-linear-to-t from-navy via-navy/60 to-navy/10" />
-        </>
+      <IsoCityTile
+        seed={city.id ?? city.title ?? ''}
+        className="max-w-64 px-6 transition-transform duration-300 group-hover:-translate-y-1.5 motion-reduce:transition-none"
+      />
+      <TileMarker />
+      <h2 className="mt-3 px-3 text-2xl font-medium text-coral [overflow-wrap:anywhere] group-hover:underline group-hover:underline-offset-4">
+        {city.title}
+      </h2>
+      {city.description && (
+        <p className="mt-1 line-clamp-2 px-4 text-sm text-muted-foreground">{city.description}</p>
       )}
-      <div className="relative space-y-2">
-        <h2
-          className={cn(
-            'font-extrabold tracking-tight [overflow-wrap:anywhere]',
-            featured ? 'text-3xl lg:text-5xl' : 'text-2xl',
-          )}
-        >
-          {city.title}
-        </h2>
-        {city.description && (
-          <p className="line-clamp-2 text-sm text-navy-foreground/80">{city.description}</p>
-        )}
-      </div>
     </Link>
+  )
+}
+
+function TileMarker() {
+  return (
+    <div aria-hidden="true" className="relative flex w-full justify-center">
+      <span className="absolute inset-x-0 top-1/2 h-px bg-border" />
+      <span className="relative size-3 rounded-full border border-muted-foreground/60 bg-background" />
+    </div>
   )
 }
 
 function CityGridSkeleton() {
   return (
-    <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {Array.from({ length: 6 }, (_, index) => (
-        <li key={index} className={cn(index === 0 && 'sm:col-span-2 lg:row-span-2')}>
-          <Skeleton className="size-full min-h-48 rounded-xl" />
+    <ul className="grid gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+      {Array.from({ length: 4 }, (_, index) => (
+        <li key={index} className="flex flex-col items-center gap-3 px-6">
+          <Skeleton className="aspect-square w-full" />
+          <Skeleton className="h-7 w-28" />
+          <Skeleton className="h-4 w-40" />
         </li>
       ))}
     </ul>
