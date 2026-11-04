@@ -19,6 +19,8 @@ namespace Polls.Tests.Infrastructure;
 
 public sealed class PollsWebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
+    private static readonly TimeSpan OutboxQueryDelay = TimeSpan.FromMilliseconds(100);
+
     private readonly PostgreSqlContainer _postgresContainer = new PostgreSqlBuilder(EnvironmentConstants.Postgres.Image)
         .WithDatabase(EnvironmentConstants.Postgres.Database)
         .WithUsername(EnvironmentConstants.Postgres.Username)
@@ -112,8 +114,10 @@ public sealed class PollsWebAppFactory : WebApplicationFactory<Program>, IAsyncL
                 {
                     outbox.UsePostgres();
                     outbox.UseBusOutbox();
+                    outbox.QueryDelay = OutboxQueryDelay;
                 });
                 configurator.AddConsumer<UserStatusChangedConsumer>();
+                configurator.AddConsumer<ActivityEventsProbeConsumer>();
             });
 
             services.RemoveAll<IImageStorageService>();

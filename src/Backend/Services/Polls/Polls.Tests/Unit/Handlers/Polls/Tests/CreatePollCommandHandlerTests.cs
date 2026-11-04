@@ -1,5 +1,7 @@
 using CityPulse.Contracts.Querying.Pagination;
 using Microsoft.Extensions.Logging.Abstractions;
+using CityPulse.Contracts.Events.Polls;
+using CityPulse.Contracts.Events.Polls.Enums;
 using Moq;
 using Polls.Application.Common.Constants;
 using Polls.Application.Common.Interfaces;
@@ -39,6 +41,8 @@ public sealed class CreatePollCommandHandlerTests : HandlerTestsBase
             Mapper,
             _scheduler.Object,
             Storage.Object,
+            EventPublisher.Object,
+            Clock.Object,
             NullLogger<CreatePollCommandHandler>.Instance);
     }
 
@@ -246,5 +250,26 @@ public sealed class CreatePollCommandHandlerTests : HandlerTestsBase
         _scheduler.Verify(
             x => x.ScheduleAsync(It.IsAny<Guid>(), It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_PollCreated_PublishesActiveStatusEvent()
+    {
+        Poll? created = null;
+        SetupSuccessfulCreate(poll => created = poll);
+
+        await _sut.Handle(BuildCommand(), CancellationToken.None);
+
+        Assert.NotNull(created);
+        EventPublisher.Verify(
+            x => x.PublishAsync(
+                It.Is<PollStatusChangedEvent>(e =>
+                    e.PollId == created.Id &&
+                    e.CityId == created.CityId &&
+                    e.Title == created.Title &&
+                    e.Status == PollLifecycleStatus.Active &&
+                    e.OccurredAt == Now),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }

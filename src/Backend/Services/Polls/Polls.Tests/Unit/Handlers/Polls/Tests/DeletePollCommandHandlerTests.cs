@@ -1,3 +1,4 @@
+using CityPulse.Contracts.Events.Polls;
 using Moq;
 using Polls.Application.Common.Interfaces;
 using Polls.Application.Polls.Commands.DeletePoll;
@@ -21,7 +22,7 @@ public sealed class DeletePollCommandHandlerTests : HandlerTestsBase
 
     public DeletePollCommandHandlerTests()
     {
-        _sut = new DeletePollCommandHandler(UnitOfWork.Object, _scheduler.Object);
+        _sut = new DeletePollCommandHandler(UnitOfWork.Object, _scheduler.Object, EventPublisher.Object, Clock.Object);
     }
 
     private void SetupPoll(Poll? poll, Guid id) =>
@@ -157,5 +158,20 @@ public sealed class DeletePollCommandHandlerTests : HandlerTestsBase
         Assert.NotNull(queued);
         Assert.Equal(["first.jpg", "second.png"], queued.Select(entry => entry.FileName));
         UnitOfWork.Mock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_PollIsDeleted_PublishesPollDeletedEvent()
+    {
+        var poll = PollFakers.Polls().Generate();
+        SetupSuccessfulDelete(poll);
+
+        await _sut.Handle(new DeletePollCommand(poll.Id, BypassRestrictions: true), CancellationToken.None);
+
+        EventPublisher.Verify(
+            x => x.PublishAsync(
+                It.Is<PollDeletedEvent>(e => e.PollId == poll.Id && e.CityId == poll.CityId && e.OccurredAt == Now),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }

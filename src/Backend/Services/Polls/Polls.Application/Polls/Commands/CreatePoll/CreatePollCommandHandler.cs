@@ -1,6 +1,7 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Polls.Application.Common.Extensions;
 using Polls.Application.Common.Interfaces;
 using Polls.Application.Common.Models;
 using Polls.Application.Common.Security;
@@ -19,6 +20,8 @@ public sealed class CreatePollCommandHandler(
     IMapper mapper,
     IPollScheduler pollScheduler,
     IImageStorageService storageService,
+    IIntegrationEventPublisher eventPublisher,
+    IDateTimeProvider dateTimeProvider,
     ILogger<CreatePollCommandHandler> logger)
     : IRequestHandler<CreatePollCommand, Result<PollDto>>
 {
@@ -82,6 +85,10 @@ public sealed class CreatePollCommandHandler(
 
         if (!imageResult.IsSuccess)
             return imageResult.Error;
+
+        await eventPublisher.PublishAsync(
+            poll.ToStatusChangedEvent(dateTimeProvider.UtcNow),
+            cancellationToken);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

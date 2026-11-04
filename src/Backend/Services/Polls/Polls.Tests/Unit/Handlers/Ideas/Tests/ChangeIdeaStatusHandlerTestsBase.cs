@@ -1,6 +1,7 @@
 using Moq;
 using Polls.Domain.Common;
 using Polls.Domain.Ideas;
+using Polls.Domain.Polls;
 using Polls.Tests.Infrastructure;
 using Polls.Tests.TestData;
 using Xunit;
@@ -29,6 +30,36 @@ public abstract class ChangeIdeaStatusHandlerTestsBase<TCommand, TStatus> : Hand
             .Setup(x => x.GetByIdAsync(id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(idea);
 
+    protected Poll SetupPollFor(Idea idea)
+    {
+        var poll = PollFakers.Polls().Generate();
+        poll.Id = idea.PollId;
+        UnitOfWork.Polls
+            .Setup(x => x.GetByIdAsync(poll.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(poll);
+
+        return poll;
+    }
+
+    protected Idea SetupIdeaWithStatus(TStatus status)
+    {
+        var idea = IdeaFakers.Ideas().Generate();
+        SetStatus(idea, status);
+        SetupIdea(idea, idea.Id);
+        UnitOfWork.Ideas.Setup(x => x.Update(idea));
+        UnitOfWork.SetupSaveChanges();
+
+        return idea;
+    }
+
+    protected Task<Result<MediatRUnit>> ChangeStatusAsync(Idea idea, TStatus status) =>
+        HandleAsync(Build(idea.Id, status), CancellationToken.None);
+
+    private void VerifyNothingPublished() =>
+        EventPublisher.Verify(
+            x => x.PublishAsync(It.IsAny<It.IsAnyType>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+
     [Fact]
     public async Task Handle_IdeaDoesNotExist_ReturnsNotFoundErrorAndSavesNothing()
     {
@@ -41,6 +72,7 @@ public abstract class ChangeIdeaStatusHandlerTestsBase<TCommand, TStatus> : Hand
         Assert.Equal(IdeaErrors.NotFound(id), result.Error);
         UnitOfWork.Ideas.Verify(x => x.Update(It.IsAny<Idea>()), Times.Never);
         UnitOfWork.Mock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        VerifyNothingPublished();
     }
 
     [Fact]
@@ -61,6 +93,7 @@ public abstract class ChangeIdeaStatusHandlerTestsBase<TCommand, TStatus> : Hand
 
         UnitOfWork.Ideas.Verify(x => x.Update(It.IsAny<Idea>()), Times.Never);
         UnitOfWork.Mock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        VerifyNothingPublished();
     }
 
     [Fact]
@@ -80,6 +113,7 @@ public abstract class ChangeIdeaStatusHandlerTestsBase<TCommand, TStatus> : Hand
 
         UnitOfWork.Ideas.Verify(x => x.Update(It.IsAny<Idea>()), Times.Never);
         UnitOfWork.Mock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        VerifyNothingPublished();
     }
 
     [Fact]
@@ -94,6 +128,7 @@ public abstract class ChangeIdeaStatusHandlerTestsBase<TCommand, TStatus> : Hand
             var idea = IdeaFakers.Ideas().Generate();
             SetStatus(idea, currentStatus);
             SetupIdea(idea, idea.Id);
+            SetupPollFor(idea);
             UnitOfWork.Ideas.Setup(x => x.Update(idea));
 
             var result = await HandleAsync(Build(idea.Id, newStatus), CancellationToken.None);
@@ -105,6 +140,28 @@ public abstract class ChangeIdeaStatusHandlerTestsBase<TCommand, TStatus> : Hand
         }
 
         UnitOfWork.Mock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Exactly(changes));
+        EventPublisher.Verify(
+            x => x.PublishAsync(It.IsAny<It.IsAnyType>(), It.IsAny<CancellationToken>()),
+            Times.Exactly(changes));
+    }
+
+    [Fact]
+    public async Task Handle_PollDoesNotExist_ReturnsPollNotFoundAndSavesNothing()
+    {
+        var idea = IdeaFakers.Ideas().Generate();
+        SetStatus(idea, Statuses[0]);
+        SetupIdea(idea, idea.Id);
+        UnitOfWork.Polls
+            .Setup(x => x.GetByIdAsync(idea.PollId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Poll?)null);
+
+        var result = await HandleAsync(Build(idea.Id, Statuses[1]), CancellationToken.None);
+
+        Assert.False(result.IsSuccess);
+        Assert.Equal(PollErrors.NotFound(idea.PollId), result.Error);
+        Assert.Equal(Statuses[0], GetStatus(idea));
+        UnitOfWork.Mock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        VerifyNothingPublished();
     }
 
     [Fact]
@@ -116,6 +173,7 @@ public abstract class ChangeIdeaStatusHandlerTestsBase<TCommand, TStatus> : Hand
         UnitOfWork.Ideas
             .Setup(x => x.GetByIdAsync(idea.Id, cts.Token))
             .ReturnsAsync(idea);
+        SetupPollFor(idea);
         UnitOfWork.Ideas.Setup(x => x.Update(idea));
         UnitOfWork.Mock.Setup(x => x.SaveChangesAsync(cts.Token)).Returns(Task.CompletedTask);
 
@@ -123,5 +181,8 @@ public abstract class ChangeIdeaStatusHandlerTestsBase<TCommand, TStatus> : Hand
 
         UnitOfWork.Ideas.Verify(x => x.GetByIdAsync(idea.Id, cts.Token), Times.Once);
         UnitOfWork.Mock.Verify(x => x.SaveChangesAsync(cts.Token), Times.Once);
+        EventPublisher.Verify(
+            x => x.PublishAsync(It.IsAny<It.IsAnyType>(), cts.Token),
+            Times.Once);
     }
 }

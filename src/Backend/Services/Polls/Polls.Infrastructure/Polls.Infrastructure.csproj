@@ -12,7 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="CityPulse.Contracts.Events" Version="1.1.0"/>
+        <PackageReference Include="CityPulse.Contracts.Events" Version="1.2.0"/>
         <PackageReference Include="Hangfire.AspNetCore" Version="1.8.23"/>
         <PackageReference Include="Hangfire.Core" Version="1.8.23"/>
         <PackageReference Include="Hangfire.PostgreSql" Version="1.21.1"/>

@@ -1,4 +1,6 @@
 using Microsoft.Extensions.Logging;
+using CityPulse.Contracts.Events.Polls;
+using CityPulse.Contracts.Events.Polls.Enums;
 using Moq;
 using Polls.Application.Common.Interfaces;
 using Polls.Application.Polls.Commands.ChangeStatus;
@@ -17,6 +19,7 @@ public sealed class ChangePollStatusCommandHandlerTests : HandlerTestsBase
 {
     private const string UpdateStep = "update";
     private const string SaveStep = "save";
+    private const string PublishStep = "publish";
     private const string IdeasStep = "ideas";
     private const string DatabaseFailureMessage = "database failure";
 
@@ -25,7 +28,7 @@ public sealed class ChangePollStatusCommandHandlerTests : HandlerTestsBase
 
     public ChangePollStatusCommandHandlerTests()
     {
-        _sut = new ChangePollStatusCommandHandler(UnitOfWork.Object, _logger.Object);
+        _sut = new ChangePollStatusCommandHandler(UnitOfWork.Object, EventPublisher.Object, Clock.Object, _logger.Object);
     }
 
     private void SetupPoll(Poll? poll, Guid id) =>
@@ -47,6 +50,11 @@ public sealed class ChangePollStatusCommandHandlerTests : HandlerTestsBase
         UnitOfWork.Polls
             .Setup(x => x.Update(poll))
             .Callback(() => calls.Add(UpdateStep));
+
+        EventPublisher
+            .Setup(x => x.PublishAsync(It.IsAny<PollStatusChangedEvent>(), It.IsAny<CancellationToken>()))
+            .Callback(() => calls.Add(PublishStep))
+            .Returns(Task.CompletedTask);
 
         var save = UnitOfWork.Mock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()));
         if (failingStep == PollFailingStep.SavePoll)
@@ -161,7 +169,7 @@ public sealed class ChangePollStatusCommandHandlerTests : HandlerTestsBase
 
         await _sut.Handle(new ChangePollStatusCommand(poll.Id, PollStatus.Suspended), CancellationToken.None);
 
-        Assert.Equal([UpdateStep, SaveStep, IdeasStep], calls);
+        Assert.Equal([UpdateStep, PublishStep, SaveStep, IdeasStep], calls);
     }
 
     [Theory]
@@ -190,5 +198,39 @@ public sealed class ChangePollStatusCommandHandlerTests : HandlerTestsBase
                 failure,
                 It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_StatusChanges_PublishesStatusChangedEvent()
+    {
+        var poll = PollFakers.Polls().Generate();
+        poll.Status = PollStatus.Active;
+        SetupFlow(poll, IdeaAccessStatus.Active, IdeaAccessStatus.RestrictedByContext);
+
+        await _sut.Handle(new ChangePollStatusCommand(poll.Id, PollStatus.Suspended), CancellationToken.None);
+
+        EventPublisher.Verify(
+            x => x.PublishAsync(
+                It.Is<PollStatusChangedEvent>(e =>
+                    e.PollId == poll.Id &&
+                    e.CityId == poll.CityId &&
+                    e.Status == PollLifecycleStatus.Suspended &&
+                    e.OccurredAt == Now),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_StatusIsAlreadySet_PublishesNothing()
+    {
+        var poll = PollFakers.Polls().Generate();
+        poll.Status = PollStatus.Active;
+        SetupPoll(poll, poll.Id);
+
+        await _sut.Handle(new ChangePollStatusCommand(poll.Id, PollStatus.Active), CancellationToken.None);
+
+        EventPublisher.Verify(
+            x => x.PublishAsync(It.IsAny<It.IsAnyType>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 }

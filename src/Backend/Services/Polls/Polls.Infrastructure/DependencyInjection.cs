@@ -39,6 +39,7 @@ public static class DependencyInjection
             .ValidateOnStart();
 
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+        services.AddScoped<IIntegrationEventPublisher, MassTransitEventPublisher>();
 
         services.AddOptions<ImageStorageOptions>()
             .Bind(configuration.GetSection(ImageStorageOptions.SectionName))

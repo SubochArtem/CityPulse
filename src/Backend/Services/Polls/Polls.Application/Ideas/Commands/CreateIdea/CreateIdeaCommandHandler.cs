@@ -1,6 +1,7 @@
 using AutoMapper;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Polls.Application.Common.Extensions;
 using Polls.Application.Common.Interfaces;
 using Polls.Application.Common.Models;
 using Polls.Application.Common.Security;
@@ -19,6 +20,8 @@ public sealed class CreateIdeaCommandHandler(
     IUnitOfWork unitOfWork,
     IMapper mapper,
     IImageStorageService storageService,
+    IIntegrationEventPublisher eventPublisher,
+    IDateTimeProvider dateTimeProvider,
     ILogger<CreateIdeaCommandHandler> logger)
     : IRequestHandler<CreateIdeaCommand, Result<IdeaDto>>
 {
@@ -74,6 +77,10 @@ public sealed class CreateIdeaCommandHandler(
 
         if (!imageResult.IsSuccess)
             return imageResult.Error;
+
+        await eventPublisher.PublishAsync(
+            idea.ToCreatedEvent(poll, dateTimeProvider.UtcNow),
+            cancellationToken);
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
 

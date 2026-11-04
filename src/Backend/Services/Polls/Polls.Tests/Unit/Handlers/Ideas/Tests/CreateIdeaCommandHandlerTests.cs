@@ -1,3 +1,4 @@
+using CityPulse.Contracts.Events.Polls;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Polls.Application.Common.Constants;
@@ -30,6 +31,8 @@ public sealed class CreateIdeaCommandHandlerTests : HandlerTestsBase
             UnitOfWork.Object,
             Mapper,
             Storage.Object,
+            EventPublisher.Object,
+            Clock.Object,
             NullLogger<CreateIdeaCommandHandler>.Instance);
     }
 
@@ -71,6 +74,7 @@ public sealed class CreateIdeaCommandHandlerTests : HandlerTestsBase
         Assert.False(result.IsSuccess);
         Assert.Equal(PollErrors.NotFound(poll.Id), result.Error);
         UnitOfWork.Ideas.Verify(x => x.Create(It.IsAny<Idea>()), Times.Never);
+        VerifyNothingPublished();
     }
 
     [Fact]
@@ -218,5 +222,43 @@ public sealed class CreateIdeaCommandHandlerTests : HandlerTestsBase
             x => x.UploadRangeAsync(It.IsAny<IReadOnlyList<ImageFile>>(), It.IsAny<CancellationToken>()),
             Times.Never);
         UnitOfWork.Mock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
+        VerifyNothingPublished();
     }
+
+    [Fact]
+    public async Task Handle_PollIsOpen_PublishesIdeaCreatedEventBeforeSaving()
+    {
+        Idea? created = null;
+        var poll = SetupExistingPoll();
+        UnitOfWork.Ideas
+            .Setup(x => x.Create(It.IsAny<Idea>()))
+            .Callback<Idea>(idea => created = idea);
+        UnitOfWork.Mock
+            .Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
+            .Callback(() => EventPublisher.Verify(
+                x => x.PublishAsync(It.IsAny<IdeaCreatedEvent>(), It.IsAny<CancellationToken>()),
+                Times.Once))
+            .Returns(Task.CompletedTask);
+
+        await _sut.Handle(BuildCommand(poll), CancellationToken.None);
+
+        Assert.NotNull(created);
+        EventPublisher.Verify(
+            x => x.PublishAsync(
+                It.Is<IdeaCreatedEvent>(e =>
+                    e.IdeaId == created.Id &&
+                    e.PollId == poll.Id &&
+                    e.CityId == poll.CityId &&
+                    e.UserId == _userId &&
+                    e.Title == Title &&
+                    e.PollTitle == poll.Title &&
+                    e.OccurredAt == Now),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    private void VerifyNothingPublished() =>
+        EventPublisher.Verify(
+            x => x.PublishAsync(It.IsAny<It.IsAnyType>(), It.IsAny<CancellationToken>()),
+            Times.Never);
 }

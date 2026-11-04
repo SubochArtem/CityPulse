@@ -1,10 +1,13 @@
+using Polls.Application.Common.Extensions;
 using Polls.Application.Common.Interfaces;
 using Polls.Domain.Polls.Enums;
 
 namespace Polls.Application.Jobs;
 
 public class PollStatusJob(
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IIntegrationEventPublisher eventPublisher,
+    IDateTimeProvider dateTimeProvider)
 {
     public async Task ExecuteAsync(Guid pollId)
     {
@@ -21,6 +24,8 @@ public class PollStatusJob(
         var scheduleEntry = await unitOfWork.PollScheduleJobs.GetByPollIdAsync(pollId);
         if (scheduleEntry is not null)
             unitOfWork.PollScheduleJobs.Delete(scheduleEntry);
+
+        await eventPublisher.PublishAsync(poll.ToStatusChangedEvent(dateTimeProvider.UtcNow));
 
         await unitOfWork.SaveChangesAsync();
     }

@@ -15,6 +15,8 @@ public sealed class UnitOfWorkMock
 
     public Mock<IDeletedImageRepository> DeletedImages { get; } = new(MockBehavior.Strict);
 
+    public Mock<IPollScheduleJobRepository> PollScheduleJobs { get; } = new(MockBehavior.Strict);
+
     public IUnitOfWork Object => Mock.Object;
 
     public UnitOfWorkMock()
@@ -23,6 +25,7 @@ public sealed class UnitOfWorkMock
         Mock.Setup(x => x.Polls).Returns(Polls.Object);
         Mock.Setup(x => x.Ideas).Returns(Ideas.Object);
         Mock.Setup(x => x.DeletedImages).Returns(DeletedImages.Object);
+        Mock.Setup(x => x.PollScheduleJobs).Returns(PollScheduleJobs.Object);
     }
 
     public void SetupSaveChanges() =>
