@@ -51,7 +51,8 @@ jobs:
             /o:"subochartem" \
             /d:sonar.token="$SONAR_TOKEN" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.cs.vscoveragexml.reportsPaths="coverage.xml"
+            /d:sonar.cs.vscoveragexml.reportsPaths="coverage.xml" \
+            /d:sonar.coverage.exclusions="src/frontend/**"
 
       - name: Build Solution
         run: dotnet build --no-incremental --configuration Release
