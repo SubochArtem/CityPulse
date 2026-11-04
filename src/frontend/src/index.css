@@ -2,12 +2,12 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 @import '@fontsource-variable/golos-text';
-@import '@fontsource-variable/unbounded';
+@import '@fontsource-variable/oswald';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-heading: 'Unbounded Variable', var(--font-sans);
+  --font-heading: 'Oswald Variable', var(--font-sans);
   --font-sans: 'Golos Text Variable', sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
