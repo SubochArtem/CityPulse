@@ -42,11 +42,27 @@ export const ru: RussianTranslation = {
     loadFailed: 'Не удалось загрузить город',
     activePolls: 'Активные опросы',
     noPolls: 'В этом городе пока нет активных опросов.',
+  },
+  poll: {
+    back: 'К городу',
+    notFound: 'Опрос не найден',
+    loadFailed: 'Не удалось загрузить опрос',
+    ideas: 'Идеи',
+    noIdeas: 'В этом опросе пока нет идей.',
     endsAt: 'До {{date}}',
     budget: 'Бюджет {{amount}}',
-    pollType: {
+    type: {
       userVote: 'Голосование жителей',
       managerVote: 'Решение менеджера',
+    },
+  },
+  idea: {
+    createdAt: 'Добавлена {{date}}',
+    approval: {
+      approved: 'Одобрена',
+      rejected: 'Отклонена',
+      deferred: 'Отложена',
+      pending: 'На рассмотрении',
     },
   },
   pagination: {

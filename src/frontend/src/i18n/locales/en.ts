@@ -36,11 +36,27 @@ export const en = {
     loadFailed: 'Could not load the city',
     activePolls: 'Active polls',
     noPolls: 'No active polls in this city yet.',
+  },
+  poll: {
+    back: 'Back to city',
+    notFound: 'Poll not found',
+    loadFailed: 'Could not load the poll',
+    ideas: 'Ideas',
+    noIdeas: 'No ideas in this poll yet.',
     endsAt: 'Ends {{date}}',
     budget: 'Budget {{amount}}',
-    pollType: {
+    type: {
       userVote: 'Residents vote',
       managerVote: 'Manager decision',
+    },
+  },
+  idea: {
+    createdAt: 'Added {{date}}',
+    approval: {
+      approved: 'Approved',
+      rejected: 'Rejected',
+      deferred: 'Deferred',
+      pending: 'Pending review',
     },
   },
   pagination: {
