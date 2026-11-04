@@ -8,6 +8,7 @@ import { ImageGallery } from '@/components/ImageGallery'
 import { Alert, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
+import { IdeaFeedback } from '@/feedback/IdeaFeedback'
 import { IdeaApprovalBadge } from '@/ideas/IdeaApprovalBadge'
 import { useIdeaWithPoll } from '@/ideas/useIdeaWithPoll'
 import { PollLineBadge } from '@/polls/PollLineBadge'
@@ -89,6 +90,8 @@ function IdeaDetails({ idea }: Readonly<{ idea: Idea }>) {
         <h2 className="text-xl font-semibold tracking-tight">{t('idea.poll')}</h2>
         <PollLineTile poll={idea.poll} />
       </div>
+
+      {idea.id && <IdeaFeedback ideaId={idea.id} cityId={idea.poll.cityId} />}
     </>
   )
 }
