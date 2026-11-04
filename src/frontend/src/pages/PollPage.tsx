@@ -6,10 +6,10 @@ import { ApiError } from '@/api/errors'
 import type { components } from '@/api/schema/polls'
 import { ImageGallery } from '@/components/ImageGallery'
 import { Alert, AlertTitle } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { IdeaApprovalBadge } from '@/ideas/IdeaApprovalBadge'
 import { coverImage } from '@/lib/images'
 import { PollFacts } from '@/polls/PollFacts'
 import { PollTypeBadge } from '@/polls/PollTypeBadge'
@@ -17,13 +17,6 @@ import { usePollWithIdeas } from '@/polls/usePollWithIdeas'
 
 type Poll = components['schemas']['PollWithIdeasDto']
 type Idea = components['schemas']['IdeaDto']
-
-const approvalStatuses = {
-  1: { key: 'idea.approval.approved', variant: 'default' },
-  2: { key: 'idea.approval.rejected', variant: 'destructive' },
-  3: { key: 'idea.approval.deferred', variant: 'outline' },
-  4: { key: 'idea.approval.pending', variant: 'outline' },
-} as const
 
 export function PollPage() {
   const { t } = useTranslation()
@@ -101,7 +94,6 @@ function PollDetails({ poll }: Readonly<{ poll: Poll }>) {
 function IdeaCard({ idea }: Readonly<{ idea: Idea }>) {
   const { t, i18n } = useTranslation()
   const cover = coverImage(idea.images)
-  const approval = approvalStatuses[idea.approvalStatus as keyof typeof approvalStatuses]
   const createdAt = idea.createdAt
     ? new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' }).format(
         new Date(idea.createdAt),
@@ -118,11 +110,7 @@ function IdeaCard({ idea }: Readonly<{ idea: Idea }>) {
         </div>
       )}
       <CardHeader>
-        {approval && (
-          <Badge variant={approval.variant} className="mb-1">
-            {t(approval.key)}
-          </Badge>
-        )}
+        <IdeaApprovalBadge status={idea.approvalStatus} className="mb-1" />
         <CardTitle className="text-base">{idea.title}</CardTitle>
         {idea.description && (
           <CardDescription className="line-clamp-3">{idea.description}</CardDescription>
