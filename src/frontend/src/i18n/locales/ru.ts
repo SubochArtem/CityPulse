@@ -10,6 +10,7 @@ type RussianTranslation = Translation & {
   }
   readonly feedback: { readonly likes_few: string; readonly likes_many: string }
   readonly activity: { readonly newEvents_few: string; readonly newEvents_many: string }
+  readonly home: { readonly cityCount_few: string; readonly cityCount_many: string }
   readonly poll: {
     readonly route: { readonly daysLeft_few: string; readonly daysLeft_many: string }
   }
@@ -46,13 +47,30 @@ export const ru: RussianTranslation = {
     label: 'Язык',
   },
   home: {
-    guestTitle: 'Каждый город — это карта идей',
-    guestText: 'Следите за тем, что жители предлагают, выбирают и обсуждают, прямо сейчас.',
-    browseCities: 'Смотреть города',
+    heroTitle: 'Меняйте город, в котором живёте',
+    heroText:
+      'Каждый опрос — шанс решить, что построят, починят или заменят следующим. Предлагайте идеи, обсуждайте их с соседями и следите за всем вживую.',
+    browseCities: 'Выбрать город',
+    openNamedCity: 'Открыть {{city}}',
     yourCity: 'Ваш город',
     openCity: 'Открыть город',
+    pickCity: 'Выберите город',
+    cityCount_one: '{{count}} город',
+    cityCount_few: '{{count}} города',
+    cityCount_many: '{{count}} городов',
+    cityCount_other: '{{count}} города',
+    allCities: 'Все города',
+    decidingNow: '{{city}} решает прямо сейчас',
+    pollsLabel: 'Открытые опросы: {{city}}',
+    openLine: 'Открыт · линия {{number}}',
+    facts: {
+      ends: 'Завершится',
+      type: 'Тип опроса',
+      budget: 'Бюджет',
+    },
     noActivePoll: 'Сейчас в вашем городе нет открытых опросов.',
     cityLoadFailed: 'Не удалось загрузить ваш город',
+    citiesLoadFailed: 'Не удалось загрузить города',
   },
   activity: {
     title: 'Жизнь города',
