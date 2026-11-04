@@ -36,6 +36,19 @@ export const ru: RussianTranslation = {
     noMatches: 'Нет городов по запросу «{{search}}».',
     loadFailed: 'Не удалось загрузить города',
   },
+  city: {
+    back: 'Все города',
+    notFound: 'Город не найден',
+    loadFailed: 'Не удалось загрузить город',
+    activePolls: 'Активные опросы',
+    noPolls: 'В этом городе пока нет активных опросов.',
+    endsAt: 'До {{date}}',
+    budget: 'Бюджет {{amount}}',
+    pollType: {
+      userVote: 'Голосование жителей',
+      managerVote: 'Решение менеджера',
+    },
+  },
   pagination: {
     previous: 'Назад',
     next: 'Вперёд',

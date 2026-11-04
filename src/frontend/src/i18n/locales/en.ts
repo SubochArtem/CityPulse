@@ -30,6 +30,19 @@ export const en = {
     noMatches: 'No cities match “{{search}}”.',
     loadFailed: 'Could not load cities',
   },
+  city: {
+    back: 'All cities',
+    notFound: 'City not found',
+    loadFailed: 'Could not load the city',
+    activePolls: 'Active polls',
+    noPolls: 'No active polls in this city yet.',
+    endsAt: 'Ends {{date}}',
+    budget: 'Budget {{amount}}',
+    pollType: {
+      userVote: 'Residents vote',
+      managerVote: 'Manager decision',
+    },
+  },
   pagination: {
     previous: 'Previous',
     next: 'Next',

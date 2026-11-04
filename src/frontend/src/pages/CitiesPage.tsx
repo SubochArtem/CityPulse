@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight, CircleAlert, MapPin, Search } from 'lucide-react'
 import { type ReactNode, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useSearchParams } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import type { components } from '@/api/schema/polls'
 import { CITIES_PAGE_SIZE, useCities } from '@/cities/useCities'
 import { Alert, AlertTitle } from '@/components/ui/alert'
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
+import { coverImage } from '@/lib/images'
 import { useDebouncedValue } from '@/lib/useDebouncedValue'
 
 type City = components['schemas']['CityDto']
@@ -130,24 +131,29 @@ export function CitiesPage() {
 }
 
 function CityCard({ city }: Readonly<{ city: City }>) {
-  const cover = [...(city.images ?? [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0]
+  const cover = coverImage(city.images)
 
   return (
-    <Card className="h-full pt-0">
-      {cover?.url ? (
-        <img src={cover.url} alt="" loading="lazy" className="aspect-video w-full object-cover" />
-      ) : (
-        <div className="flex aspect-video items-center justify-center bg-muted text-muted-foreground">
-          <MapPin className="size-8" />
-        </div>
-      )}
-      <CardHeader>
-        <CardTitle className="text-base">{city.title}</CardTitle>
-        {city.description && (
-          <CardDescription className="line-clamp-2">{city.description}</CardDescription>
+    <Link
+      to={`/cities/${city.id}`}
+      className="group block h-full rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+    >
+      <Card className="h-full pt-0 transition-shadow group-hover:ring-foreground/25">
+        {cover?.url ? (
+          <img src={cover.url} alt="" loading="lazy" className="aspect-video w-full object-cover" />
+        ) : (
+          <div className="flex aspect-video items-center justify-center bg-muted text-muted-foreground">
+            <MapPin className="size-8" />
+          </div>
         )}
-      </CardHeader>
-    </Card>
+        <CardHeader>
+          <CardTitle className="text-base">{city.title}</CardTitle>
+          {city.description && (
+            <CardDescription className="line-clamp-2">{city.description}</CardDescription>
+          )}
+        </CardHeader>
+      </Card>
+    </Link>
   )
 }
 
