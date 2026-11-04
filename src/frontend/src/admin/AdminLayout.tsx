@@ -1,6 +1,8 @@
+import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, NavLink, Outlet, useMatch } from 'react-router'
 import { NoAccess } from '@/auth/RequirePermission'
+import { PageLoader } from '@/components/PageLoader'
 import { cn } from '@/lib/utils'
 import { useAdminSections } from './useAdminSections'
 
@@ -15,7 +17,11 @@ export function AdminLayout() {
   const { sections, isLoading } = useAdminSections()
   const isIndex = useMatch('/admin')
 
-  let content = <Outlet />
+  let content = (
+    <Suspense fallback={<PageLoader />}>
+      <Outlet />
+    </Suspense>
+  )
   if (isLoading) {
     content = <p className="text-muted-foreground">{t('auth.loading')}</p>
   } else if (!sections.length) {

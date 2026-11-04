@@ -1,24 +1,38 @@
 import { Route, Routes } from 'react-router'
-import { AdminLayout } from './admin/AdminLayout'
 import { RequirePermission } from './auth/RequirePermission'
 import { RequireAuth } from './auth/RequireAuth'
 import { Layout } from './components/Layout'
-import { CitiesPage } from './pages/CitiesPage'
-import { AdminCitiesPage } from './pages/admin/AdminCitiesPage'
-import { AdminCityCreatePage } from './pages/admin/AdminCityCreatePage'
-import { AdminCityEditPage } from './pages/admin/AdminCityEditPage'
-import { AdminIdeasPage } from './pages/admin/AdminIdeasPage'
-import { AdminPollCreatePage } from './pages/admin/AdminPollCreatePage'
-import { AdminPollEditPage } from './pages/admin/AdminPollEditPage'
-import { AdminPollsPage } from './pages/admin/AdminPollsPage'
-import { AdminUsersPage } from './pages/admin/AdminUsersPage'
-import { CityPage } from './pages/CityPage'
-import { CreateIdeaPage } from './pages/CreateIdeaPage'
-import { HomePage } from './pages/HomePage'
-import { IdeaPage } from './pages/IdeaPage'
-import { NotFoundPage } from './pages/NotFoundPage'
-import { PollPage } from './pages/PollPage'
-import { ProfilePage } from './pages/ProfilePage'
+import { lazyPage } from './lib/lazyPage'
+
+const AdminLayout = lazyPage(() => import('./admin/AdminLayout'), 'AdminLayout')
+const CitiesPage = lazyPage(() => import('./pages/CitiesPage'), 'CitiesPage')
+const AdminCitiesPage = lazyPage(() => import('./pages/admin/AdminCitiesPage'), 'AdminCitiesPage')
+const AdminCityCreatePage = lazyPage(
+  () => import('./pages/admin/AdminCityCreatePage'),
+  'AdminCityCreatePage',
+)
+const AdminCityEditPage = lazyPage(
+  () => import('./pages/admin/AdminCityEditPage'),
+  'AdminCityEditPage',
+)
+const AdminIdeasPage = lazyPage(() => import('./pages/admin/AdminIdeasPage'), 'AdminIdeasPage')
+const AdminPollCreatePage = lazyPage(
+  () => import('./pages/admin/AdminPollCreatePage'),
+  'AdminPollCreatePage',
+)
+const AdminPollEditPage = lazyPage(
+  () => import('./pages/admin/AdminPollEditPage'),
+  'AdminPollEditPage',
+)
+const AdminPollsPage = lazyPage(() => import('./pages/admin/AdminPollsPage'), 'AdminPollsPage')
+const AdminUsersPage = lazyPage(() => import('./pages/admin/AdminUsersPage'), 'AdminUsersPage')
+const CityPage = lazyPage(() => import('./pages/CityPage'), 'CityPage')
+const CreateIdeaPage = lazyPage(() => import('./pages/CreateIdeaPage'), 'CreateIdeaPage')
+const HomePage = lazyPage(() => import('./pages/HomePage'), 'HomePage')
+const IdeaPage = lazyPage(() => import('./pages/IdeaPage'), 'IdeaPage')
+const NotFoundPage = lazyPage(() => import('./pages/NotFoundPage'), 'NotFoundPage')
+const PollPage = lazyPage(() => import('./pages/PollPage'), 'PollPage')
+const ProfilePage = lazyPage(() => import('./pages/ProfilePage'), 'ProfilePage')
 
 export default function App() {
   return (

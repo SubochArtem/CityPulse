@@ -4,6 +4,9 @@ export const en = {
     profile: 'Profile',
     admin: 'Admin',
   },
+  common: {
+    loading: 'Loading…',
+  },
   auth: {
     logIn: 'Log in',
     logOut: 'Log out',
