@@ -1,6 +1,7 @@
-import { CircleAlert, Ellipsis, Power, PowerOff, Search, Trash2 } from 'lucide-react'
+import { CircleAlert, Ellipsis, Pencil, Plus, Power, PowerOff, Search, Trash2 } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link, useLocation } from 'react-router'
 import { ApiError } from '@/api/errors'
 import type { components } from '@/api/schema/polls'
 import { ADMIN_CITIES_PAGE_SIZE, useAdminCities } from '@/admin/cities/useAdminCities'
@@ -60,6 +61,12 @@ const statusFilters = [
 
 type PendingAction = { type: 'activate' | 'deactivate' | 'delete'; city: City }
 
+interface CityPermissions {
+  update: boolean
+  changeStatus: boolean
+  delete: boolean
+}
+
 const dialogKeys = {
   activate: {
     title: 'admin.cities.activateTitle',
@@ -98,6 +105,7 @@ function actionErrorKey(error: Error) {
 export function AdminCitiesPage() {
   const { t } = useTranslation()
   const { can } = usePermissions()
+  const { search: listSearch } = useLocation()
   const { searchParams, search, page, searchInput, setSearchInput, setParam, goToPage } =
     useListSearchParams()
   const status = readStatus(searchParams.get('status'))
@@ -107,10 +115,12 @@ export function AdminCitiesPage() {
   const deleteCity = useDeleteCity()
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null)
 
-  const permissions = {
+  const permissions: CityPermissions = {
+    update: can('cities.update.any'),
     changeStatus: can('cities.changestatus.any'),
     delete: can('cities.delete.any'),
   }
+  const hasActions = permissions.update || permissions.changeStatus || permissions.delete
   const actionError = changeStatus.error ?? deleteCity.error
   const isMutating = changeStatus.isPending || deleteCity.isPending
 
@@ -157,7 +167,7 @@ export function AdminCitiesPage() {
                 <TableHead className="hidden sm:table-cell">
                   {t('admin.cities.columns.createdAt')}
                 </TableHead>
-                {(permissions.changeStatus || permissions.delete) && (
+                {hasActions && (
                   <TableHead className="w-12">
                     <span className="sr-only">{t('admin.cities.columns.actions')}</span>
                   </TableHead>
@@ -169,8 +179,8 @@ export function AdminCitiesPage() {
                 <CityRow
                   key={city.id}
                   city={city}
-                  canChangeStatus={permissions.changeStatus}
-                  canDelete={permissions.delete}
+                  permissions={permissions}
+                  listSearch={listSearch}
                   disabled={isMutating}
                   onAction={(type) => setPendingAction({ type, city })}
                 />
@@ -200,7 +210,7 @@ export function AdminCitiesPage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-2 sm:flex-row">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         <div className="relative sm:max-w-sm sm:flex-1">
           <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
@@ -227,6 +237,14 @@ export function AdminCitiesPage() {
             ))}
           </SelectContent>
         </Select>
+        {can('cities.create.any') && (
+          <Button asChild className="sm:ml-auto">
+            <Link to="/admin/cities/new" state={{ listSearch }}>
+              <Plus />
+              {t('admin.cities.create')}
+            </Link>
+          </Button>
+        )}
       </div>
 
       {actionError && (
@@ -272,16 +290,18 @@ export function AdminCitiesPage() {
 
 interface CityRowProps {
   city: City
-  canChangeStatus: boolean
-  canDelete: boolean
+  permissions: CityPermissions
+  listSearch: string
   disabled: boolean
   onAction: (type: PendingAction['type']) => void
 }
 
-function CityRow({ city, canChangeStatus, canDelete, disabled, onAction }: Readonly<CityRowProps>) {
+function CityRow({ city, permissions, listSearch, disabled, onAction }: Readonly<CityRowProps>) {
   const { t, i18n } = useTranslation()
   const isActive = city.status === ACTIVE
   const number = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 4 })
+  const editPath = `/admin/cities/${city.id}/edit`
+  const hasActions = permissions.update || permissions.changeStatus || permissions.delete
   const createdAt = city.createdAt
     ? new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' }).format(
         new Date(city.createdAt),
@@ -290,7 +310,19 @@ function CityRow({ city, canChangeStatus, canDelete, disabled, onAction }: Reado
 
   return (
     <TableRow>
-      <TableCell className="font-medium">{city.title}</TableCell>
+      <TableCell className="font-medium">
+        {permissions.update ? (
+          <Link
+            to={editPath}
+            state={{ listSearch }}
+            className="underline-offset-4 outline-none hover:underline focus-visible:underline"
+          >
+            {city.title}
+          </Link>
+        ) : (
+          city.title
+        )}
+      </TableCell>
       <TableCell>
         <Badge variant={isActive ? 'secondary' : 'outline'}>
           {isActive ? t('admin.cities.status.active') : t('admin.cities.status.inactive')}
@@ -301,7 +333,7 @@ function CityRow({ city, canChangeStatus, canDelete, disabled, onAction }: Reado
         {number.format(city.coordinates.longitude ?? 0)}
       </TableCell>
       <TableCell className="hidden text-muted-foreground sm:table-cell">{createdAt}</TableCell>
-      {(canChangeStatus || canDelete) && (
+      {hasActions && (
         <TableCell>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -315,13 +347,21 @@ function CityRow({ city, canChangeStatus, canDelete, disabled, onAction }: Reado
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {canChangeStatus && (
+              {permissions.update && (
+                <DropdownMenuItem asChild>
+                  <Link to={editPath} state={{ listSearch }}>
+                    <Pencil />
+                    {t('admin.cities.edit')}
+                  </Link>
+                </DropdownMenuItem>
+              )}
+              {permissions.changeStatus && (
                 <DropdownMenuItem onSelect={() => onAction(isActive ? 'deactivate' : 'activate')}>
                   {isActive ? <PowerOff /> : <Power />}
                   {isActive ? t('admin.cities.deactivate') : t('admin.cities.activate')}
                 </DropdownMenuItem>
               )}
-              {canDelete && (
+              {permissions.delete && (
                 <DropdownMenuItem variant="destructive" onSelect={() => onAction('delete')}>
                   <Trash2 />
                   {t('admin.cities.delete')}

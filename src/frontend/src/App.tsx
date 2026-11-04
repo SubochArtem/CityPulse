@@ -5,6 +5,8 @@ import { RequireAuth } from './auth/RequireAuth'
 import { Layout } from './components/Layout'
 import { CitiesPage } from './pages/CitiesPage'
 import { AdminCitiesPage } from './pages/admin/AdminCitiesPage'
+import { AdminCityCreatePage } from './pages/admin/AdminCityCreatePage'
+import { AdminCityEditPage } from './pages/admin/AdminCityEditPage'
 import { CityPage } from './pages/CityPage'
 import { CreateIdeaPage } from './pages/CreateIdeaPage'
 import { HomePage } from './pages/HomePage'
@@ -28,6 +30,12 @@ export default function App() {
           <Route path="admin" element={<AdminLayout />}>
             <Route element={<RequirePermission permission="cities.read.any" />}>
               <Route path="cities" element={<AdminCitiesPage />} />
+              <Route element={<RequirePermission permission="cities.create.any" />}>
+                <Route path="cities/new" element={<AdminCityCreatePage />} />
+              </Route>
+              <Route element={<RequirePermission permission="cities.update.any" />}>
+                <Route path="cities/:cityId/edit" element={<AdminCityEditPage />} />
+              </Route>
             </Route>
           </Route>
         </Route>

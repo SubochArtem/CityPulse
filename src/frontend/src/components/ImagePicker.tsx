@@ -1,8 +1,12 @@
 import { CircleAlert, ImagePlus, X } from 'lucide-react'
 import { type ChangeEvent, useEffect, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { components } from '@/api/schema/polls'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
+import { sortImages } from '@/lib/images'
+
+type Image = components['schemas']['ImageDto']
 
 export const MAX_IMAGES = 5
 export const MAX_IMAGE_SIZE_MB = 5
@@ -30,13 +34,23 @@ function extensionOf(file: File) {
 interface ImagePickerProps {
   files: File[]
   onChange: (files: File[]) => void
+  existing?: Image[]
+  onRemoveExisting?: (id: string) => void
   disabled?: boolean
 }
 
-export function ImagePicker({ files, onChange, disabled }: Readonly<ImagePickerProps>) {
+export function ImagePicker({
+  files,
+  onChange,
+  existing,
+  onRemoveExisting,
+  disabled,
+}: Readonly<ImagePickerProps>) {
   const { t } = useTranslation()
   const inputId = useId()
   const [errors, setErrors] = useState<string[]>([])
+  const existingImages = sortImages(existing).filter((image) => image.id && image.url)
+  const total = existingImages.length + files.length
 
   const handleSelect = (event: ChangeEvent<HTMLInputElement>) => {
     const selected = [...(event.target.files ?? [])]
@@ -54,7 +68,7 @@ export function ImagePicker({ files, onChange, disabled }: Readonly<ImagePickerP
       }
     }
 
-    const free = MAX_IMAGES - files.length
+    const free = Math.max(0, MAX_IMAGES - total)
     if (accepted.length > free) {
       rejected.push(t('imagePicker.tooMany', { max: MAX_IMAGES }))
     }
@@ -68,26 +82,41 @@ export function ImagePicker({ files, onChange, disabled }: Readonly<ImagePickerP
     onChange(files.filter((item) => item !== file))
   }
 
+  const removeExisting = (id: string) => {
+    setErrors([])
+    onRemoveExisting?.(id)
+  }
+
   return (
     <div className="space-y-3">
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        {existingImages.map((image, index) => (
+          <li key={image.id} className="relative">
+            <img
+              src={image.url ?? ''}
+              alt=""
+              className="aspect-video w-full rounded-lg bg-muted object-cover"
+            />
+            {onRemoveExisting && (
+              <RemoveButton
+                label={t('imagePicker.removeExisting', { number: index + 1 })}
+                disabled={disabled}
+                onClick={() => removeExisting(image.id ?? '')}
+              />
+            )}
+          </li>
+        ))}
         {files.map((file) => (
           <li key={fileKey(file)} className="relative">
             <ImagePreview file={file} />
-            <Button
-              type="button"
-              variant="secondary"
-              size="icon-sm"
-              className="absolute top-2 right-2"
-              aria-label={t('imagePicker.remove', { name: file.name })}
+            <RemoveButton
+              label={t('imagePicker.remove', { name: file.name })}
               disabled={disabled}
               onClick={() => remove(file)}
-            >
-              <X />
-            </Button>
+            />
           </li>
         ))}
-        {files.length < MAX_IMAGES && (
+        {total < MAX_IMAGES && (
           <li>
             <label
               htmlFor={inputId}
@@ -124,6 +153,28 @@ export function ImagePicker({ files, onChange, disabled }: Readonly<ImagePickerP
         </Alert>
       )}
     </div>
+  )
+}
+
+interface RemoveButtonProps {
+  label: string
+  disabled: boolean | undefined
+  onClick: () => void
+}
+
+function RemoveButton({ label, disabled, onClick }: Readonly<RemoveButtonProps>) {
+  return (
+    <Button
+      type="button"
+      variant="secondary"
+      size="icon-sm"
+      className="absolute top-2 right-2"
+      aria-label={label}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      <X />
+    </Button>
   )
 }
 

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
 import { ApiError } from '@/api/errors'
 import type { components } from '@/api/schema/polls'
+import { CharacterCount } from '@/components/CharacterCount'
 import { ImagePicker } from '@/components/ImagePicker'
 import { Alert, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -134,7 +135,7 @@ function IdeaForm({ poll }: Readonly<{ poll: Poll }>) {
       <div className="space-y-2">
         <Label htmlFor={descriptionId}>
           {t('ideaForm.description')}
-          <span className="font-normal text-muted-foreground">{t('ideaForm.optional')}</span>
+          <span className="font-normal text-muted-foreground">{t('form.optional')}</span>
         </Label>
         <Textarea
           id={descriptionId}
@@ -151,7 +152,7 @@ function IdeaForm({ poll }: Readonly<{ poll: Poll }>) {
       <div className="space-y-2">
         <p className="flex items-center gap-2 text-sm font-medium">
           {t('ideaForm.images')}
-          <span className="font-normal text-muted-foreground">{t('ideaForm.optional')}</span>
+          <span className="font-normal text-muted-foreground">{t('form.optional')}</span>
         </p>
         <ImagePicker files={images} onChange={setImages} disabled={isSubmitting} />
       </div>
@@ -173,16 +174,6 @@ function IdeaForm({ poll }: Readonly<{ poll: Poll }>) {
         </Button>
       </div>
     </form>
-  )
-}
-
-function CharacterCount({ value, max }: Readonly<{ value: string; max: number }>) {
-  const { t } = useTranslation()
-
-  return (
-    <p className="text-right text-xs text-muted-foreground tabular-nums">
-      {t('ideaForm.counter', { current: value.length, max })}
-    </p>
   )
 }
 
