@@ -33,7 +33,7 @@ public sealed class PollStatusChangedConsumer(ActivityStore store) : IConsumer<P
         }
     }
 
-    private Task AddClosedAsync(PollStatusChangedEvent message, CancellationToken cancellationToken)
+    private Task<bool> AddClosedAsync(PollStatusChangedEvent message, CancellationToken cancellationToken)
     {
         var status = message.Status.ToString();
 
