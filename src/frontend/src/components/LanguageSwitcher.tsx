@@ -10,13 +10,13 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { languages } from '@/i18n'
 
-export function LanguageSwitcher() {
+export function LanguageSwitcher({ className }: Readonly<{ className?: string }>) {
   const { t, i18n } = useTranslation()
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label={t('language.label')}>
+        <Button variant="ghost" size="icon" className={className} aria-label={t('language.label')}>
           <Languages />
         </Button>
       </DropdownMenuTrigger>

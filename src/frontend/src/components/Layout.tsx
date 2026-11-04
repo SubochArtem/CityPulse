@@ -6,57 +6,60 @@ import { useAdminSections } from '@/admin/useAdminSections'
 import { cn } from '@/lib/utils'
 import { AuthButton } from './AuthButton'
 import { AuthError } from './AuthError'
+import { boxCellClass, boxIconCellClass } from './boxCell'
+import { Emblem } from './Emblem'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { PageLoader } from './PageLoader'
 import { ThemeToggle } from './ThemeToggle'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   cn(
-    'py-1 text-sm transition-colors hover:text-foreground',
+    boxCellClass,
+    'border-l',
     isActive
-      ? 'font-medium text-foreground shadow-[inset_0_-3px_0_var(--primary)]'
-      : 'text-muted-foreground',
+      ? 'bg-secondary text-foreground shadow-[inset_0_-3px_0_var(--primary)]'
+      : 'text-foreground/80',
   )
 
 export function Layout() {
   const { t } = useTranslation()
 
   return (
-    <div className="min-h-svh bg-background text-foreground">
-      <header className="bg-navy text-navy-foreground dark:border-b">
-        <div className="dark mx-auto flex h-14 w-full max-w-5xl items-center justify-between gap-2 px-4 sm:gap-4 sm:px-6">
+    <div className="flex min-h-svh flex-col bg-background text-foreground">
+      <header className="mx-auto w-full max-w-5xl px-4 pt-4 sm:px-6">
+        <div className="flex items-stretch border bg-card">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 font-heading text-sm font-extrabold sm:text-base"
+            className="flex items-center gap-3 bg-secondary px-3 py-2 outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:ring-inset sm:px-4"
           >
-            <span className="size-5 rounded-full border-[5px] border-navy-foreground bg-primary" />
-            <span>CityPulse</span>
+            <Emblem />
+            <span className="hidden font-heading text-xl font-medium text-heading sm:inline">
+              CityPulse
+            </span>
           </Link>
-          <div className="flex items-center gap-2 sm:gap-4">
-            <nav className="flex items-center gap-2 sm:gap-4">
-              <NavLink to="/cities" className={navLinkClass}>
-                {t('nav.cities')}
-              </NavLink>
-              <NavLink
-                to="/profile"
-                aria-label={t('nav.profile')}
-                className={(state) => cn(navLinkClass(state), 'inline-flex items-center gap-1.5')}
-              >
-                <UserRound className="size-4 sm:hidden" />
-                <span className="hidden sm:inline">{t('nav.profile')}</span>
-              </NavLink>
-              <AdminNavLink />
-            </nav>
-            <div className="flex items-center sm:gap-2">
-              <LanguageSwitcher />
-              <ThemeToggle />
-              <AuthButton />
+          <nav className="flex flex-1 items-stretch justify-end">
+            <NavLink to="/cities" className={navLinkClass}>
+              {t('nav.cities')}
+            </NavLink>
+            <NavLink to="/profile" aria-label={t('nav.profile')} className={navLinkClass}>
+              <UserRound className="size-4 md:hidden" />
+              <span className="hidden md:inline">{t('nav.profile')}</span>
+            </NavLink>
+            <AdminNavLink />
+          </nav>
+          <div className="flex items-stretch">
+            <div className="border-l">
+              <LanguageSwitcher className={boxIconCellClass} />
             </div>
+            <div className="border-l">
+              <ThemeToggle className={boxIconCellClass} />
+            </div>
+            <AuthButton className="border-l" />
           </div>
         </div>
       </header>
       <AuthError />
-      <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-6">
         <Suspense fallback={<PageLoader />}>
           <Outlet />
         </Suspense>
@@ -74,13 +77,9 @@ function AdminNavLink() {
   }
 
   return (
-    <NavLink
-      to="/admin"
-      aria-label={t('nav.admin')}
-      className={(state) => cn(navLinkClass(state), 'inline-flex items-center gap-1.5')}
-    >
+    <NavLink to="/admin" aria-label={t('nav.admin')} className={navLinkClass}>
       <ShieldCheck className="size-4" />
-      <span className="hidden sm:inline">{t('nav.admin')}</span>
+      <span className="hidden md:inline">{t('nav.admin')}</span>
     </NavLink>
   )
 }
