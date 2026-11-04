@@ -7,6 +7,7 @@ import { CitiesPage } from './pages/CitiesPage'
 import { AdminCitiesPage } from './pages/admin/AdminCitiesPage'
 import { AdminCityCreatePage } from './pages/admin/AdminCityCreatePage'
 import { AdminCityEditPage } from './pages/admin/AdminCityEditPage'
+import { AdminPollsPage } from './pages/admin/AdminPollsPage'
 import { CityPage } from './pages/CityPage'
 import { CreateIdeaPage } from './pages/CreateIdeaPage'
 import { HomePage } from './pages/HomePage'
@@ -36,6 +37,9 @@ export default function App() {
               <Route element={<RequirePermission permission="cities.update.any" />}>
                 <Route path="cities/:cityId/edit" element={<AdminCityEditPage />} />
               </Route>
+            </Route>
+            <Route element={<RequirePermission permission="polls.read.any" />}>
+              <Route path="polls" element={<AdminPollsPage />} />
             </Route>
           </Route>
         </Route>
