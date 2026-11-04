@@ -149,8 +149,8 @@ function IdeaForm({ poll }: Readonly<{ poll: Poll }>) {
       </div>
 
       <div className="space-y-2">
-        <p className="text-sm font-medium">
-          {t('ideaForm.images')}{' '}
+        <p className="flex items-center gap-2 text-sm font-medium">
+          {t('ideaForm.images')}
           <span className="font-normal text-muted-foreground">{t('ideaForm.optional')}</span>
         </p>
         <ImagePicker files={images} onChange={setImages} disabled={isSubmitting} />
