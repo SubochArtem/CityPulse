@@ -1,4 +1,4 @@
-import { ArrowLeft, CircleAlert, Lightbulb } from 'lucide-react'
+import { ArrowLeft, CircleAlert, Lightbulb, UserRound } from 'lucide-react'
 import { type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
@@ -14,6 +14,7 @@ import { coverImage } from '@/lib/images'
 import { PollFacts } from '@/polls/PollFacts'
 import { PollTypeBadge } from '@/polls/PollTypeBadge'
 import { usePollWithIdeas } from '@/polls/usePollWithIdeas'
+import { usePublicProfiles } from '@/users/usePublicProfiles'
 
 type Poll = components['schemas']['PollWithIdeasDto']
 type Idea = components['schemas']['IdeaDto']
@@ -56,6 +57,7 @@ function PollDetails({ poll }: Readonly<{ poll: Poll }>) {
   const ideas = [...(poll.ideas ?? [])].sort((a, b) =>
     (b.createdAt ?? '').localeCompare(a.createdAt ?? ''),
   )
+  const { data: nicknames } = usePublicProfiles(ideas.map((idea) => idea.userId))
 
   return (
     <>
@@ -79,7 +81,10 @@ function PollDetails({ poll }: Readonly<{ poll: Poll }>) {
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {ideas.map((idea) => (
               <li key={idea.id}>
-                <IdeaCard idea={idea} />
+                <IdeaCard
+                  idea={idea}
+                  author={idea.userId ? nicknames?.get(idea.userId) : undefined}
+                />
               </li>
             ))}
           </ul>
@@ -91,7 +96,7 @@ function PollDetails({ poll }: Readonly<{ poll: Poll }>) {
   )
 }
 
-function IdeaCard({ idea }: Readonly<{ idea: Idea }>) {
+function IdeaCard({ idea, author }: Readonly<{ idea: Idea; author: string | undefined }>) {
   const { t, i18n } = useTranslation()
   const cover = coverImage(idea.images)
   const createdAt = idea.createdAt
@@ -101,27 +106,38 @@ function IdeaCard({ idea }: Readonly<{ idea: Idea }>) {
     : null
 
   return (
-    <Card className="h-full pt-0">
-      {cover?.url ? (
-        <img src={cover.url} alt="" loading="lazy" className="aspect-video w-full object-cover" />
-      ) : (
-        <div className="flex aspect-video items-center justify-center bg-muted text-muted-foreground">
-          <Lightbulb className="size-8" />
-        </div>
-      )}
-      <CardHeader>
-        <IdeaApprovalBadge status={idea.approvalStatus} className="mb-1" />
-        <CardTitle className="text-base">{idea.title}</CardTitle>
-        {idea.description && (
-          <CardDescription className="line-clamp-3">{idea.description}</CardDescription>
+    <Link
+      to={`/ideas/${idea.id}`}
+      className="group block h-full rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+    >
+      <Card className="h-full pt-0 transition-shadow group-hover:ring-foreground/25">
+        {cover?.url ? (
+          <img src={cover.url} alt="" loading="lazy" className="aspect-video w-full object-cover" />
+        ) : (
+          <div className="flex aspect-video items-center justify-center bg-muted text-muted-foreground">
+            <Lightbulb className="size-8" />
+          </div>
         )}
-      </CardHeader>
-      {createdAt && (
-        <CardContent className="mt-auto text-muted-foreground">
-          {t('idea.createdAt', { date: createdAt })}
-        </CardContent>
-      )}
-    </Card>
+        <CardHeader>
+          <IdeaApprovalBadge status={idea.approvalStatus} className="mb-1" />
+          <CardTitle className="text-base">{idea.title}</CardTitle>
+          {idea.description && (
+            <CardDescription className="line-clamp-3">{idea.description}</CardDescription>
+          )}
+        </CardHeader>
+        {(author || createdAt) && (
+          <CardContent className="mt-auto flex flex-wrap gap-x-3 gap-y-1 text-muted-foreground">
+            {author && (
+              <span className="inline-flex items-center gap-1.5">
+                <UserRound className="size-4" />
+                {author}
+              </span>
+            )}
+            {createdAt && <span>{t('idea.createdAt', { date: createdAt })}</span>}
+          </CardContent>
+        )}
+      </Card>
+    </Link>
   )
 }
 
