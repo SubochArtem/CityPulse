@@ -1,7 +1,10 @@
 import { Route, Routes } from 'react-router'
+import { AdminLayout } from './admin/AdminLayout'
+import { RequirePermission } from './auth/RequirePermission'
 import { RequireAuth } from './auth/RequireAuth'
 import { Layout } from './components/Layout'
 import { CitiesPage } from './pages/CitiesPage'
+import { AdminCitiesPage } from './pages/admin/AdminCitiesPage'
 import { CityPage } from './pages/CityPage'
 import { CreateIdeaPage } from './pages/CreateIdeaPage'
 import { HomePage } from './pages/HomePage'
@@ -22,6 +25,11 @@ export default function App() {
         <Route element={<RequireAuth />}>
           <Route path="profile" element={<ProfilePage />} />
           <Route path="polls/:pollId/ideas/new" element={<CreateIdeaPage />} />
+          <Route path="admin" element={<AdminLayout />}>
+            <Route element={<RequirePermission permission="cities.read.any" />}>
+              <Route path="cities" element={<AdminCitiesPage />} />
+            </Route>
+          </Route>
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Route>

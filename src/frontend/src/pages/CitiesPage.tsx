@@ -1,51 +1,24 @@
-import { ChevronLeft, ChevronRight, CircleAlert, MapPin, Search } from 'lucide-react'
-import { type ReactNode, useEffect, useState } from 'react'
+import { CircleAlert, MapPin, Search } from 'lucide-react'
+import { type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useSearchParams } from 'react-router'
+import { Link } from 'react-router'
 import type { components } from '@/api/schema/polls'
 import { CITIES_PAGE_SIZE, useCities } from '@/cities/useCities'
+import { Pagination } from '@/components/Pagination'
 import { Alert, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { coverImage } from '@/lib/images'
-import { useDebouncedValue } from '@/lib/useDebouncedValue'
+import { useListSearchParams } from '@/lib/useListSearchParams'
 
 type City = components['schemas']['CityDto']
 
-function readPage(value: string | null) {
-  const page = Number(value)
-  return Number.isInteger(page) && page > 0 ? page : 1
-}
-
 export function CitiesPage() {
   const { t } = useTranslation()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const search = searchParams.get('q') ?? ''
-  const page = readPage(searchParams.get('page'))
-  const [input, setInput] = useState(search)
-  const debouncedInput = useDebouncedValue(input.trim())
-
-  useEffect(() => {
-    if (debouncedInput === search) {
-      return
-    }
-    setSearchParams(debouncedInput ? { q: debouncedInput } : {}, { replace: true })
-  }, [debouncedInput, search, setSearchParams])
-
+  const { search, page, searchInput, setSearchInput, goToPage } = useListSearchParams()
   const { data, error, isPending, isPlaceholderData } = useCities({ search, page })
   const totalPages = Math.max(1, Math.ceil((data?.totalCount ?? 0) / CITIES_PAGE_SIZE))
-
-  const goToPage = (next: number) => {
-    const params = new URLSearchParams(searchParams)
-    if (next > 1) {
-      params.set('page', String(next))
-    } else {
-      params.delete('page')
-    }
-    setSearchParams(params)
-  }
 
   let content: ReactNode
   if (isPending) {
@@ -71,31 +44,14 @@ export function CitiesPage() {
           ))}
         </ul>
 
-        {(totalPages > 1 || page > 1) && (
-          <nav className="flex items-center justify-between gap-4">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={!data.hasPreviousPage || isPlaceholderData}
-              onClick={() => goToPage(page - 1)}
-            >
-              <ChevronLeft />
-              {t('pagination.previous')}
-            </Button>
-            <span className="text-sm text-muted-foreground">
-              {t('pagination.pageOf', { page, total: totalPages })}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={!data.hasNextPage || isPlaceholderData}
-              onClick={() => goToPage(page + 1)}
-            >
-              {t('pagination.next')}
-              <ChevronRight />
-            </Button>
-          </nav>
-        )}
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          hasPrevious={Boolean(data.hasPreviousPage)}
+          hasNext={Boolean(data.hasNextPage)}
+          disabled={isPlaceholderData}
+          onPageChange={goToPage}
+        />
       </>
     )
   } else {
@@ -117,8 +73,8 @@ export function CitiesPage() {
         <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           type="search"
-          value={input}
-          onChange={(event) => setInput(event.target.value)}
+          value={searchInput}
+          onChange={(event) => setSearchInput(event.target.value)}
           placeholder={t('cities.searchPlaceholder')}
           aria-label={t('cities.searchPlaceholder')}
           className="pl-8"

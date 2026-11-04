@@ -2,6 +2,7 @@ export const en = {
   nav: {
     cities: 'Cities',
     profile: 'Profile',
+    admin: 'Admin',
   },
   auth: {
     logIn: 'Log in',
@@ -96,6 +97,47 @@ export const en = {
     previous: 'Previous',
     next: 'Next',
     pageOf: 'Page {{page}} of {{total}}',
+  },
+  admin: {
+    title: 'Administration',
+    noAccess: 'You do not have access to this section.',
+    cancel: 'Cancel',
+    sections: {
+      cities: 'Cities',
+    },
+    cities: {
+      searchPlaceholder: 'Search cities',
+      empty: 'No cities yet.',
+      noMatches: 'No cities match “{{search}}”.',
+      loadFailed: 'Could not load cities',
+      notFound: 'This city no longer exists.',
+      actionFailed: 'Could not update the city. Please try again.',
+      actionsFor: 'Actions for {{title}}',
+      columns: {
+        title: 'Title',
+        status: 'Status',
+        coordinates: 'Coordinates',
+        createdAt: 'Created',
+        actions: 'Actions',
+      },
+      status: {
+        all: 'All statuses',
+        active: 'Active',
+        inactive: 'Inactive',
+      },
+      activate: 'Activate',
+      deactivate: 'Deactivate',
+      delete: 'Delete',
+      activateTitle: 'Activate “{{title}}”?',
+      activateDescription:
+        'The city becomes visible to residents again, together with the polls and ideas hidden when it was deactivated.',
+      deactivateTitle: 'Deactivate “{{title}}”?',
+      deactivateDescription:
+        'The city, its active polls and their ideas will be hidden from residents. You can activate it again later.',
+      deleteTitle: 'Delete “{{title}}”?',
+      deleteDescription:
+        'The city is deleted permanently together with all its polls, ideas and images. This cannot be undone.',
+    },
   },
   notFound: {
     title: 'Page not found',

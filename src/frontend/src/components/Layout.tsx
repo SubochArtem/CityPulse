@@ -1,5 +1,7 @@
+import { ShieldCheck, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link, NavLink, Outlet } from 'react-router'
+import { useAdminSections } from '@/admin/useAdminSections'
 import { cn } from '@/lib/utils'
 import { AuthButton } from './AuthButton'
 import { AuthError } from './AuthError'
@@ -27,9 +29,15 @@ export function Layout() {
               <NavLink to="/cities" className={navLinkClass}>
                 {t('nav.cities')}
               </NavLink>
-              <NavLink to="/profile" className={navLinkClass}>
-                {t('nav.profile')}
+              <NavLink
+                to="/profile"
+                aria-label={t('nav.profile')}
+                className={(state) => cn(navLinkClass(state), 'inline-flex items-center gap-1.5')}
+              >
+                <UserRound className="size-4 sm:hidden" />
+                <span className="hidden sm:inline">{t('nav.profile')}</span>
               </NavLink>
+              <AdminNavLink />
             </nav>
             <div className="flex items-center sm:gap-2">
               <LanguageSwitcher />
@@ -44,5 +52,25 @@ export function Layout() {
         <Outlet />
       </main>
     </div>
+  )
+}
+
+function AdminNavLink() {
+  const { t } = useTranslation()
+  const { sections } = useAdminSections()
+
+  if (!sections.length) {
+    return null
+  }
+
+  return (
+    <NavLink
+      to="/admin"
+      aria-label={t('nav.admin')}
+      className={(state) => cn(navLinkClass(state), 'inline-flex items-center gap-1.5')}
+    >
+      <ShieldCheck className="size-4" />
+      <span className="hidden sm:inline">{t('nav.admin')}</span>
+    </NavLink>
   )
 }
