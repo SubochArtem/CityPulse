@@ -6,6 +6,7 @@ type RussianTranslation = Translation & {
 
 export const ru: RussianTranslation = {
   nav: {
+    cities: 'Города',
     profile: 'Профиль',
   },
   auth: {
@@ -26,6 +27,19 @@ export const ru: RussianTranslation = {
   home: {
     title: 'Добро пожаловать в CityPulse',
     subtitle: 'Идеи, опросы и отзывы для вашего города.',
+  },
+  cities: {
+    title: 'Города',
+    subtitle: 'Выберите город, чтобы увидеть его опросы и идеи.',
+    searchPlaceholder: 'Поиск городов',
+    empty: 'Городов пока нет.',
+    noMatches: 'Нет городов по запросу «{{search}}».',
+    loadFailed: 'Не удалось загрузить города',
+  },
+  pagination: {
+    previous: 'Назад',
+    next: 'Вперёд',
+    pageOf: 'Страница {{page}} из {{total}}',
   },
   notFound: {
     title: 'Страница не найдена',
