@@ -10,6 +10,7 @@ import { boxCellClass, boxIconCellClass } from './boxCell'
 import { Emblem } from './Emblem'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { PageLoader } from './PageLoader'
+import { SiteFooter } from './SiteFooter'
 import { ThemeToggle } from './ThemeToggle'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -64,6 +65,7 @@ export function Layout() {
           <Outlet />
         </Suspense>
       </main>
+      <SiteFooter />
     </div>
   )
 }

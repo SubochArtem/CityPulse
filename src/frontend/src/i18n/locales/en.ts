@@ -1,8 +1,14 @@
 export const en = {
   nav: {
+    home: 'Home',
     cities: 'Cities',
     profile: 'Profile',
     admin: 'Admin',
+  },
+  footer: {
+    toTop: 'Back to top',
+    tagline: 'Propose · Vote · Change',
+    copyright: 'CityPulse © {{year}}',
   },
   common: {
     loading: 'Loading…',
