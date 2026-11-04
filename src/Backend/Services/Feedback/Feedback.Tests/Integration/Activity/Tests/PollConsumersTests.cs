@@ -19,7 +19,7 @@ public sealed class PollConsumersTests : MongoTestsBase
 
     public PollConsumersTests(MongoFixture fixture) : base(fixture)
     {
-        var store = new ActivityStore(Context);
+        var store = CreateActivityStore();
         _statusConsumer = new PollStatusChangedConsumer(store);
         _deletedConsumer = new PollDeletedConsumer(store);
     }

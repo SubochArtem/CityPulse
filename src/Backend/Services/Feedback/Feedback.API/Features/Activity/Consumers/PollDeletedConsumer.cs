@@ -6,5 +6,5 @@ namespace Feedback.API.Features.Activity.Consumers;
 public sealed class PollDeletedConsumer(ActivityStore store) : IConsumer<PollDeletedEvent>
 {
     public Task Consume(ConsumeContext<PollDeletedEvent> context) =>
-        store.DeleteByPollAsync(context.Message.PollId, context.CancellationToken);
+        store.DeleteByPollAsync(context.Message.PollId, context.Message.CityId, context.CancellationToken);
 }

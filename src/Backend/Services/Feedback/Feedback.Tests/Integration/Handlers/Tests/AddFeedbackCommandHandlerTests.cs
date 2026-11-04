@@ -24,7 +24,7 @@ public sealed class AddFeedbackCommandHandlerTests(MongoFixture fixture) : Mongo
     private static readonly Guid IdeaId = Guid.NewGuid();
 
     private AddFeedbackCommandHandler CreateSut() =>
-        new(Context, DateTimeProvider.Object, IdeaService.Object, new ActivityStore(Context));
+        new(Context, DateTimeProvider.Object, IdeaService.Object, CreateActivityStore());
 
     private static AddFeedbackCommand BuildCommand(
         string? text,

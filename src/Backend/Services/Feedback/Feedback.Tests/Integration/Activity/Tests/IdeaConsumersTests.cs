@@ -24,7 +24,7 @@ public sealed class IdeaConsumersTests : MongoTestsBase
 
     public IdeaConsumersTests(MongoFixture fixture) : base(fixture)
     {
-        var store = new ActivityStore(Context);
+        var store = CreateActivityStore();
         _createdConsumer = new IdeaCreatedConsumer(store);
         _approvalConsumer = new IdeaApprovalStatusChangedConsumer(store);
         _accessConsumer = new IdeaAccessStatusChangedConsumer(store);
