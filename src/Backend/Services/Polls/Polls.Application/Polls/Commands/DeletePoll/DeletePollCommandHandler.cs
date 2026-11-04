@@ -1,4 +1,5 @@
 using MediatR;
+using Polls.Application.Common.Extensions;
 using Polls.Application.Common.Interfaces;
 using Polls.Application.Common.Security;
 using Polls.Application.Polls.Guards;
@@ -10,7 +11,9 @@ namespace Polls.Application.Polls.Commands.DeletePoll;
 
 public sealed class DeletePollCommandHandler(
     IUnitOfWork unitOfWork,
-    IPollScheduler pollScheduler)
+    IPollScheduler pollScheduler,
+    IIntegrationEventPublisher eventPublisher,
+    IDateTimeProvider dateTimeProvider)
     : IRequestHandler<DeletePollCommand, Result<Unit>>
 {
     public async Task<Result<Unit>> Handle(
@@ -48,6 +51,11 @@ public sealed class DeletePollCommandHandler(
         }
 
         unitOfWork.Polls.Delete(poll);
+
+        await eventPublisher.PublishAsync(
+            poll.ToDeletedEvent(dateTimeProvider.UtcNow),
+            cancellationToken);
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Unit.Value;

@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Polls.Application.Common.Extensions;
 using Polls.Application.Common.Interfaces;
 using Polls.Domain.Common;
 using Polls.Domain.Ideas.Enums;
@@ -10,6 +11,8 @@ namespace Polls.Application.Polls.Commands.ChangeStatus;
 
 public sealed class ChangePollStatusCommandHandler(
     IUnitOfWork unitOfWork,
+    IIntegrationEventPublisher eventPublisher,
+    IDateTimeProvider dateTimeProvider,
     ILogger<ChangePollStatusCommandHandler> logger) 
     : IRequestHandler<ChangePollStatusCommand, Result<Unit>>
 {
@@ -40,6 +43,11 @@ public sealed class ChangePollStatusCommandHandler(
                 {
                     poll.Status = command.NewStatus;
                     unitOfWork.Polls.Update(poll);
+
+                    await eventPublisher.PublishAsync(
+                        poll.ToStatusChangedEvent(dateTimeProvider.UtcNow),
+                        token);
+
                     await unitOfWork.SaveChangesAsync(token);
 
                     await unitOfWork.Ideas.UpdateAccessStatusByPollIdAsync(
