@@ -29,6 +29,14 @@ public class UsersController(IUserService userService) : ControllerBase
         return await userService.GetUsersAsync(filter, cancellationToken);
     }
 
+    [HttpGet("profiles")]
+    public async Task<IReadOnlyList<PublicUserProfileDto>> GetPublicProfiles(
+        [FromQuery] PublicProfilesRequestDto request,
+        CancellationToken cancellationToken)
+    {
+        return await userService.GetPublicProfilesAsync(request, cancellationToken);
+    }
+
     [HttpPost("{id:guid}/deactivate")]
     [Authorize(Policy = Policies.DeactivateUser)]
     public async Task<NoContentResult> DeactivateUser(
