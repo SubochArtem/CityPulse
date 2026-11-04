@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet } from 'react-router'
 import { cn } from '@/lib/utils'
 import { AuthButton } from './AuthButton'
 import { AuthError } from './AuthError'
+import { LanguageSwitcher } from './LanguageSwitcher'
 import { ThemeToggle } from './ThemeToggle'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -25,6 +26,7 @@ export function Layout() {
             <NavLink to="/profile" className={navLinkClass}>
               {t('nav.profile')}
             </NavLink>
+            <LanguageSwitcher />
             <ThemeToggle />
             <AuthButton />
           </nav>
