@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight, CircleAlert, MapPin, Search } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router'
 import type { components } from '@/api/schema/polls'
@@ -46,6 +46,65 @@ export function CitiesPage() {
     setSearchParams(params)
   }
 
+  let content: ReactNode
+  if (isPending) {
+    content = <CityGridSkeleton />
+  } else if (error) {
+    content = (
+      <Alert variant="destructive" className="max-w-md">
+        <CircleAlert />
+        <AlertTitle>{t('cities.loadFailed')}</AlertTitle>
+      </Alert>
+    )
+  } else if (data.totalCount) {
+    content = (
+      <>
+        <ul
+          className="grid gap-4 transition-opacity sm:grid-cols-2 lg:grid-cols-3 data-[stale=true]:opacity-60"
+          data-stale={isPlaceholderData}
+        >
+          {data.items?.map((city) => (
+            <li key={city.id}>
+              <CityCard city={city} />
+            </li>
+          ))}
+        </ul>
+
+        {(totalPages > 1 || page > 1) && (
+          <nav className="flex items-center justify-between gap-4">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!data.hasPreviousPage || isPlaceholderData}
+              onClick={() => goToPage(page - 1)}
+            >
+              <ChevronLeft />
+              {t('pagination.previous')}
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              {t('pagination.pageOf', { page, total: totalPages })}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!data.hasNextPage || isPlaceholderData}
+              onClick={() => goToPage(page + 1)}
+            >
+              {t('pagination.next')}
+              <ChevronRight />
+            </Button>
+          </nav>
+        )}
+      </>
+    )
+  } else {
+    content = (
+      <p className="text-muted-foreground">
+        {search ? t('cities.noMatches', { search }) : t('cities.empty')}
+      </p>
+    )
+  }
+
   return (
     <section className="space-y-6">
       <div className="space-y-2">
@@ -65,62 +124,12 @@ export function CitiesPage() {
         />
       </div>
 
-      {isPending ? (
-        <CityGridSkeleton />
-      ) : error ? (
-        <Alert variant="destructive" className="max-w-md">
-          <CircleAlert />
-          <AlertTitle>{t('cities.loadFailed')}</AlertTitle>
-        </Alert>
-      ) : !data.totalCount ? (
-        <p className="text-muted-foreground">
-          {search ? t('cities.noMatches', { search }) : t('cities.empty')}
-        </p>
-      ) : (
-        <>
-          <ul
-            className="grid gap-4 transition-opacity sm:grid-cols-2 lg:grid-cols-3 data-[stale=true]:opacity-60"
-            data-stale={isPlaceholderData}
-          >
-            {data.items?.map((city) => (
-              <li key={city.id}>
-                <CityCard city={city} />
-              </li>
-            ))}
-          </ul>
-
-          {(totalPages > 1 || page > 1) && (
-            <nav className="flex items-center justify-between gap-4">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={!data.hasPreviousPage || isPlaceholderData}
-                onClick={() => goToPage(page - 1)}
-              >
-                <ChevronLeft />
-                {t('pagination.previous')}
-              </Button>
-              <span className="text-sm text-muted-foreground">
-                {t('pagination.pageOf', { page, total: totalPages })}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={!data.hasNextPage || isPlaceholderData}
-                onClick={() => goToPage(page + 1)}
-              >
-                {t('pagination.next')}
-                <ChevronRight />
-              </Button>
-            </nav>
-          )}
-        </>
-      )}
+      {content}
     </section>
   )
 }
 
-function CityCard({ city }: { city: City }) {
+function CityCard({ city }: Readonly<{ city: City }>) {
   const cover = [...(city.images ?? [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0]
 
   return (
