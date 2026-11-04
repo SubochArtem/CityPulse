@@ -14,6 +14,7 @@ import { useIdeaCreationAccess } from '@/ideas/useIdeaCreationAccess'
 import { coverImage } from '@/lib/images'
 import { PollFacts } from '@/polls/PollFacts'
 import { PollLineBadge } from '@/polls/PollLineBadge'
+import { PollRoute } from '@/polls/PollRoute'
 import { PollTypeBadge } from '@/polls/PollTypeBadge'
 import { usePollWithIdeas } from '@/polls/usePollWithIdeas'
 import { usePublicProfiles } from '@/users/usePublicProfiles'
@@ -73,6 +74,12 @@ function PollDetails({ poll }: Readonly<{ poll: Poll }>) {
           <h1 className="text-3xl font-semibold tracking-tight">{poll.title}</h1>
           <PollFacts endsAt={poll.endsAt} budgetAmount={poll.budgetAmount} />
         </div>
+        <PollRoute
+          pollId={poll.id}
+          createdAt={poll.createdAt}
+          endsAt={poll.endsAt}
+          className="max-w-xl"
+        />
         {poll.description && (
           <p className="max-w-prose whitespace-pre-line text-muted-foreground">
             {poll.description}
