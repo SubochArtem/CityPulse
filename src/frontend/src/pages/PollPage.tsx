@@ -152,7 +152,10 @@ function IdeaCard({ idea, author }: Readonly<{ idea: Idea; author: string | unde
           </div>
         )}
         <CardHeader>
-          <IdeaApprovalBadge status={idea.approvalStatus} className="mb-1" />
+          <div className="mb-1 flex items-center gap-2">
+            <PollLineBadge pollId={idea.pollId} />
+            <IdeaApprovalBadge status={idea.approvalStatus} />
+          </div>
           <CardTitle className="text-base">{idea.title}</CardTitle>
           {idea.description && (
             <CardDescription className="line-clamp-3">{idea.description}</CardDescription>
