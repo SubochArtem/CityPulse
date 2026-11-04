@@ -15,7 +15,10 @@ public static class RoutingTestData
         { "POST", $"/api/v1/ideas/{Id}/feedback", TestConstants.Services.Feedback },
         { "PUT", $"/api/v1/admin/feedback/{Id}", TestConstants.Services.Feedback },
         { "DELETE", $"/api/v1/admin/feedback/{Id}", TestConstants.Services.Feedback },
-        { "POST", $"/api/v1/admin/ideas/{Id}/feedback", TestConstants.Services.Feedback }
+        { "POST", $"/api/v1/admin/ideas/{Id}/feedback", TestConstants.Services.Feedback },
+        { "GET", "/api/v1/activity", TestConstants.Services.Feedback },
+        { "POST", "/hubs/activity/negotiate", TestConstants.Services.Feedback },
+        { "GET", "/hubs/activity", TestConstants.Services.Feedback }
     };
 
     public static TheoryData<string, string, string> UsersRoutes => new()
@@ -47,6 +50,8 @@ public static class RoutingTestData
         "/",
         "/foo",
         "/api/v2/polls",
-        "/api"
+        "/api",
+        "/hubs",
+        "/hubs/other"
     };
 }
