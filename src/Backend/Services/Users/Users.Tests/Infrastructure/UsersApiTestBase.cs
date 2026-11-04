@@ -37,7 +37,9 @@ public abstract class UsersApiTestBase(IntegrationTestWebAppFactory factory) : I
     private Respawner _respawner = null!;
 
     protected HttpClient Client { get; private set; } = null!;
-    
+
+    protected IServiceProvider Services => factory.Services;
+
     protected Mock<IIdentityProvider> IdentityProviderMock => factory.IdentityProviderMock;
 
     protected Mock<ICityService> CityServiceMock => factory.CityServiceMock;

@@ -6,4 +6,5 @@ namespace Users.Business.Validators;
 public sealed record UserValidators(
     IValidator<CreateUserDto> Create,
     IValidator<UpdateUserProfileDto> Update,
-    IValidator<UserFilterDto> Filter);
+    IValidator<UserFilterDto> Filter,
+    IValidator<PublicProfilesRequestDto> PublicProfiles);

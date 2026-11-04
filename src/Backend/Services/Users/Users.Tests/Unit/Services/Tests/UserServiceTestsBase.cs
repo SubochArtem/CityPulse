@@ -32,7 +32,8 @@ public abstract class UserServiceTestsBase
             new UserValidators(
                 new CreateUserValidator(),
                 new UpdateUserProfileDtoValidator(),
-                new UserFilterDtoValidator()),
+                new UserFilterDtoValidator(),
+                new PublicProfilesRequestDtoValidator()),
             CityService.Object,
             mapper,
             EventPublisher.Object);
