@@ -5,7 +5,7 @@ namespace Feedback.API.Features.Activity.Live;
 
 public static class LiveActivityExtensions
 {
-    private const string BackplaneChannelPrefix = "feedback-signalr";
+    private const string BackplaneChannelPrefix = "feedback:signalr:";
 
     public static IServiceCollection AddLiveActivity(
         this IServiceCollection services,
