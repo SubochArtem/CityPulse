@@ -4,11 +4,12 @@ import { useTranslation } from 'react-i18next'
 import { ActivityFeed } from '@/activity/ActivityFeed'
 import { useCurrentUser } from '@/auth/useCurrentUser'
 import { useCityWithPolls } from '@/cities/useCityWithPolls'
-import { Button } from '@/components/ui/button'
+import { boxCellClass } from '@/components/boxCell'
 import { Skeleton } from '@/components/ui/skeleton'
 import { CitiesStrip } from '@/home/CitiesStrip'
 import { CityPolls } from '@/home/CityPolls'
 import { HomeHero } from '@/home/HomeHero'
+import { cn } from '@/lib/utils'
 
 type Scope = 'city' | 'all'
 
@@ -53,18 +54,22 @@ function ScopeToggle({ cityId, scope, onChange }: Readonly<ScopeToggleProps>) {
   ]
 
   return (
-    <fieldset className="inline-flex min-w-0 rounded-lg bg-muted p-1">
+    <fieldset className="inline-flex min-w-0 border bg-card">
       <legend className="sr-only">{t('activity.scopeLabel')}</legend>
       {options.map((option) => (
-        <Button
+        <button
           key={option.value}
-          size="sm"
-          variant={scope === option.value ? 'default' : 'ghost'}
+          type="button"
           aria-pressed={scope === option.value}
           onClick={() => onChange(option.value)}
+          className={cn(
+            boxCellClass,
+            'min-w-0 border-l first:border-l-0',
+            scope === option.value && 'bg-secondary shadow-[inset_0_-3px_0_var(--primary)]',
+          )}
         >
-          {option.label}
-        </Button>
+          <span className="truncate">{option.label}</span>
+        </button>
       ))}
     </fieldset>
   )

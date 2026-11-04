@@ -51,7 +51,7 @@ export function ActivityItem({
   return (
     <li
       style={pollLineStyle(pollId)}
-      className="relative grid grid-cols-[1.75rem_1fr] gap-x-3 pb-6 last:pb-0"
+      className="relative grid grid-cols-[1.75rem_1fr] gap-x-3 border-b px-4 py-4 last:border-b-0 sm:px-6"
     >
       <span className="flex justify-center pt-1">
         {pollEvent ? (
@@ -60,7 +60,7 @@ export function ActivityItem({
           <span
             aria-hidden="true"
             className={cn(
-              'mt-1 size-3 rounded-full bg-(--poll-line) ring-4 ring-background',
+              'mt-1 size-3 rounded-full bg-(--poll-line) ring-4 ring-card',
               fresh && 'motion-safe:animate-pulse',
             )}
           />
@@ -101,7 +101,7 @@ export function ActivityItem({
               </span>
             )}
             {cityName && (
-              <span className="rounded-full bg-muted px-2 py-0.5 font-medium text-foreground">
+              <span className="border bg-secondary px-2 py-0.5 font-heading tracking-[0.15em] text-foreground uppercase">
                 {cityName}
               </span>
             )}
