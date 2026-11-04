@@ -161,8 +161,10 @@ function roadGround(layout: RoadLayout): IsoPolygon[] {
     }
   }
   if (layout === 'none') {
-    result.push(flat({ x0: -edge, x1: edge, y0: -0.3, y1: 0.3 }, GROUND, iso('paving')))
-    result.push(flat({ x0: -0.3, x1: 0.3, y0: -edge, y1: edge }, GROUND, iso('paving')))
+    result.push(
+      flat({ x0: -edge, x1: edge, y0: -0.3, y1: 0.3 }, GROUND, iso('paving')),
+      flat({ x0: -0.3, x1: 0.3, y0: -edge, y1: edge }, GROUND, iso('paving')),
+    )
   }
   return result
 }

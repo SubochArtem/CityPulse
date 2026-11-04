@@ -8,7 +8,7 @@ export type Random = Readonly<{
 function hash(seed: string) {
   let value = 2166136261
   for (let index = 0; index < seed.length; index++) {
-    value ^= seed.charCodeAt(index)
+    value ^= seed.codePointAt(index) ?? 0
     value = Math.imul(value, 16777619)
   }
   return value >>> 0
