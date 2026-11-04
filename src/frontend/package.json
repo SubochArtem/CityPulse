@@ -10,10 +10,13 @@
     "lint": "eslint .",
     "typecheck": "tsc -b",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "gen:api": "npx --yes openapi-typescript@7.13.0 ${API_BASE_URL:-http://localhost:8080}/swagger/users/swagger.json -o src/api/schema/users.ts && npx --yes openapi-typescript@7.13.0 ${API_BASE_URL:-http://localhost:8080}/swagger/polls/swagger.json -o src/api/schema/polls.ts && npx --yes openapi-typescript@7.13.0 ${API_BASE_URL:-http://localhost:8080}/swagger/feedback/swagger.json -o src/api/schema/feedback.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.4",
+    "@tanstack/react-query": "^5.105.3",
+    "openapi-fetch": "^0.17.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "tailwindcss": "^4.3.4"
