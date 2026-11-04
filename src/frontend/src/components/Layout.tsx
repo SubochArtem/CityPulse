@@ -30,7 +30,7 @@ export function Layout() {
             className="inline-flex items-center gap-2 font-heading text-sm font-extrabold sm:text-base"
           >
             <span className="size-5 rounded-full border-[5px] border-navy-foreground bg-primary" />
-            CityPulse
+            <span>CityPulse</span>
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
             <nav className="flex items-center gap-2 sm:gap-4">
