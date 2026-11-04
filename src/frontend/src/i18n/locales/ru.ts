@@ -9,6 +9,7 @@ type RussianTranslation = Translation & {
     readonly daysLeft_many: string
   }
   readonly feedback: { readonly likes_few: string; readonly likes_many: string }
+  readonly activity: { readonly newEvents_few: string; readonly newEvents_many: string }
   readonly poll: {
     readonly route: { readonly daysLeft_few: string; readonly daysLeft_many: string }
   }
@@ -39,8 +40,42 @@ export const ru: RussianTranslation = {
     label: 'Язык',
   },
   home: {
-    title: 'Добро пожаловать в CityPulse',
-    subtitle: 'Идеи, опросы и отзывы для вашего города.',
+    guestTitle: 'Каждый город — это карта идей',
+    guestText: 'Следите за тем, что жители предлагают, выбирают и обсуждают, прямо сейчас.',
+    browseCities: 'Смотреть города',
+    yourCity: 'Ваш город',
+    openCity: 'Открыть город',
+    noActivePoll: 'Сейчас в вашем городе нет открытых опросов.',
+    cityLoadFailed: 'Не удалось загрузить ваш город',
+  },
+  activity: {
+    title: 'Жизнь города',
+    scopeLabel: 'Показать активность',
+    allCities: 'Все города',
+    live: 'В эфире',
+    connecting: 'Подключение…',
+    offline: 'Нет связи',
+    newEvents_one: '{{count}} новое событие',
+    newEvents_few: '{{count}} новых события',
+    newEvents_many: '{{count}} новых событий',
+    newEvents_other: '{{count}} новых события',
+    loadMore: 'Показать ещё',
+    loadFailed: 'Не удалось загрузить активность',
+    empty: 'Здесь пока ничего не происходило.',
+    someone: 'Кто-то',
+    anIdea: 'идею',
+    quoted: '«{{text}}»',
+    inPoll: 'в опросе {{poll}}',
+    event: {
+      pollOpened: 'Открыт опрос <poll>{{poll}}</poll>',
+      pollFinished: 'Опрос <poll>{{poll}}</poll> завершён',
+      pollCancelled: 'Опрос <poll>{{poll}}</poll> отменён',
+      pollInactive: 'Опрос <poll>{{poll}}</poll> закрыт',
+      ideaProposed: '<actor>{{actor}}</actor> предлагает <idea>{{idea}}</idea>',
+      ideaApproved: 'Идея <idea>{{idea}}</idea> от <actor>{{actor}}</actor> одобрена',
+      ideaRejected: 'Идея <idea>{{idea}}</idea> от <actor>{{actor}}</actor> отклонена',
+      ideaCommented: '<actor>{{actor}}</actor> комментирует <idea>{{idea}}</idea>',
+    },
   },
   cities: {
     title: 'Города',
