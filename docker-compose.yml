@@ -234,11 +234,13 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
       polls:
         condition: service_healthy
     healthcheck: *app-healthcheck
     environment:
-      <<: [*auth0, *redis]
+      <<: [*auth0, *rabbitmq, *redis]
       MongoDb__ConnectionString: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
       GrpcSettings__IdeasServiceUrl: http://polls:8081
 
