@@ -36,9 +36,11 @@ export const en = {
     loadFailed: 'Could not load the city',
     activePolls: 'Active polls',
     noPolls: 'No active polls in this city yet.',
+  },
+  poll: {
     endsAt: 'Ends {{date}}',
     budget: 'Budget {{amount}}',
-    pollType: {
+    type: {
       userVote: 'Residents vote',
       managerVote: 'Manager decision',
     },

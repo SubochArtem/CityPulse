@@ -1,4 +1,4 @@
-import { ArrowLeft, CalendarClock, CircleAlert, Vote, Wallet } from 'lucide-react'
+import { ArrowLeft, CircleAlert, Vote } from 'lucide-react'
 import { type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
@@ -7,19 +7,15 @@ import type { components } from '@/api/schema/polls'
 import { useCityWithPolls } from '@/cities/useCityWithPolls'
 import { ImageGallery } from '@/components/ImageGallery'
 import { Alert, AlertTitle } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { coverImage } from '@/lib/images'
+import { PollFacts } from '@/polls/PollFacts'
+import { PollTypeBadge } from '@/polls/PollTypeBadge'
 
 type City = components['schemas']['CityWithPollsDto']
 type Poll = components['schemas']['PollDto']
-
-const pollTypeKeys = {
-  1: 'city.pollType.userVote',
-  2: 'city.pollType.managerVote',
-} as const
 
 export function CityPage() {
   const { t } = useTranslation()
@@ -89,15 +85,7 @@ function CityDetails({ city }: Readonly<{ city: City }>) {
 }
 
 function PollCard({ poll }: Readonly<{ poll: Poll }>) {
-  const { t, i18n } = useTranslation()
   const cover = coverImage(poll.images)
-  const typeKey = pollTypeKeys[poll.type as keyof typeof pollTypeKeys]
-  const endsAt = poll.endsAt
-    ? new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' }).format(new Date(poll.endsAt))
-    : null
-  const budget = poll.budgetAmount
-    ? new Intl.NumberFormat(i18n.language).format(poll.budgetAmount)
-    : null
 
   return (
     <Card className="h-full pt-0">
@@ -109,32 +97,15 @@ function PollCard({ poll }: Readonly<{ poll: Poll }>) {
         </div>
       )}
       <CardHeader>
-        {typeKey && (
-          <Badge variant="secondary" className="mb-1">
-            {t(typeKey)}
-          </Badge>
-        )}
+        <PollTypeBadge type={poll.type} className="mb-1" />
         <CardTitle className="text-base">{poll.title}</CardTitle>
         {poll.description && (
           <CardDescription className="line-clamp-2">{poll.description}</CardDescription>
         )}
       </CardHeader>
-      {(endsAt || budget) && (
-        <CardContent className="mt-auto flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground">
-          {endsAt && (
-            <span className="inline-flex items-center gap-1.5">
-              <CalendarClock className="size-4" />
-              {t('city.endsAt', { date: endsAt })}
-            </span>
-          )}
-          {budget && (
-            <span className="inline-flex items-center gap-1.5">
-              <Wallet className="size-4" />
-              {t('city.budget', { amount: budget })}
-            </span>
-          )}
-        </CardContent>
-      )}
+      <CardContent className="mt-auto">
+        <PollFacts endsAt={poll.endsAt} budgetAmount={poll.budgetAmount} />
+      </CardContent>
     </Card>
   )
 }
