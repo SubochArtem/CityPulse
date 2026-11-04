@@ -150,6 +150,8 @@ export const en = {
         active: 'Active',
         inactive: 'Inactive',
       },
+      create: 'New city',
+      edit: 'Edit',
       activate: 'Activate',
       deactivate: 'Deactivate',
       delete: 'Delete',

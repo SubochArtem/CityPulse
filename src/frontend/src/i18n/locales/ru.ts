@@ -156,6 +156,8 @@ export const ru: RussianTranslation = {
         active: 'Активен',
         inactive: 'Неактивен',
       },
+      create: 'Новый город',
+      edit: 'Изменить',
       activate: 'Активировать',
       deactivate: 'Деактивировать',
       delete: 'Удалить',
