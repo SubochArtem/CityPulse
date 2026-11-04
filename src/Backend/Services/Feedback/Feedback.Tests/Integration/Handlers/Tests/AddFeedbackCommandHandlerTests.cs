@@ -1,5 +1,7 @@
 using ErrorOr;
 using Feedback.API.Common.Errors;
+using Feedback.API.Domain;
+using Feedback.API.Features.Activity;
 using Feedback.API.Features.Feedback.AddFeedback;
 using Feedback.Tests.Infrastructure;
 using Feedback.Tests.Integration.Handlers.TestData;
@@ -22,7 +24,7 @@ public sealed class AddFeedbackCommandHandlerTests(MongoFixture fixture) : Mongo
     private static readonly Guid IdeaId = Guid.NewGuid();
 
     private AddFeedbackCommandHandler CreateSut() =>
-        new(Context, DateTimeProvider.Object, IdeaService.Object);
+        new(Context, DateTimeProvider.Object, IdeaService.Object, new ActivityStore(Context));
 
     private static AddFeedbackCommand BuildCommand(
         string? text,
@@ -226,5 +228,73 @@ public sealed class AddFeedbackCommandHandlerTests(MongoFixture fixture) : Mongo
             results.Where(result => result.IsError),
             result => Assert.Equal(FeedbackErrors.LikeAlreadyExists, result.FirstError));
         Assert.Single(await ReadAllAsync());
+    }
+
+    [Fact]
+    public async Task Handle_CommentOnProposedIdea_AddsCommentActivityWithIdeaSnapshot()
+    {
+        SetupIdeaCityInCityOfUser();
+        var proposal = ActivityEntries.IdeaProposed(CityId, ideaId: IdeaId);
+        await SeedActivityAsync(proposal);
+
+        var result = await CreateSut().Handle(BuildCommand(CommentText), CancellationToken.None);
+
+        var entry = (await ReadActivityAsync()).Single(x => x.Kind == ActivityKind.IdeaCommented);
+        Assert.Equal(ActivityKeys.IdeaCommented(result.Value.Id), entry.Key);
+        Assert.Equal(CityId, entry.CityId);
+        Assert.Equal(proposal.PollId, entry.PollId);
+        Assert.Equal(proposal.PollTitle, entry.PollTitle);
+        Assert.Equal(IdeaId, entry.IdeaId);
+        Assert.Equal(proposal.IdeaTitle, entry.IdeaTitle);
+        Assert.Equal(UserId, entry.UserId);
+        Assert.Equal(result.Value.Id, entry.FeedbackId);
+        Assert.Equal(Now, entry.OccurredAt);
+    }
+
+    [Fact]
+    public async Task Handle_CommentOnIdeaWithoutProposal_AddsCommentActivityWithoutTitles()
+    {
+        SetupIdeaCityInCityOfUser();
+
+        await CreateSut().Handle(BuildCommand(CommentText), CancellationToken.None);
+
+        var entry = Assert.Single(await ReadActivityAsync());
+        Assert.Equal(ActivityKind.IdeaCommented, entry.Kind);
+        Assert.Equal(CityId, entry.CityId);
+        Assert.Null(entry.PollId);
+        Assert.Null(entry.IdeaTitle);
+    }
+
+    [Fact]
+    public async Task Handle_CommentOnHiddenIdea_AddsHiddenCommentActivity()
+    {
+        SetupIdeaCityInCityOfUser();
+        var proposal = ActivityEntries.IdeaProposed(CityId, ideaId: IdeaId);
+        proposal.IdeaHidden = true;
+        await SeedActivityAsync(proposal);
+
+        await CreateSut().Handle(BuildCommand(CommentText, bypassRestrictions: true), CancellationToken.None);
+
+        Assert.True((await ReadActivityAsync()).Single(x => x.Kind == ActivityKind.IdeaCommented).IdeaHidden);
+    }
+
+    [Fact]
+    public async Task Handle_Like_AddsNoActivity()
+    {
+        SetupIdeaCityInCityOfUser();
+
+        await CreateSut().Handle(BuildCommand(null), CancellationToken.None);
+
+        Assert.Empty(await ReadActivityAsync());
+    }
+
+    [Fact]
+    public async Task Handle_IdeaBelongsToAnotherCity_AddsNoActivity()
+    {
+        SetupIdeaCity(Guid.NewGuid());
+
+        await CreateSut().Handle(BuildCommand(CommentText), CancellationToken.None);
+
+        Assert.Empty(await ReadActivityAsync());
     }
 }

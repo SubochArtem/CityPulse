@@ -6,4 +6,5 @@ public class MongoDbSettings
     public required string ConnectionString { get; set; }
     public required string DatabaseName { get; set; }
     public required string FeedbackCollectionName { get; set; }
+    public string ActivityCollectionName { get; set; } = "activity";
 }

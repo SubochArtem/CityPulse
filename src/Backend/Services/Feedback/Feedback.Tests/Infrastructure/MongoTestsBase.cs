@@ -37,6 +37,12 @@ public abstract class MongoTestsBase
     protected Task<List<FeedbackItem>> ReadAllAsync() =>
         Context.FeedbackItems.Find(FilterDefinition<FeedbackItem>.Empty).ToListAsync();
 
+    protected Task SeedActivityAsync(params ActivityEntry[] entries) =>
+        Context.Activity.InsertManyAsync(entries);
+
+    protected Task<List<ActivityEntry>> ReadActivityAsync() =>
+        Context.Activity.Find(FilterDefinition<ActivityEntry>.Empty).ToListAsync();
+
     protected Task<FeedbackItem?> FindAsync(Guid id) =>
         Context.FeedbackItems.Find(x => x.Id == id).FirstOrDefaultAsync()!;
 }

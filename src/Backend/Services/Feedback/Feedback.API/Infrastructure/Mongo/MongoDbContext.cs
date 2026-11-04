@@ -14,6 +14,12 @@ public class MongoDbContext
     {
         BsonSerializer.TryRegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
 
+        RegisterFeedbackItemMap();
+        RegisterActivityEntryMap();
+    }
+
+    private static void RegisterFeedbackItemMap()
+    {
         if (BsonClassMap.IsClassMapRegistered(typeof(FeedbackItem)))
         {
             return;
@@ -31,6 +37,24 @@ public class MongoDbContext
         });
     }
 
+    private static void RegisterActivityEntryMap()
+    {
+        if (BsonClassMap.IsClassMapRegistered(typeof(ActivityEntry)))
+        {
+            return;
+        }
+
+        BsonClassMap.RegisterClassMap<ActivityEntry>(map =>
+        {
+            map.AutoMap();
+            map.MapIdMember(x => x.Id).SetIdGenerator(CombGuidGenerator.Instance);
+            map.GetMemberMap(x => x.Kind)
+                .SetSerializer(new EnumSerializer<ActivityKind>(BsonType.String));
+            map.GetMemberMap(x => x.OccurredAt)
+                .SetSerializer(new DateTimeOffsetSerializer(BsonType.DateTime));
+        });
+    }
+
     public MongoDbContext(IOptions<MongoDbSettings> options)
     {
         var settings = options.Value;
@@ -38,9 +62,12 @@ public class MongoDbContext
         var database = client.GetDatabase(settings.DatabaseName);
 
         FeedbackItems = database.GetCollection<FeedbackItem>(settings.FeedbackCollectionName);
+        Activity = database.GetCollection<ActivityEntry>(settings.ActivityCollectionName);
     }
 
     public IMongoCollection<FeedbackItem> FeedbackItems { get; }
+
+    public IMongoCollection<ActivityEntry> Activity { get; }
 
     public async Task CreateIndexesAsync(CancellationToken cancellationToken = default)
     {
@@ -66,6 +93,33 @@ public class MongoDbContext
 
         await FeedbackItems.Indexes.CreateManyAsync(
             [byIdea, byUser, byCreatedAt, uniqueLike],
+            cancellationToken);
+
+        await CreateActivityIndexesAsync(cancellationToken);
+    }
+
+    private async Task CreateActivityIndexesAsync(CancellationToken cancellationToken)
+    {
+        var keys = Builders<ActivityEntry>.IndexKeys;
+
+        var uniqueKey = new CreateIndexModel<ActivityEntry>(
+            keys.Ascending(x => x.Key),
+            new CreateIndexOptions { Unique = true });
+
+        var byCity = new CreateIndexModel<ActivityEntry>(
+            keys.Ascending(x => x.CityId).Descending(x => x.OccurredAt).Descending(x => x.Id));
+
+        var byOccurredAt = new CreateIndexModel<ActivityEntry>(
+            keys.Descending(x => x.OccurredAt).Descending(x => x.Id));
+
+        var byIdea = new CreateIndexModel<ActivityEntry>(keys.Ascending(x => x.IdeaId));
+
+        var byPoll = new CreateIndexModel<ActivityEntry>(keys.Ascending(x => x.PollId));
+
+        var byUser = new CreateIndexModel<ActivityEntry>(keys.Ascending(x => x.UserId));
+
+        await Activity.Indexes.CreateManyAsync(
+            [uniqueKey, byCity, byOccurredAt, byIdea, byPoll, byUser],
             cancellationToken);
     }
 }

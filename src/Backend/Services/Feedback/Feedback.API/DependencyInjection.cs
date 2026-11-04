@@ -10,8 +10,10 @@ using Feedback.API.Common.Behaviors;
 using Feedback.API.Common.Filters;
 using Feedback.API.Common.Interfaces;
 using Feedback.API.Common.Services;
+using Feedback.API.Features.Activity;
 using Feedback.API.Infrastructure.Caching;
 using Feedback.API.Infrastructure.Grpc;
+using Feedback.API.Infrastructure.Messaging;
 using Feedback.API.Infrastructure.Mongo;
 using FluentValidation;
 using MediatR;
@@ -58,8 +60,11 @@ public static class DependencyInjection
         services.Configure<MongoDbSettings>(configuration.GetSection(MongoDbSettings.SectionName));
         services.AddSingleton<MongoDbContext>();
         services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+        services.AddSingleton<ActivityStore>();
 
         services.AddCityPulseRedisCache(configuration);
+
+        services.AddMessaging(configuration);
 
         services.AddOptions<GrpcSettings>()
             .Bind(configuration.GetSection(GrpcSettings.SectionName))

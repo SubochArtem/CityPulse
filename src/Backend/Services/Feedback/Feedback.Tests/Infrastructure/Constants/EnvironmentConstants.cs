@@ -7,6 +7,7 @@ internal static class EnvironmentConstants
         public const string Image = "mongo:8";
         public const string DatabasePrefix = "feedback_";
         public const string FeedbackCollection = "feedback";
+        public const string ActivityCollection = "activity";
     }
 
     public static class Traits
