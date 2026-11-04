@@ -10,6 +10,9 @@ export const ru: RussianTranslation = {
     profile: 'Профиль',
     admin: 'Админка',
   },
+  common: {
+    loading: 'Загрузка…',
+  },
   auth: {
     logIn: 'Войти',
     logOut: 'Выйти',

@@ -1,4 +1,5 @@
 import { ShieldCheck, UserRound } from 'lucide-react'
+import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, NavLink, Outlet } from 'react-router'
 import { useAdminSections } from '@/admin/useAdminSections'
@@ -6,6 +7,7 @@ import { cn } from '@/lib/utils'
 import { AuthButton } from './AuthButton'
 import { AuthError } from './AuthError'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { PageLoader } from './PageLoader'
 import { ThemeToggle } from './ThemeToggle'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -49,7 +51,9 @@ export function Layout() {
       </header>
       <AuthError />
       <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
-        <Outlet />
+        <Suspense fallback={<PageLoader />}>
+          <Outlet />
+        </Suspense>
       </main>
     </div>
   )
