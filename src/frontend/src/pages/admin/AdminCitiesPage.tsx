@@ -1,4 +1,4 @@
-import { CircleAlert, Ellipsis, Pencil, Plus, Power, PowerOff, Search, Trash2 } from 'lucide-react'
+import { CircleAlert, Ellipsis, Pencil, Plus, Power, PowerOff, Trash2 } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
@@ -6,19 +6,14 @@ import { ApiError } from '@/api/errors'
 import type { components } from '@/api/schema/polls'
 import { ADMIN_CITIES_PAGE_SIZE, useAdminCities } from '@/admin/cities/useAdminCities'
 import { useChangeCityStatus, useDeleteCity } from '@/admin/cities/useCityMutations'
+import { ActionErrorAlert } from '@/admin/components/ActionErrorAlert'
+import { AdminSearchInput } from '@/admin/components/AdminSearchInput'
+import { ConfirmDialog } from '@/admin/components/ConfirmDialog'
+import { FilterSelect } from '@/admin/components/FilterSelect'
+import { TableSkeleton } from '@/admin/components/TableSkeleton'
 import { usePermissions } from '@/auth/usePermissions'
 import { Pagination } from '@/components/Pagination'
 import { Alert, AlertTitle } from '@/components/ui/alert'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -27,15 +22,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
   TableBody,
@@ -51,10 +37,8 @@ type CityStatus = components['schemas']['CityStatus']
 
 const ACTIVE: CityStatus = 1
 const INACTIVE: CityStatus = 2
-const ALL = 'all'
 
 const statusFilters = [
-  { value: ALL, key: 'admin.cities.status.all' },
   { value: String(ACTIVE), key: 'admin.cities.status.active' },
   { value: String(INACTIVE), key: 'admin.cities.status.inactive' },
 ] as const
@@ -211,32 +195,18 @@ export function AdminCitiesPage() {
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-        <div className="relative sm:max-w-sm sm:flex-1">
-          <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            type="search"
-            value={searchInput}
-            onChange={(event) => setSearchInput(event.target.value)}
-            placeholder={t('admin.cities.searchPlaceholder')}
-            aria-label={t('admin.cities.searchPlaceholder')}
-            className="pl-8"
-          />
-        </div>
-        <Select
-          value={status === undefined ? ALL : String(status)}
-          onValueChange={(value) => setParam('status', value === ALL ? undefined : value)}
-        >
-          <SelectTrigger className="sm:w-44" aria-label={t('admin.cities.columns.status')}>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {statusFilters.map((filter) => (
-              <SelectItem key={filter.value} value={filter.value}>
-                {t(filter.key)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <AdminSearchInput
+          value={searchInput}
+          onChange={setSearchInput}
+          placeholder={t('admin.cities.searchPlaceholder')}
+        />
+        <FilterSelect
+          label={t('admin.cities.columns.status')}
+          allLabel={t('admin.cities.status.all')}
+          value={status === undefined ? undefined : String(status)}
+          options={statusFilters.map((filter) => ({ value: filter.value, label: t(filter.key) }))}
+          onChange={(value) => setParam('status', value)}
+        />
         {can('cities.create.any') && (
           <Button asChild className="sm:ml-auto">
             <Link to="/admin/cities/new" state={{ listSearch }}>
@@ -247,43 +217,24 @@ export function AdminCitiesPage() {
         )}
       </div>
 
-      {actionError && (
-        <Alert variant="destructive">
-          <CircleAlert />
-          <AlertTitle>{t(actionErrorKey(actionError))}</AlertTitle>
-        </Alert>
-      )}
+      {actionError && <ActionErrorAlert message={t(actionErrorKey(actionError))} />}
 
       {content}
 
-      <AlertDialog
-        open={pendingAction !== null}
-        onOpenChange={(open) => {
-          if (!open) {
-            setPendingAction(null)
-          }
-        }}
-      >
-        {dialog && pendingAction && (
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>
-                {t(dialog.title, { title: pendingAction.city.title ?? '' })}
-              </AlertDialogTitle>
-              <AlertDialogDescription>{t(dialog.description)}</AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>{t('admin.cancel')}</AlertDialogCancel>
-              <AlertDialogAction
-                variant={pendingAction.type === 'activate' ? 'default' : 'destructive'}
-                onClick={confirmAction}
-              >
-                {t(dialog.confirm)}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        )}
-      </AlertDialog>
+      <ConfirmDialog
+        content={
+          dialog && pendingAction
+            ? {
+                title: t(dialog.title, { title: pendingAction.city.title ?? '' }),
+                description: t(dialog.description),
+                confirmLabel: t(dialog.confirm),
+                destructive: pendingAction.type !== 'activate',
+              }
+            : null
+        }
+        onConfirm={confirmAction}
+        onCancel={() => setPendingAction(null)}
+      />
     </div>
   )
 }
@@ -372,15 +323,5 @@ function CityRow({ city, permissions, listSearch, disabled, onAction }: Readonly
         </TableCell>
       )}
     </TableRow>
-  )
-}
-
-function TableSkeleton() {
-  return (
-    <div className="space-y-2">
-      {Array.from({ length: 5 }, (_, index) => (
-        <Skeleton key={index} className="h-10 w-full" />
-      ))}
-    </div>
   )
 }
