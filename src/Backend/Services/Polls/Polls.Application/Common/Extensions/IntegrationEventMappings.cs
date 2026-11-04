@@ -24,6 +24,9 @@ public static class IntegrationEventMappings
     public static PollDeletedEvent ToDeletedEvent(this Poll poll, DateTimeOffset occurredAt) =>
         new(poll.Id, poll.CityId, occurredAt);
 
+    public static IdeaDeletedEvent ToDeletedEvent(this Idea idea, Poll poll, DateTimeOffset occurredAt) =>
+        new(idea.Id, poll.Id, poll.CityId, occurredAt);
+
     public static IdeaCreatedEvent ToCreatedEvent(this Idea idea, Poll poll, DateTimeOffset occurredAt) =>
         new(idea.Id, poll.Id, poll.CityId, idea.UserId, idea.Title, poll.Title, occurredAt);
 
@@ -46,7 +49,4 @@ public static class IntegrationEventMappings
         Poll poll,
         DateTimeOffset occurredAt) =>
         new(idea.Id, poll.Id, poll.CityId, idea.AccessStatus.ToContract(), occurredAt);
-
-    public static IdeaDeletedEvent ToDeletedEvent(this Idea idea, Poll poll, DateTimeOffset occurredAt) =>
-        new(idea.Id, poll.Id, poll.CityId, occurredAt);
 }
