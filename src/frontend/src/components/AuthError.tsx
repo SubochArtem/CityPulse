@@ -1,4 +1,6 @@
 import { useAuth0 } from '@auth0/auth0-react'
+import { CircleAlert } from 'lucide-react'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 
 export function AuthError() {
   const { error } = useAuth0()
@@ -8,8 +10,12 @@ export function AuthError() {
   }
 
   return (
-    <p role="alert" className="mx-6 rounded-md bg-red-50 px-4 py-3 text-sm text-red-800">
-      Sign-in failed: {error.message}
-    </p>
+    <div className="mx-auto w-full max-w-5xl px-6 pt-4">
+      <Alert variant="destructive">
+        <CircleAlert />
+        <AlertTitle>Sign-in failed</AlertTitle>
+        <AlertDescription>{error.message}</AlertDescription>
+      </Alert>
+    </div>
   )
 }
