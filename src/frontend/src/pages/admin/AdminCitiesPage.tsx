@@ -1,4 +1,13 @@
-import { CircleAlert, Ellipsis, Pencil, Plus, Power, PowerOff, Trash2 } from 'lucide-react'
+import {
+  CircleAlert,
+  Ellipsis,
+  ListChecks,
+  Pencil,
+  Plus,
+  Power,
+  PowerOff,
+  Trash2,
+} from 'lucide-react'
 import { type ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
@@ -47,6 +56,7 @@ type PendingAction = { type: 'activate' | 'deactivate' | 'delete'; city: City }
 
 interface CityPermissions {
   update: boolean
+  polls: boolean
   changeStatus: boolean
   delete: boolean
 }
@@ -101,10 +111,11 @@ export function AdminCitiesPage() {
 
   const permissions: CityPermissions = {
     update: can('cities.update.any'),
+    polls: can('polls.read.any'),
     changeStatus: can('cities.changestatus.any'),
     delete: can('cities.delete.any'),
   }
-  const hasActions = permissions.update || permissions.changeStatus || permissions.delete
+  const hasActions = Object.values(permissions).some(Boolean)
   const actionError = changeStatus.error ?? deleteCity.error
   const isMutating = changeStatus.isPending || deleteCity.isPending
 
@@ -252,7 +263,7 @@ function CityRow({ city, permissions, listSearch, disabled, onAction }: Readonly
   const isActive = city.status === ACTIVE
   const number = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 4 })
   const editPath = `/admin/cities/${city.id}/edit`
-  const hasActions = permissions.update || permissions.changeStatus || permissions.delete
+  const hasActions = Object.values(permissions).some(Boolean)
   const createdAt = city.createdAt
     ? new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' }).format(
         new Date(city.createdAt),
@@ -303,6 +314,14 @@ function CityRow({ city, permissions, listSearch, disabled, onAction }: Readonly
                   <Link to={editPath} state={{ listSearch }}>
                     <Pencil />
                     {t('admin.cities.edit')}
+                  </Link>
+                </DropdownMenuItem>
+              )}
+              {permissions.polls && (
+                <DropdownMenuItem asChild>
+                  <Link to={`/admin/polls?city=${city.id}`}>
+                    <ListChecks />
+                    {t('admin.cities.polls')}
                   </Link>
                 </DropdownMenuItem>
               )}
