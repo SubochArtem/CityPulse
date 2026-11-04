@@ -91,6 +91,7 @@ public sealed class PollsWebAppFactory : WebApplicationFactory<Program>, IAsyncL
             [ConfigurationKeys.ImageStorage.AccessKey] = EnvironmentConstants.ImageStorage.AccessKey,
             [ConfigurationKeys.ImageStorage.SecretKey] = EnvironmentConstants.ImageStorage.SecretKey,
             [ConfigurationKeys.ImageStorage.BucketName] = EnvironmentConstants.ImageStorage.BucketName,
+            [ConfigurationKeys.ImageStorage.PublicBaseUrl] = EnvironmentConstants.ImageStorage.PublicBaseUrl,
             [ConfigurationKeys.ImageStorage.UseSsl] = EnvironmentConstants.ImageStorage.UseSsl,
 
             [ConfigurationKeys.Auth0.Domain] = EnvironmentConstants.Auth0.Domain,

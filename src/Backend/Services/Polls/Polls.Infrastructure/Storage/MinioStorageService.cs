@@ -26,19 +26,15 @@ public class MinioStorageService(
         IEnumerable<string> objectNames,
         CancellationToken cancellationToken = default)
     {
-        var objects = objectNames
-            .Select(name => new KeyValuePair<string, string>(_options.BucketName, name))
-            .ToList();
-
         var args = new RemoveObjectsArgs()
             .WithBucket(_options.BucketName)
-            .WithObjects(objects.Select(o => o.Value).ToList());
+            .WithObjects(objectNames.ToList());
 
         await minioClient.RemoveObjectsAsync(args, cancellationToken);
     }
 
     public string GetUrl(string fileName)
-        => $"{_options.Endpoint.TrimEnd('/')}/{_options.BucketName}/{fileName}";
+        => $"{_options.PublicBaseUrl.TrimEnd('/')}/{_options.BucketName}/{fileName}";
 
     private async Task<string> UploadAsync(ImageFile file, CancellationToken cancellationToken)
     {

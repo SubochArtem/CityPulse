@@ -27,6 +27,7 @@ internal static class EnvironmentConstants
         public const string AccessKey = "test-access-key";
         public const string SecretKey = "test-secret-key";
         public const string BucketName = "polls-images-test";
+        public const string PublicBaseUrl = "https://storage.example.com";
         public const string UseSsl = "false";
         public const string UrlPrefix = "https://storage.example.com/";
         public const string UploadedPrefix = "uploaded-";
