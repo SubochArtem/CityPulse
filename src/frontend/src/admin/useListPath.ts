@@ -1,7 +1,7 @@
 import { useLocation } from 'react-router'
 
-export function useCitiesListPath() {
+export function useListPath(basePath: string) {
   const { state } = useLocation()
   const listSearch: unknown = state?.listSearch
-  return `/admin/cities${typeof listSearch === 'string' ? listSearch : ''}`
+  return `${basePath}${typeof listSearch === 'string' ? listSearch : ''}`
 }
