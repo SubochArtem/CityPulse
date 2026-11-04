@@ -1,4 +1,4 @@
-import { ArrowLeft, CircleAlert, Lightbulb, UserRound } from 'lucide-react'
+import { ArrowLeft, CircleAlert, Lightbulb, Plus, UserRound } from 'lucide-react'
 import { type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { IdeaApprovalBadge } from '@/ideas/IdeaApprovalBadge'
+import { useIdeaCreationAccess } from '@/ideas/useIdeaCreationAccess'
 import { coverImage } from '@/lib/images'
 import { PollFacts } from '@/polls/PollFacts'
 import { PollTypeBadge } from '@/polls/PollTypeBadge'
@@ -76,7 +77,10 @@ function PollDetails({ poll }: Readonly<{ poll: Poll }>) {
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold tracking-tight">{t('poll.ideas')}</h2>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="text-xl font-semibold tracking-tight">{t('poll.ideas')}</h2>
+          <SuggestIdeaButton poll={poll} />
+        </div>
         {ideas.length ? (
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {ideas.map((idea) => (
@@ -93,6 +97,24 @@ function PollDetails({ poll }: Readonly<{ poll: Poll }>) {
         )}
       </div>
     </>
+  )
+}
+
+function SuggestIdeaButton({ poll }: Readonly<{ poll: Poll }>) {
+  const { t } = useTranslation()
+  const access = useIdeaCreationAccess(poll)
+
+  if (access !== 'allowed' && access !== 'guest') {
+    return null
+  }
+
+  return (
+    <Button size="sm" asChild>
+      <Link to={`/polls/${poll.id}/ideas/new`}>
+        <Plus />
+        {t('poll.suggestIdea')}
+      </Link>
+    </Button>
   )
 }
 

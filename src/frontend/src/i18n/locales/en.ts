@@ -43,6 +43,7 @@ export const en = {
     loadFailed: 'Could not load the poll',
     ideas: 'Ideas',
     noIdeas: 'No ideas in this poll yet.',
+    suggestIdea: 'Suggest an idea',
     endsAt: 'Ends {{date}}',
     budget: 'Budget {{amount}}',
     type: {

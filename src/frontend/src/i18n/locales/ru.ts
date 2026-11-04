@@ -49,6 +49,7 @@ export const ru: RussianTranslation = {
     loadFailed: 'Не удалось загрузить опрос',
     ideas: 'Идеи',
     noIdeas: 'В этом опросе пока нет идей.',
+    suggestIdea: 'Предложить идею',
     endsAt: 'До {{date}}',
     budget: 'Бюджет {{amount}}',
     type: {
