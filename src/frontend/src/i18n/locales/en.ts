@@ -110,6 +110,7 @@ export const en = {
     sections: {
       cities: 'Cities',
       polls: 'Polls',
+      ideas: 'Ideas',
     },
     polls: {
       searchPlaceholder: 'Search polls',
@@ -139,6 +140,7 @@ export const en = {
       },
       create: 'New poll',
       edit: 'Edit',
+      ideas: 'Ideas',
       suspend: 'Suspend',
       resume: 'Resume',
       delete: 'Delete',
@@ -149,6 +151,42 @@ export const en = {
       deleteTitle: 'Delete “{{title}}”?',
       deleteDescription:
         'The poll is deleted permanently together with all its ideas and images. This cannot be undone.',
+    },
+    ideas: {
+      searchPlaceholder: 'Search ideas',
+      empty: 'No ideas match these filters.',
+      loadFailed: 'Could not load ideas',
+      notFound: 'This idea no longer exists.',
+      actionFailed: 'Could not update the idea. Please try again.',
+      actionsFor: 'Actions for {{title}}',
+      allPolls: 'All polls',
+      allApprovals: 'Any approval',
+      allAccess: 'Any visibility',
+      columns: {
+        title: 'Title',
+        poll: 'Poll',
+        author: 'Author',
+        approval: 'Approval',
+        access: 'Visibility',
+        createdAt: 'Added',
+        actions: 'Actions',
+      },
+      access: {
+        active: 'Visible',
+        inactive: 'Hidden',
+        restrictedByContext: 'Hidden with poll or city',
+        restrictedByAuthor: 'Author deactivated',
+      },
+      hide: 'Hide',
+      show: 'Show',
+      delete: 'Delete',
+      hideTitle: 'Hide “{{title}}”?',
+      hideDescription: 'Residents will not see the idea until you show it again.',
+      showTitle: 'Show “{{title}}”?',
+      showDescription: 'The idea becomes visible to residents again.',
+      deleteTitle: 'Delete “{{title}}”?',
+      deleteDescription:
+        'The idea is deleted permanently together with its images. This cannot be undone.',
     },
     pollForm: {
       newTitle: 'New poll',

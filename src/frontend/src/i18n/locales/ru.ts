@@ -116,6 +116,7 @@ export const ru: RussianTranslation = {
     sections: {
       cities: 'Города',
       polls: 'Опросы',
+      ideas: 'Идеи',
     },
     polls: {
       searchPlaceholder: 'Поиск опросов',
@@ -145,6 +146,7 @@ export const ru: RussianTranslation = {
       },
       create: 'Новый опрос',
       edit: 'Изменить',
+      ideas: 'Идеи',
       suspend: 'Приостановить',
       resume: 'Возобновить',
       delete: 'Удалить',
@@ -155,6 +157,42 @@ export const ru: RussianTranslation = {
       deleteTitle: 'Удалить «{{title}}»?',
       deleteDescription:
         'Опрос будет удалён навсегда вместе со всеми идеями и изображениями. Это нельзя отменить.',
+    },
+    ideas: {
+      searchPlaceholder: 'Поиск идей',
+      empty: 'Нет идей по этим фильтрам.',
+      loadFailed: 'Не удалось загрузить идеи',
+      notFound: 'Эта идея больше не существует.',
+      actionFailed: 'Не удалось изменить идею. Попробуйте ещё раз.',
+      actionsFor: 'Действия для {{title}}',
+      allPolls: 'Все опросы',
+      allApprovals: 'Любое одобрение',
+      allAccess: 'Любая видимость',
+      columns: {
+        title: 'Название',
+        poll: 'Опрос',
+        author: 'Автор',
+        approval: 'Одобрение',
+        access: 'Видимость',
+        createdAt: 'Добавлена',
+        actions: 'Действия',
+      },
+      access: {
+        active: 'Видна',
+        inactive: 'Скрыта',
+        restrictedByContext: 'Скрыта с опросом или городом',
+        restrictedByAuthor: 'Автор деактивирован',
+      },
+      hide: 'Скрыть',
+      show: 'Показать',
+      delete: 'Удалить',
+      hideTitle: 'Скрыть «{{title}}»?',
+      hideDescription: 'Жители не увидят идею, пока вы снова её не покажете.',
+      showTitle: 'Показать «{{title}}»?',
+      showDescription: 'Идея снова станет видна жителям.',
+      deleteTitle: 'Удалить «{{title}}»?',
+      deleteDescription:
+        'Идея будет удалена навсегда вместе с изображениями. Это действие нельзя отменить.',
     },
     pollForm: {
       newTitle: 'Новый опрос',
