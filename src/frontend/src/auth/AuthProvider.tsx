@@ -21,7 +21,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         redirect_uri: window.location.origin,
       }}
       useRefreshTokens
-      cacheLocation="localstorage"
     >
       <TokenBridge>{children}</TokenBridge>
     </Auth0Provider>
