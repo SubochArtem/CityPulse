@@ -171,11 +171,8 @@ function ScopeToggle({ cityId, scope, onChange }: Readonly<ScopeToggleProps>) {
   ]
 
   return (
-    <div
-      role="group"
-      aria-label={t('activity.scopeLabel')}
-      className="inline-flex rounded-lg bg-muted p-1"
-    >
+    <fieldset className="inline-flex min-w-0 rounded-lg bg-muted p-1">
+      <legend className="sr-only">{t('activity.scopeLabel')}</legend>
       {options.map((option) => (
         <Button
           key={option.value}
@@ -187,7 +184,7 @@ function ScopeToggle({ cityId, scope, onChange }: Readonly<ScopeToggleProps>) {
           {option.label}
         </Button>
       ))}
-    </div>
+    </fieldset>
   )
 }
 
