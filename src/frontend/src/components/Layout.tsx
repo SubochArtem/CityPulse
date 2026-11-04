@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { Link, NavLink, Outlet } from 'react-router'
 import { cn } from '@/lib/utils'
 import { AuthButton } from './AuthButton'
@@ -11,6 +12,8 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   )
 
 export function Layout() {
+  const { t } = useTranslation()
+
   return (
     <div className="min-h-svh bg-background text-foreground">
       <header className="border-b">
@@ -20,7 +23,7 @@ export function Layout() {
           </Link>
           <nav className="flex items-center gap-4">
             <NavLink to="/profile" className={navLinkClass}>
-              Profile
+              {t('nav.profile')}
             </NavLink>
             <ThemeToggle />
             <AuthButton />

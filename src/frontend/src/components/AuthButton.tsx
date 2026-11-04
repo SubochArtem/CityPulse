@@ -1,9 +1,11 @@
 import { useAuth0 } from '@auth0/auth0-react'
 import { LogIn, LogOut } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { Button } from '@/components/ui/button'
 
 export function AuthButton() {
   const { isLoading, isAuthenticated, loginWithRedirect, logout } = useAuth0()
+  const { t } = useTranslation()
 
   if (isLoading) {
     return null
@@ -17,7 +19,7 @@ export function AuthButton() {
         onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
       >
         <LogOut />
-        Log out
+        {t('auth.logOut')}
       </Button>
     )
   }
@@ -25,7 +27,7 @@ export function AuthButton() {
   return (
     <Button size="sm" onClick={() => loginWithRedirect()}>
       <LogIn />
-      Log in
+      {t('auth.logIn')}
     </Button>
   )
 }
