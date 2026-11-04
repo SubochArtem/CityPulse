@@ -15,6 +15,7 @@ public sealed class IdeaAccessStatusChangedConsumer(ActivityStore store)
 
         return store.SetIdeaHiddenAsync(
             message.IdeaId,
+            message.CityId,
             message.AccessStatus != IdeaAccessLevel.Active,
             context.CancellationToken);
     }

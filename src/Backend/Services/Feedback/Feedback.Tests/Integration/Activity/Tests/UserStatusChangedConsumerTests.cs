@@ -14,7 +14,7 @@ public sealed class UserStatusChangedConsumerTests : MongoTestsBase
 
     public UserStatusChangedConsumerTests(MongoFixture fixture) : base(fixture)
     {
-        _sut = new UserStatusChangedConsumer(new ActivityStore(Context));
+        _sut = new UserStatusChangedConsumer(CreateActivityStore());
     }
 
     private Task ChangeStatusAsync(UserLifecycleStatus status) =>

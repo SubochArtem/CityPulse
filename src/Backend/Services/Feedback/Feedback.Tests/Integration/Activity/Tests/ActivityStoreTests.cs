@@ -1,4 +1,6 @@
+using Feedback.API.Domain;
 using Feedback.API.Features.Activity;
+using Moq;
 using Feedback.Tests.Infrastructure;
 using Xunit;
 
@@ -10,7 +12,7 @@ public sealed class ActivityStoreTests : MongoTestsBase
 
     public ActivityStoreTests(MongoFixture fixture) : base(fixture)
     {
-        _sut = new ActivityStore(Context);
+        _sut = CreateActivityStore();
     }
 
     [Fact]
@@ -85,14 +87,14 @@ public sealed class ActivityStoreTests : MongoTestsBase
         var other = ActivityEntries.PollOpened();
         await SeedActivityAsync(target, targetIdea, other);
 
-        await _sut.SetPollHiddenAsync(target.PollId!.Value, true);
+        await _sut.SetPollHiddenAsync(target.PollId!.Value, target.CityId, true);
 
         var stored = await ReadActivityAsync();
         Assert.True(stored.Single(x => x.Id == target.Id).PollHidden);
         Assert.True(stored.Single(x => x.Id == targetIdea.Id).PollHidden);
         Assert.False(stored.Single(x => x.Id == other.Id).PollHidden);
 
-        await _sut.SetPollHiddenAsync(target.PollId!.Value, false);
+        await _sut.SetPollHiddenAsync(target.PollId!.Value, target.CityId, false);
 
         Assert.All(await ReadActivityAsync(), x => Assert.False(x.PollHidden));
     }
@@ -104,7 +106,7 @@ public sealed class ActivityStoreTests : MongoTestsBase
         var other = ActivityEntries.IdeaProposed(pollId: target.PollId);
         await SeedActivityAsync(target, other);
 
-        await _sut.SetIdeaHiddenAsync(target.IdeaId!.Value, true);
+        await _sut.SetIdeaHiddenAsync(target.IdeaId!.Value, target.CityId, true);
 
         var stored = await ReadActivityAsync();
         Assert.True(stored.Single(x => x.Id == target.Id).IdeaHidden);
@@ -133,7 +135,7 @@ public sealed class ActivityStoreTests : MongoTestsBase
         var other = ActivityEntries.PollOpened();
         await SeedActivityAsync(poll, idea, other);
 
-        await _sut.DeleteByPollAsync(poll.PollId!.Value);
+        await _sut.DeleteByPollAsync(poll.PollId!.Value, poll.CityId);
 
         Assert.Equal(other.Id, Assert.Single(await ReadActivityAsync()).Id);
     }
@@ -145,7 +147,7 @@ public sealed class ActivityStoreTests : MongoTestsBase
         var other = ActivityEntries.IdeaProposed(pollId: target.PollId);
         await SeedActivityAsync(target, other);
 
-        await _sut.DeleteByIdeaAsync(target.IdeaId!.Value);
+        await _sut.DeleteByIdeaAsync(target.IdeaId!.Value, target.CityId);
 
         Assert.Equal(other.Id, Assert.Single(await ReadActivityAsync()).Id);
     }
@@ -168,5 +170,125 @@ public sealed class ActivityStoreTests : MongoTestsBase
         var found = await _sut.FindIdeaProposalAsync(Guid.NewGuid());
 
         Assert.Null(found);
+    }
+
+    [Fact]
+    public async Task AddAsync_VisibleEntryInserted_NotifiesAdded()
+    {
+        await Context.CreateIndexesAsync();
+        var entry = ActivityEntries.IdeaProposed();
+
+        await _sut.AddAsync(entry);
+
+        ActivityNotifier.Verify(x => x.NotifyAddedAsync(entry), Times.Once);
+    }
+
+    [Fact]
+    public async Task AddAsync_DuplicateKey_DoesNotNotify()
+    {
+        await Context.CreateIndexesAsync();
+        var first = ActivityEntries.IdeaProposed();
+        await SeedActivityAsync(first);
+
+        await _sut.AddAsync(ActivityEntries.IdeaProposed(ideaId: first.IdeaId));
+
+        ActivityNotifier.Verify(x => x.NotifyAddedAsync(It.IsAny<ActivityEntry>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task AddAsync_HiddenEntryInserted_DoesNotNotify()
+    {
+        var hiddenIdea = ActivityEntries.IdeaProposed();
+        hiddenIdea.IdeaHidden = true;
+        await SeedActivityAsync(hiddenIdea);
+
+        await _sut.AddAsync(ActivityEntries.IdeaCommented(ideaId: hiddenIdea.IdeaId));
+
+        ActivityNotifier.Verify(x => x.NotifyAddedAsync(It.IsAny<ActivityEntry>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task SetPollHiddenAsync_EntriesChange_NotifiesCityOnce()
+    {
+        var entry = ActivityEntries.PollOpened();
+        await SeedActivityAsync(entry, ActivityEntries.IdeaProposed(entry.CityId, entry.PollId));
+
+        await _sut.SetPollHiddenAsync(entry.PollId!.Value, entry.CityId, true);
+
+        ActivityNotifier.Verify(x => x.NotifyInvalidatedAsync(entry.CityId), Times.Once);
+    }
+
+    [Fact]
+    public async Task SetPollHiddenAsync_NothingChanges_DoesNotNotify()
+    {
+        var entry = ActivityEntries.PollOpened();
+        await SeedActivityAsync(entry);
+
+        await _sut.SetPollHiddenAsync(entry.PollId!.Value, entry.CityId, false);
+        await _sut.SetPollHiddenAsync(Guid.NewGuid(), entry.CityId, true);
+
+        ActivityNotifier.Verify(x => x.NotifyInvalidatedAsync(It.IsAny<Guid?>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task SetIdeaHiddenAsync_EntriesChange_NotifiesCity()
+    {
+        var entry = ActivityEntries.IdeaProposed();
+        await SeedActivityAsync(entry);
+
+        await _sut.SetIdeaHiddenAsync(entry.IdeaId!.Value, entry.CityId, true);
+
+        ActivityNotifier.Verify(x => x.NotifyInvalidatedAsync(entry.CityId), Times.Once);
+    }
+
+    [Fact]
+    public async Task SetUserHiddenAsync_EntriesChange_NotifiesAllCities()
+    {
+        var entry = ActivityEntries.IdeaProposed();
+        await SeedActivityAsync(entry);
+
+        await _sut.SetUserHiddenAsync(entry.UserId!.Value, true);
+
+        ActivityNotifier.Verify(x => x.NotifyInvalidatedAsync(null), Times.Once);
+    }
+
+    [Fact]
+    public async Task DeleteByIdeaAsync_EntriesDeleted_NotifiesCity()
+    {
+        var entry = ActivityEntries.IdeaProposed();
+        await SeedActivityAsync(entry);
+
+        await _sut.DeleteByIdeaAsync(entry.IdeaId!.Value, entry.CityId);
+
+        ActivityNotifier.Verify(x => x.NotifyInvalidatedAsync(entry.CityId), Times.Once);
+    }
+
+    [Fact]
+    public async Task DeleteByPollAsync_NothingDeleted_DoesNotNotify()
+    {
+        await _sut.DeleteByPollAsync(Guid.NewGuid(), Guid.NewGuid());
+
+        ActivityNotifier.Verify(x => x.NotifyInvalidatedAsync(It.IsAny<Guid?>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task DeleteByKeyAsync_EntryExists_DeletesItAndNotifiesItsCity()
+    {
+        var entry = ActivityEntries.IdeaCommented();
+        var other = ActivityEntries.IdeaCommented();
+        await SeedActivityAsync(entry, other);
+
+        await _sut.DeleteByKeyAsync(entry.Key);
+
+        Assert.Equal(other.Id, Assert.Single(await ReadActivityAsync()).Id);
+        ActivityNotifier.Verify(x => x.NotifyInvalidatedAsync(entry.CityId), Times.Once);
+    }
+
+    [Fact]
+    public async Task DeleteByKeyAsync_EntryMissing_DoesNotNotify()
+    {
+        await _sut.DeleteByKeyAsync(ActivityKeys.IdeaCommented(Guid.NewGuid()));
+
+        ActivityNotifier.Verify(x => x.NotifyInvalidatedAsync(It.IsAny<Guid?>()), Times.Never);
     }
 }

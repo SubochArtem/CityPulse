@@ -12,7 +12,7 @@ public sealed class DeleteFeedbackCommandHandlerTests(MongoFixture fixture) : Mo
     private static readonly Guid AuthorId = Guid.NewGuid();
     private static readonly Guid OtherUserId = Guid.NewGuid();
 
-    private DeleteFeedbackCommandHandler CreateSut() => new(Context, new ActivityStore(Context));
+    private DeleteFeedbackCommandHandler CreateSut() => new(Context, CreateActivityStore());
 
     private static DeleteFeedbackCommand BuildCommand(Guid id, Guid userId, bool bypassRestrictions = false) =>
         new(userId, id, bypassRestrictions);

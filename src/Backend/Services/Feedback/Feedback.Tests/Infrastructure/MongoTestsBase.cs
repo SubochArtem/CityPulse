@@ -1,5 +1,7 @@
 using Feedback.API.Common.Interfaces;
 using Feedback.API.Domain;
+using Feedback.API.Features.Activity;
+using Feedback.API.Features.Activity.Live;
 using Feedback.API.Infrastructure.Mongo;
 using Feedback.Tests.Infrastructure.Constants;
 using MongoDB.Bson;
@@ -30,6 +32,10 @@ public abstract class MongoTestsBase
     protected Mock<IDateTimeProvider> DateTimeProvider { get; } = new(MockBehavior.Strict);
 
     protected Mock<IIdeaService> IdeaService { get; } = new(MockBehavior.Strict);
+
+    protected Mock<IActivityNotifier> ActivityNotifier { get; } = new();
+
+    protected ActivityStore CreateActivityStore() => new(Context, ActivityNotifier.Object);
 
     protected Task SeedAsync(params FeedbackItem[] items) =>
         Context.FeedbackItems.InsertManyAsync(items);

@@ -15,13 +15,13 @@ public sealed class PollStatusChangedConsumer(ActivityStore store) : IConsumer<P
         switch (message.Status)
         {
             case PollLifecycleStatus.Active:
-                await store.SetPollHiddenAsync(message.PollId, false, cancellationToken);
+                await store.SetPollHiddenAsync(message.PollId, message.CityId, false, cancellationToken);
                 await store.AddAsync(
                     BuildEntry(message, ActivityKind.PollOpened, ActivityKeys.PollOpened(message.PollId)),
                     cancellationToken);
                 break;
             case PollLifecycleStatus.Suspended:
-                await store.SetPollHiddenAsync(message.PollId, true, cancellationToken);
+                await store.SetPollHiddenAsync(message.PollId, message.CityId, true, cancellationToken);
                 break;
             case PollLifecycleStatus.Finished:
             case PollLifecycleStatus.Cancelled:

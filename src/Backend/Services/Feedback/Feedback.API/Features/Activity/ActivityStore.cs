@@ -1,11 +1,12 @@
 using System.Linq.Expressions;
 using Feedback.API.Domain;
+using Feedback.API.Features.Activity.Live;
 using Feedback.API.Infrastructure.Mongo;
 using MongoDB.Driver;
 
 namespace Feedback.API.Features.Activity;
 
-public class ActivityStore(MongoDbContext context)
+public class ActivityStore(MongoDbContext context, IActivityNotifier notifier)
 {
     private static readonly FilterDefinitionBuilder<ActivityEntry> Filter = Builders<ActivityEntry>.Filter;
     private static readonly UpdateDefinitionBuilder<ActivityEntry> Update = Builders<ActivityEntry>.Update;
@@ -22,13 +23,16 @@ public class ActivityStore(MongoDbContext context)
         try
         {
             await context.Activity.InsertOneAsync(entry, cancellationToken: cancellationToken);
-
-            return true;
         }
         catch (MongoWriteException ex) when (ex.WriteError.Category == ServerErrorCategory.DuplicateKey)
         {
             return false;
         }
+
+        if (!entry.PollHidden && !entry.IdeaHidden && !entry.UserHidden)
+            await notifier.NotifyAddedAsync(entry);
+
+        return true;
     }
 
     public Task<ActivityEntry?> FindIdeaProposalAsync(Guid ideaId, CancellationToken cancellationToken = default) =>
@@ -36,32 +40,66 @@ public class ActivityStore(MongoDbContext context)
             .Find(x => x.Key == ActivityKeys.IdeaProposed(ideaId))
             .FirstOrDefaultAsync(cancellationToken)!;
 
-    public Task SetPollHiddenAsync(Guid pollId, bool hidden, CancellationToken cancellationToken = default) =>
-        context.Activity.UpdateManyAsync(
-            Filter.Eq(x => x.PollId, pollId),
-            Update.Set(x => x.PollHidden, hidden),
-            cancellationToken: cancellationToken);
+    public Task SetPollHiddenAsync(
+        Guid pollId,
+        Guid cityId,
+        bool hidden,
+        CancellationToken cancellationToken = default) =>
+        SetHiddenAsync(x => x.PollId, pollId, x => x.PollHidden, hidden, cityId, cancellationToken);
 
-    public Task SetIdeaHiddenAsync(Guid ideaId, bool hidden, CancellationToken cancellationToken = default) =>
-        context.Activity.UpdateManyAsync(
-            Filter.Eq(x => x.IdeaId, ideaId),
-            Update.Set(x => x.IdeaHidden, hidden),
-            cancellationToken: cancellationToken);
+    public Task SetIdeaHiddenAsync(
+        Guid ideaId,
+        Guid cityId,
+        bool hidden,
+        CancellationToken cancellationToken = default) =>
+        SetHiddenAsync(x => x.IdeaId, ideaId, x => x.IdeaHidden, hidden, cityId, cancellationToken);
 
     public Task SetUserHiddenAsync(Guid userId, bool hidden, CancellationToken cancellationToken = default) =>
-        context.Activity.UpdateManyAsync(
-            Filter.Eq(x => x.UserId, userId),
-            Update.Set(x => x.UserHidden, hidden),
+        SetHiddenAsync(x => x.UserId, userId, x => x.UserHidden, hidden, null, cancellationToken);
+
+    public Task DeleteByPollAsync(Guid pollId, Guid cityId, CancellationToken cancellationToken = default) =>
+        DeleteManyAsync(Filter.Eq(x => x.PollId, pollId), cityId, cancellationToken);
+
+    public Task DeleteByIdeaAsync(Guid ideaId, Guid cityId, CancellationToken cancellationToken = default) =>
+        DeleteManyAsync(Filter.Eq(x => x.IdeaId, ideaId), cityId, cancellationToken);
+
+    public async Task DeleteByKeyAsync(string key, CancellationToken cancellationToken = default)
+    {
+        var deleted = await context.Activity.FindOneAndDeleteAsync(
+            Filter.Eq(x => x.Key, key),
             cancellationToken: cancellationToken);
 
-    public Task DeleteByPollAsync(Guid pollId, CancellationToken cancellationToken = default) =>
-        context.Activity.DeleteManyAsync(Filter.Eq(x => x.PollId, pollId), cancellationToken);
+        if (deleted is not null)
+            await notifier.NotifyInvalidatedAsync(deleted.CityId);
+    }
 
-    public Task DeleteByIdeaAsync(Guid ideaId, CancellationToken cancellationToken = default) =>
-        context.Activity.DeleteManyAsync(Filter.Eq(x => x.IdeaId, ideaId), cancellationToken);
+    private async Task SetHiddenAsync(
+        Expression<Func<ActivityEntry, Guid?>> field,
+        Guid value,
+        Expression<Func<ActivityEntry, bool>> hiddenFlag,
+        bool hidden,
+        Guid? cityId,
+        CancellationToken cancellationToken)
+    {
+        var result = await context.Activity.UpdateManyAsync(
+            Filter.And(Filter.Eq(field, value), Filter.Ne(hiddenFlag, hidden)),
+            Update.Set(hiddenFlag, hidden),
+            cancellationToken: cancellationToken);
 
-    public Task DeleteByKeyAsync(string key, CancellationToken cancellationToken = default) =>
-        context.Activity.DeleteOneAsync(Filter.Eq(x => x.Key, key), cancellationToken);
+        if (result.ModifiedCount > 0)
+            await notifier.NotifyInvalidatedAsync(cityId);
+    }
+
+    private async Task DeleteManyAsync(
+        FilterDefinition<ActivityEntry> filter,
+        Guid cityId,
+        CancellationToken cancellationToken)
+    {
+        var result = await context.Activity.DeleteManyAsync(filter, cancellationToken);
+
+        if (result.DeletedCount > 0)
+            await notifier.NotifyInvalidatedAsync(cityId);
+    }
 
     private Task<bool> IsHiddenAsync(
         Expression<Func<ActivityEntry, Guid?>> field,
