@@ -1,13 +1,17 @@
 using MediatR;
+using Polls.Application.Common.Extensions;
 using Polls.Application.Common.Interfaces;
 using Polls.Domain.Common;
 using Polls.Domain.Ideas;
 using Polls.Domain.Ideas.Enums;
+using Polls.Domain.Polls;
 
 namespace Polls.Application.Ideas.Commands.ChangeApprovalStatus;
 
 public sealed class ChangeIdeaApprovalStatusCommandHandler(
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IIntegrationEventPublisher eventPublisher,
+    IDateTimeProvider dateTimeProvider)
     : IRequestHandler<ChangeIdeaApprovalStatusCommand, Result<Unit>>
 {
     public async Task<Result<Unit>> Handle(
@@ -25,8 +29,17 @@ public sealed class ChangeIdeaApprovalStatusCommandHandler(
         if (idea.ApprovalStatus == command.NewApprovalStatus)
             return Result<Unit>.Success(Unit.Value);
 
+        var poll = await unitOfWork.Polls.GetByIdAsync(idea.PollId, cancellationToken);
+        if (poll is null)
+            return PollErrors.NotFound(idea.PollId);
+
         idea.ApprovalStatus = command.NewApprovalStatus;
         unitOfWork.Ideas.Update(idea);
+
+        await eventPublisher.PublishAsync(
+            idea.ToApprovalStatusChangedEvent(poll, dateTimeProvider.UtcNow),
+            cancellationToken);
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
         
         return Result<Unit>.Success(Unit.Value);

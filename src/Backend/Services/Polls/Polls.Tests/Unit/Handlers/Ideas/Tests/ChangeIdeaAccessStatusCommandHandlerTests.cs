@@ -1,7 +1,11 @@
+using CityPulse.Contracts.Events.Polls;
+using CityPulse.Contracts.Events.Polls.Enums;
+using Moq;
 using Polls.Application.Ideas.Commands.ChangeAccessStatus;
 using Polls.Domain.Common;
 using Polls.Domain.Ideas;
 using Polls.Domain.Ideas.Enums;
+using Xunit;
 using MediatRUnit = MediatR.Unit;
 
 namespace Polls.Tests.Unit.Handlers.Ideas.Tests;
@@ -13,7 +17,7 @@ public sealed class ChangeIdeaAccessStatusCommandHandlerTests
 
     public ChangeIdeaAccessStatusCommandHandlerTests()
     {
-        _sut = new ChangeIdeaAccessStatusCommandHandler(UnitOfWork.Object);
+        _sut = new ChangeIdeaAccessStatusCommandHandler(UnitOfWork.Object, EventPublisher.Object, Clock.Object);
     }
 
     protected override ChangeIdeaAccessStatusCommand Build(Guid id, IdeaAccessStatus status) => new(id, status);
@@ -28,4 +32,24 @@ public sealed class ChangeIdeaAccessStatusCommandHandlerTests
         ChangeIdeaAccessStatusCommand command,
         CancellationToken cancellationToken) =>
         _sut.Handle(command, cancellationToken);
+
+    [Fact]
+    public async Task Handle_StatusIsDifferent_PublishesStatusChangedEvent()
+    {
+        var idea = SetupIdeaWithStatus(IdeaAccessStatus.Active);
+        var poll = SetupPollFor(idea);
+
+        await ChangeStatusAsync(idea, IdeaAccessStatus.Inactive);
+
+        EventPublisher.Verify(
+            x => x.PublishAsync(
+                It.Is<IdeaAccessStatusChangedEvent>(e =>
+                    e.IdeaId == idea.Id &&
+                    e.PollId == poll.Id &&
+                    e.CityId == poll.CityId &&
+                    e.AccessStatus == IdeaAccessLevel.Inactive &&
+                    e.OccurredAt == Now),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
 }

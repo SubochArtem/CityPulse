@@ -1,4 +1,5 @@
 using MediatR;
+using Polls.Application.Common.Extensions;
 using Polls.Application.Common.Interfaces;
 using Polls.Application.Ideas.Guards;
 using Polls.Domain.Common;
@@ -8,7 +9,9 @@ using Polls.Domain.Images;
 namespace Polls.Application.Ideas.Commands.DeleteIdea;
 
 public sealed class DeleteIdeaCommandHandler(
-    IUnitOfWork unitOfWork)
+    IUnitOfWork unitOfWork,
+    IIntegrationEventPublisher eventPublisher,
+    IDateTimeProvider dateTimeProvider)
     : IRequestHandler<DeleteIdeaCommand, Result<Unit>>
 {
     public async Task<Result<Unit>> Handle(
@@ -36,6 +39,11 @@ public sealed class DeleteIdeaCommandHandler(
         }
 
         unitOfWork.Ideas.Delete(idea);
+
+        await eventPublisher.PublishAsync(
+            idea.ToDeletedEvent(idea.Poll, dateTimeProvider.UtcNow),
+            cancellationToken);
+
         await unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result<Unit>.Success(Unit.Value);

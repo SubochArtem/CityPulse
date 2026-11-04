@@ -1,3 +1,4 @@
+using CityPulse.Contracts.Events.Polls;
 using Moq;
 using Polls.Application.Ideas.Commands.DeleteIdea;
 using Polls.Domain.Ideas;
@@ -15,7 +16,7 @@ public sealed class DeleteIdeaCommandHandlerTests : HandlerTestsBase
 
     public DeleteIdeaCommandHandlerTests()
     {
-        _sut = new DeleteIdeaCommandHandler(UnitOfWork.Object);
+        _sut = new DeleteIdeaCommandHandler(UnitOfWork.Object, EventPublisher.Object, Clock.Object);
     }
 
     private void SetupIdea(Idea? idea, Guid id) =>
@@ -52,6 +53,9 @@ public sealed class DeleteIdeaCommandHandlerTests : HandlerTestsBase
         Assert.Equal(violation.ExpectedError(idea), result.Error);
         UnitOfWork.Ideas.Verify(x => x.Delete(It.IsAny<Idea>()), Times.Never);
         UnitOfWork.DeletedImages.Verify(x => x.AddRange(It.IsAny<IEnumerable<DeletedImage>>()), Times.Never);
+        EventPublisher.Verify(
+            x => x.PublishAsync(It.IsAny<It.IsAnyType>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Theory]
@@ -106,5 +110,26 @@ public sealed class DeleteIdeaCommandHandlerTests : HandlerTestsBase
         Assert.NotNull(queued);
         Assert.Equal(["first.jpg", "second.png"], queued.Select(entry => entry.FileName));
         UnitOfWork.Mock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_OwnerDeletesIdea_PublishesIdeaDeletedEvent()
+    {
+        var idea = IdeaFakers.IdeaWithPoll();
+        SetupIdea(idea, idea.Id);
+        UnitOfWork.Ideas.Setup(x => x.Delete(idea));
+        UnitOfWork.SetupSaveChanges();
+
+        await _sut.Handle(new DeleteIdeaCommand(idea.Id, idea.UserId), CancellationToken.None);
+
+        EventPublisher.Verify(
+            x => x.PublishAsync(
+                It.Is<IdeaDeletedEvent>(e =>
+                    e.IdeaId == idea.Id &&
+                    e.PollId == idea.Poll.Id &&
+                    e.CityId == idea.Poll.CityId &&
+                    e.OccurredAt == Now),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 }
