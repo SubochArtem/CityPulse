@@ -1,12 +1,7 @@
-import { CircleAlert, LoaderCircle } from 'lucide-react'
 import { type FormEvent, type ReactNode, useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
 import type { components } from '@/api/schema/polls'
-import { CharacterCount } from '@/components/CharacterCount'
-import { ImagePicker } from '@/components/ImagePicker'
-import { Alert, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+import { ImagesAndActions, TitleDescriptionFields } from '@/admin/components/AdminFormFields'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -16,7 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Textarea } from '@/components/ui/textarea'
 import type { CreatePollValues } from './usePollMutations'
 
 type Poll = components['schemas']['PollDto']
@@ -98,8 +92,6 @@ export function PollForm({
   const ids = {
     city: useId(),
     type: useId(),
-    title: useId(),
-    description: useId(),
     endsAt: useId(),
     budget: useId(),
   }
@@ -200,35 +192,22 @@ export function PollForm({
         )}
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor={ids.title}>{t('admin.pollForm.title')}</Label>
-        <Input
-          id={ids.title}
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          maxLength={MAX_TITLE_LENGTH}
-          disabled={isSubmitting}
-          required
-        />
-        <CharacterCount value={title} max={MAX_TITLE_LENGTH} />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor={ids.description}>
-          {t('admin.pollForm.description')}
-          <span className="font-normal text-muted-foreground">{t('form.optional')}</span>
-        </Label>
-        <Textarea
-          id={ids.description}
-          value={description}
-          onChange={(event) => setDescription(event.target.value)}
-          maxLength={MAX_DESCRIPTION_LENGTH}
-          disabled={isSubmitting}
-          rows={6}
-          className="min-h-32"
-        />
-        <CharacterCount value={description} max={MAX_DESCRIPTION_LENGTH} />
-      </div>
+      <TitleDescriptionFields
+        title={{
+          label: t('admin.pollForm.title'),
+          value: title,
+          max: MAX_TITLE_LENGTH,
+          onChange: setTitle,
+        }}
+        description={{
+          label: t('admin.pollForm.description'),
+          value: description,
+          max: MAX_DESCRIPTION_LENGTH,
+          onChange: setDescription,
+        }}
+        disabled={isSubmitting}
+        descriptionRows={6}
+      />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Field
@@ -275,36 +254,17 @@ export function PollForm({
         </Field>
       </div>
 
-      <div className="space-y-2">
-        <p className="flex items-center gap-2 text-sm font-medium">
-          {t('admin.pollForm.images')}
-          <span className="font-normal text-muted-foreground">{t('form.optional')}</span>
-        </p>
-        <ImagePicker
-          files={images}
-          onChange={setImages}
-          existing={existingImages}
-          onRemoveExisting={(id) => setImagesToDelete((current) => [...current, id])}
-          disabled={isSubmitting}
-        />
-      </div>
-
-      {errorMessage && (
-        <Alert variant="destructive">
-          <CircleAlert />
-          <AlertTitle>{errorMessage}</AlertTitle>
-        </Alert>
-      )}
-
-      <div className="flex flex-wrap gap-2">
-        <Button type="submit" disabled={!isValid || isSubmitting}>
-          {isSubmitting && <LoaderCircle className="animate-spin" />}
-          {isSubmitting ? t('admin.pollForm.saving') : submitLabel}
-        </Button>
-        <Button type="button" variant="ghost" asChild>
-          <Link to={cancelTo}>{t('admin.cancel')}</Link>
-        </Button>
-      </div>
+      <ImagesAndActions
+        images={images}
+        onImagesChange={setImages}
+        existingImages={existingImages}
+        onRemoveExisting={(id) => setImagesToDelete((current) => [...current, id])}
+        errorMessage={errorMessage}
+        isSubmitting={isSubmitting}
+        canSubmit={isValid}
+        submitLabel={submitLabel}
+        cancelTo={cancelTo}
+      />
     </form>
   )
 }

@@ -1,15 +1,9 @@
-import { CircleAlert, LoaderCircle } from 'lucide-react'
 import { type FormEvent, useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
 import type { components } from '@/api/schema/polls'
-import { CharacterCount } from '@/components/CharacterCount'
-import { ImagePicker } from '@/components/ImagePicker'
-import { Alert, AlertTitle } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
+import { ImagesAndActions, TitleDescriptionFields } from '@/admin/components/AdminFormFields'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import type { CityFormValues } from './useCityMutations'
 
 type City = components['schemas']['CityDto']
@@ -50,8 +44,6 @@ export function CityForm({
 }: Readonly<CityFormProps>) {
   const { t } = useTranslation()
   const ids = {
-    title: useId(),
-    description: useId(),
     latitude: useId(),
     longitude: useId(),
   }
@@ -89,35 +81,21 @@ export function CityForm({
 
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl space-y-6" noValidate>
-      <div className="space-y-2">
-        <Label htmlFor={ids.title}>{t('admin.cityForm.title')}</Label>
-        <Input
-          id={ids.title}
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          maxLength={MAX_TITLE_LENGTH}
-          disabled={isSubmitting}
-          required
-        />
-        <CharacterCount value={title} max={MAX_TITLE_LENGTH} />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor={ids.description}>
-          {t('admin.cityForm.description')}
-          <span className="font-normal text-muted-foreground">{t('form.optional')}</span>
-        </Label>
-        <Textarea
-          id={ids.description}
-          value={description}
-          onChange={(event) => setDescription(event.target.value)}
-          maxLength={MAX_DESCRIPTION_LENGTH}
-          disabled={isSubmitting}
-          rows={4}
-          className="min-h-24"
-        />
-        <CharacterCount value={description} max={MAX_DESCRIPTION_LENGTH} />
-      </div>
+      <TitleDescriptionFields
+        title={{
+          label: t('admin.cityForm.title'),
+          value: title,
+          max: MAX_TITLE_LENGTH,
+          onChange: setTitle,
+        }}
+        description={{
+          label: t('admin.cityForm.description'),
+          value: description,
+          max: MAX_DESCRIPTION_LENGTH,
+          onChange: setDescription,
+        }}
+        disabled={isSubmitting}
+      />
 
       <fieldset className="space-y-2">
         <legend className="text-sm font-medium">{t('admin.cityForm.coordinates')}</legend>
@@ -144,36 +122,17 @@ export function CityForm({
         <p className="text-sm text-muted-foreground">{t('admin.cityForm.coordinatesHint')}</p>
       </fieldset>
 
-      <div className="space-y-2">
-        <p className="flex items-center gap-2 text-sm font-medium">
-          {t('admin.cityForm.images')}
-          <span className="font-normal text-muted-foreground">{t('form.optional')}</span>
-        </p>
-        <ImagePicker
-          files={images}
-          onChange={setImages}
-          existing={existingImages}
-          onRemoveExisting={(id) => setImagesToDelete((current) => [...current, id])}
-          disabled={isSubmitting}
-        />
-      </div>
-
-      {errorMessage && (
-        <Alert variant="destructive">
-          <CircleAlert />
-          <AlertTitle>{errorMessage}</AlertTitle>
-        </Alert>
-      )}
-
-      <div className="flex flex-wrap gap-2">
-        <Button type="submit" disabled={!isValid || isSubmitting}>
-          {isSubmitting && <LoaderCircle className="animate-spin" />}
-          {isSubmitting ? t('admin.cityForm.saving') : submitLabel}
-        </Button>
-        <Button type="button" variant="ghost" asChild>
-          <Link to={cancelTo}>{t('admin.cancel')}</Link>
-        </Button>
-      </div>
+      <ImagesAndActions
+        images={images}
+        onImagesChange={setImages}
+        existingImages={existingImages}
+        onRemoveExisting={(id) => setImagesToDelete((current) => [...current, id])}
+        errorMessage={errorMessage}
+        isSubmitting={isSubmitting}
+        canSubmit={isValid}
+        submitLabel={submitLabel}
+        cancelTo={cancelTo}
+      />
     </form>
   )
 }
