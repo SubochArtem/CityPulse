@@ -4,4 +4,6 @@ export interface AdminSection {
   permission: string
 }
 
-export const adminSections: readonly AdminSection[] = []
+export const adminSections: readonly AdminSection[] = [
+  { path: 'cities', labelKey: 'admin.sections.cities', permission: 'cities.read.any' },
+]

@@ -107,8 +107,42 @@ export const ru: RussianTranslation = {
   admin: {
     title: 'Администрирование',
     noAccess: 'У вас нет доступа к этому разделу.',
+    cancel: 'Отмена',
     sections: {
       cities: 'Города',
+    },
+    cities: {
+      searchPlaceholder: 'Поиск городов',
+      empty: 'Городов пока нет.',
+      noMatches: 'Нет городов по запросу «{{search}}».',
+      loadFailed: 'Не удалось загрузить города',
+      notFound: 'Этого города больше нет.',
+      actionFailed: 'Не удалось изменить город. Попробуйте ещё раз.',
+      actionsFor: 'Действия для {{title}}',
+      columns: {
+        title: 'Название',
+        status: 'Статус',
+        coordinates: 'Координаты',
+        createdAt: 'Создан',
+        actions: 'Действия',
+      },
+      status: {
+        all: 'Все статусы',
+        active: 'Активен',
+        inactive: 'Неактивен',
+      },
+      activate: 'Активировать',
+      deactivate: 'Деактивировать',
+      delete: 'Удалить',
+      activateTitle: 'Активировать «{{title}}»?',
+      activateDescription:
+        'Город снова станет виден жителям вместе с опросами и идеями, скрытыми при деактивации.',
+      deactivateTitle: 'Деактивировать «{{title}}»?',
+      deactivateDescription:
+        'Город, его активные опросы и их идеи будут скрыты от жителей. Позже город можно активировать снова.',
+      deleteTitle: 'Удалить «{{title}}»?',
+      deleteDescription:
+        'Город будет удалён навсегда вместе со всеми опросами, идеями и изображениями. Это нельзя отменить.',
     },
   },
   notFound: {
