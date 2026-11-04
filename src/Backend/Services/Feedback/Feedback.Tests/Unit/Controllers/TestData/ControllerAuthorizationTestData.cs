@@ -1,4 +1,5 @@
 using Feedback.API.Authorization;
+using Feedback.API.Features.Activity.GetActivity;
 using Feedback.API.Features.Feedback.AddFeedback;
 using Feedback.API.Features.Feedback.DeleteFeedback;
 using Feedback.API.Features.Feedback.EditComment;
@@ -22,6 +23,11 @@ public static class ControllerAuthorizationTestData
         typeof(UserEditCommentController),
         typeof(UserDeleteFeedbackController),
         typeof(GetFilteredFeedbackController)
+    ];
+
+    public static readonly Type[] PublicControllers =
+    [
+        typeof(GetActivityController)
     ];
 
     public static readonly (Type Controller, string Method, string Policy)[] EndpointDefinitions =
@@ -68,6 +74,19 @@ public static class ControllerAuthorizationTestData
             var data = new TheoryData<Type>();
 
             foreach (var controller in UserControllers)
+                data.Add(controller);
+
+            return data;
+        }
+    }
+
+    public static TheoryData<Type> PublicControllerTypes
+    {
+        get
+        {
+            var data = new TheoryData<Type>();
+
+            foreach (var controller in PublicControllers)
                 data.Add(controller);
 
             return data;

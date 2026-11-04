@@ -64,11 +64,29 @@ public sealed class ControllerAuthorizationTests
         Assert.DoesNotContain(AdminSegment, route.Template);
     }
 
+    [Theory]
+    [MemberData(nameof(ControllerAuthorizationTestData.PublicControllerTypes), MemberType = typeof(ControllerAuthorizationTestData))]
+    public void PublicController_Always_AllowsAnonymousOnEveryActionOutsideAdminPrefix(Type controller)
+    {
+        var route = controller.GetCustomAttribute<RouteAttribute>(inherit: true);
+
+        Assert.NotNull(route);
+        Assert.DoesNotContain(AdminSegment, route.Template);
+        Assert.Null(controller.GetCustomAttribute<AuthorizeAttribute>(inherit: true));
+
+        foreach (var action in ActionsOf(controller))
+        {
+            Assert.NotNull(action.GetCustomAttribute<AllowAnonymousAttribute>(inherit: true));
+            Assert.Null(action.GetCustomAttribute<AuthorizeAttribute>(inherit: true));
+        }
+    }
+
     [Fact]
     public void Controllers_Always_AreAllKnownToAuthorizationTable()
     {
         var known = ControllerAuthorizationTestData.AdminControllers
             .Concat(ControllerAuthorizationTestData.UserControllers)
+            .Concat(ControllerAuthorizationTestData.PublicControllers)
             .ToHashSet();
 
         var actual = typeof(UserAddFeedbackController).Assembly
