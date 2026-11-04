@@ -11,6 +11,7 @@ using Feedback.API.Common.Filters;
 using Feedback.API.Common.Interfaces;
 using Feedback.API.Common.Services;
 using Feedback.API.Features.Activity;
+using Feedback.API.Features.Activity.Live;
 using Feedback.API.Infrastructure.Caching;
 using Feedback.API.Infrastructure.Grpc;
 using Feedback.API.Infrastructure.Messaging;
@@ -65,6 +66,7 @@ public static class DependencyInjection
         services.AddCityPulseRedisCache(configuration);
 
         services.AddMessaging(configuration);
+        services.AddLiveActivity(configuration);
 
         services.AddOptions<GrpcSettings>()
             .Bind(configuration.GetSection(GrpcSettings.SectionName))
@@ -120,6 +122,7 @@ public static class DependencyInjection
         app.UseAuthorization();
         app.MapCityPulseHealthChecks();
         app.MapControllers();
+        app.MapLiveActivity();
     }
 
     public static async Task InitializeMongoAsync(this WebApplication app)
