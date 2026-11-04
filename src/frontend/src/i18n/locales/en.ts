@@ -1,5 +1,6 @@
 export const en = {
   nav: {
+    cities: 'Cities',
     profile: 'Profile',
   },
   auth: {
@@ -20,6 +21,19 @@ export const en = {
   home: {
     title: 'Welcome to CityPulse',
     subtitle: 'Ideas, polls and feedback for your city.',
+  },
+  cities: {
+    title: 'Cities',
+    subtitle: 'Pick a city to see its polls and ideas.',
+    searchPlaceholder: 'Search cities',
+    empty: 'No cities yet.',
+    noMatches: 'No cities match “{{search}}”.',
+    loadFailed: 'Could not load cities',
+  },
+  pagination: {
+    previous: 'Previous',
+    next: 'Next',
+    pageOf: 'Page {{page}} of {{total}}',
   },
   notFound: {
     title: 'Page not found',
