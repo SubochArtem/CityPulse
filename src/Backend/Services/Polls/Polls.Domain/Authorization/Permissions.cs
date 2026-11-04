@@ -25,8 +25,6 @@ public static class Permissions
         public const string UpdateAny = "polls.update.any";
         public const string DeleteAny = "polls.delete.any";
         public const string DeleteCity = "polls.delete.city";
-        public const string VoteCity = "polls.vote.city";
-        public const string VoteAny = "polls.vote.any";
         public const string ChangeStatusAny = "polls.changestatus.any";
     }
 
