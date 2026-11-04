@@ -3,7 +3,11 @@ import type { ReactNode } from 'react'
 import { setTokenGetter } from '../api/client'
 import { authConfig } from './config'
 
-function TokenBridge({ children }: { children: ReactNode }) {
+interface AuthProviderProps {
+  readonly children: ReactNode
+}
+
+function TokenBridge({ children }: AuthProviderProps) {
   const { getAccessTokenSilently } = useAuth0()
 
   setTokenGetter(() => getAccessTokenSilently().catch(() => undefined))
@@ -11,7 +15,7 @@ function TokenBridge({ children }: { children: ReactNode }) {
   return children
 }
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ children }: AuthProviderProps) {
   return (
     <Auth0Provider
       domain={authConfig.domain}
