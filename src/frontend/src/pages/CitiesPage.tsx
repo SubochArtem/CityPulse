@@ -72,7 +72,7 @@ export function CitiesPage() {
           <CircleAlert />
           <AlertTitle>{t('cities.loadFailed')}</AlertTitle>
         </Alert>
-      ) : !data.items?.length ? (
+      ) : !data.totalCount ? (
         <p className="text-muted-foreground">
           {search ? t('cities.noMatches', { search }) : t('cities.empty')}
         </p>
@@ -82,14 +82,14 @@ export function CitiesPage() {
             className="grid gap-4 transition-opacity sm:grid-cols-2 lg:grid-cols-3 data-[stale=true]:opacity-60"
             data-stale={isPlaceholderData}
           >
-            {data.items.map((city) => (
+            {data.items?.map((city) => (
               <li key={city.id}>
                 <CityCard city={city} />
               </li>
             ))}
           </ul>
 
-          {totalPages > 1 && (
+          {(totalPages > 1 || page > 1) && (
             <nav className="flex items-center justify-between gap-4">
               <Button
                 variant="outline"
