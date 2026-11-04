@@ -267,6 +267,26 @@ services:
       ReverseProxy__Clusters__polls__Destinations__polls__Address: http://polls:8080
       ReverseProxy__Clusters__feedback__Destinations__feedback__Address: http://feedback:8080
 
+  frontend:
+    profiles: [app]
+    build:
+      context: src/frontend
+      args:
+        VITE_AUTH0_DOMAIN: ${AUTH0_DOMAIN:-}
+        VITE_AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID:-}
+        VITE_AUTH0_AUDIENCE: ${AUTH0_AUDIENCE:-}
+        VITE_API_BASE_URL: http://localhost:8080
+    image: citypulse-frontend
+    container_name: citypulse_frontend
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    ports:
+      - "5173:8080"
+
 secrets:
   github_token:
     environment: GITHUB_TOKEN
