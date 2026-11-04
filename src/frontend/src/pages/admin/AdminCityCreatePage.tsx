@@ -1,20 +1,24 @@
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { CityForm } from '@/admin/cities/CityForm'
-import { CityFormHeader } from '@/admin/cities/CityFormHeader'
+import { FormHeader } from '@/admin/components/FormHeader'
 import { citySaveErrorKey } from '@/admin/cities/cityErrors'
-import { useCitiesListPath } from '@/admin/cities/useCitiesListPath'
+import { useListPath } from '@/admin/useListPath'
 import { useCreateCity } from '@/admin/cities/useCityMutations'
 
 export function AdminCityCreatePage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const listPath = useCitiesListPath()
+  const listPath = useListPath('/admin/cities')
   const createCity = useCreateCity()
 
   return (
     <div className="space-y-6">
-      <CityFormHeader title={t('admin.cityForm.newTitle')} backTo={listPath} />
+      <FormHeader
+        title={t('admin.cityForm.newTitle')}
+        backTo={listPath}
+        backLabel={t('admin.cityForm.back')}
+      />
       <CityForm
         submitLabel={t('admin.cityForm.create')}
         isSubmitting={createCity.isPending}
