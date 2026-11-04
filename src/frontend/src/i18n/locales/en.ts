@@ -66,6 +66,14 @@ export const en = {
       pending: 'Pending review',
     },
   },
+  imagePicker: {
+    add: 'Add images',
+    remove: 'Remove {{name}}',
+    hint: 'Up to {{max}} images: JPG, PNG or WebP, {{size}} MB each.',
+    invalidFormat: '{{name}}: only JPG, PNG and WebP are allowed.',
+    tooLarge: '{{name}}: larger than {{max}} MB.',
+    tooMany: 'You can add at most {{max}} images.',
+  },
   pagination: {
     previous: 'Previous',
     next: 'Next',

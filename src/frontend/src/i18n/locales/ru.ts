@@ -72,6 +72,14 @@ export const ru: RussianTranslation = {
       pending: 'На рассмотрении',
     },
   },
+  imagePicker: {
+    add: 'Добавить изображения',
+    remove: 'Удалить {{name}}',
+    hint: 'До {{max}} изображений: JPG, PNG или WebP, не больше {{size}} МБ каждое.',
+    invalidFormat: '{{name}}: допустимы только JPG, PNG и WebP.',
+    tooLarge: '{{name}}: больше {{max}} МБ.',
+    tooMany: 'Можно добавить не больше {{max}} изображений.',
+  },
   pagination: {
     previous: 'Назад',
     next: 'Вперёд',
