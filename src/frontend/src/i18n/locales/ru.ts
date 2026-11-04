@@ -94,6 +94,7 @@ export const ru: RussianTranslation = {
   imagePicker: {
     add: 'Добавить изображения',
     remove: 'Удалить {{name}}',
+    removeExisting: 'Удалить изображение {{number}}',
     hint: 'До {{max}} изображений: JPG, PNG или WebP, не больше {{size}} МБ каждое.',
     invalidFormat: '{{name}}: допустимы только JPG, PNG и WebP.',
     tooLarge: '{{name}}: больше {{max}} МБ.',

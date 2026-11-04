@@ -88,6 +88,7 @@ export const en = {
   imagePicker: {
     add: 'Add images',
     remove: 'Remove {{name}}',
+    removeExisting: 'Remove image {{number}}',
     hint: 'Up to {{max}} images: JPG, PNG or WebP, {{size}} MB each.',
     invalidFormat: '{{name}}: only JPG, PNG and WebP are allowed.',
     tooLarge: '{{name}}: larger than {{max}} MB.',
