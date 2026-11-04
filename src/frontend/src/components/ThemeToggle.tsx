@@ -21,7 +21,7 @@ function isTheme(value: string): value is Theme {
   return options.some((option) => option.value === value)
 }
 
-export function ThemeToggle() {
+export function ThemeToggle({ className }: Readonly<{ className?: string }>) {
   const { theme, setTheme } = useTheme()
   const { t } = useTranslation()
   const CurrentIcon = options.find((option) => option.value === theme)?.icon ?? Monitor
@@ -29,7 +29,7 @@ export function ThemeToggle() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label={t('theme.label')}>
+        <Button variant="ghost" size="icon" className={className} aria-label={t('theme.label')}>
           <CurrentIcon />
         </Button>
       </DropdownMenuTrigger>

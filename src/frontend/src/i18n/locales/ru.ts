@@ -17,9 +17,15 @@ type RussianTranslation = Translation & {
 
 export const ru: RussianTranslation = {
   nav: {
+    home: 'Главная',
     cities: 'Города',
     profile: 'Профиль',
     admin: 'Админка',
+  },
+  footer: {
+    toTop: 'Наверх',
+    tagline: 'Предлагай · Голосуй · Меняй',
+    copyright: 'CityPulse © {{year}}',
   },
   common: {
     loading: 'Загрузка…',
