@@ -1,4 +1,4 @@
-import { ArrowLeft, CalendarClock, CircleAlert, MapPin, Vote, Wallet } from 'lucide-react'
+import { ArrowLeft, CalendarClock, CircleAlert, Vote, Wallet } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
@@ -70,9 +70,7 @@ function CityDetails({ city }: Readonly<{ city: City }>) {
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold tracking-tight">
-          {t('city.activePolls', { count: polls.length })}
-        </h2>
+        <h2 className="text-xl font-semibold tracking-tight">{t('city.activePolls')}</h2>
         {polls.length ? (
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {polls.map((poll) => (
@@ -95,11 +93,7 @@ function CityGallery({ city }: Readonly<{ city: City }>) {
   const current = images[selected]
 
   if (!current?.url) {
-    return (
-      <div className="flex aspect-21/9 items-center justify-center rounded-xl bg-muted text-muted-foreground">
-        <MapPin className="size-10" />
-      </div>
-    )
+    return null
   }
 
   return (
@@ -110,7 +104,7 @@ function CityGallery({ city }: Readonly<{ city: City }>) {
         className="aspect-21/9 w-full rounded-xl object-cover"
       />
       {images.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto">
+        <div className="-m-1 flex gap-2 overflow-x-auto p-1">
           {images.map((image, index) => (
             <button
               key={image.id}
