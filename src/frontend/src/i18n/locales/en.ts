@@ -50,6 +50,13 @@ export const en = {
     suggestIdea: 'Suggest an idea',
     endsAt: 'Ends {{date}}',
     budget: 'Budget {{amount}}',
+    route: {
+      opened: 'Opened',
+      closes: 'Closes',
+      closed: 'Closed',
+      daysLeft_one: '{{count}} day left',
+      daysLeft_other: '{{count}} days left',
+    },
     type: {
       userVote: 'Residents vote',
       managerVote: 'Manager decision',

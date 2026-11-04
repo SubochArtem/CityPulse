@@ -2,6 +2,9 @@ import type { Translation } from './en'
 
 type RussianTranslation = Translation & {
   readonly profile: { readonly permissions_few: string; readonly permissions_many: string }
+  readonly poll: {
+    readonly route: { readonly daysLeft_few: string; readonly daysLeft_many: string }
+  }
 }
 
 export const ru: RussianTranslation = {
@@ -56,6 +59,15 @@ export const ru: RussianTranslation = {
     suggestIdea: 'Предложить идею',
     endsAt: 'До {{date}}',
     budget: 'Бюджет {{amount}}',
+    route: {
+      opened: 'Открыт',
+      closes: 'Закроется',
+      closed: 'Завершён',
+      daysLeft_one: 'Остался {{count}} день',
+      daysLeft_few: 'Осталось {{count}} дня',
+      daysLeft_many: 'Осталось {{count}} дней',
+      daysLeft_other: 'Осталось {{count}} дня',
+    },
     type: {
       userVote: 'Голосование жителей',
       managerVote: 'Решение менеджера',
