@@ -88,25 +88,30 @@ function PollCard({ poll }: Readonly<{ poll: Poll }>) {
   const cover = coverImage(poll.images)
 
   return (
-    <Card className="h-full pt-0">
-      {cover?.url ? (
-        <img src={cover.url} alt="" loading="lazy" className="aspect-video w-full object-cover" />
-      ) : (
-        <div className="flex aspect-video items-center justify-center bg-muted text-muted-foreground">
-          <Vote className="size-8" />
-        </div>
-      )}
-      <CardHeader>
-        <PollTypeBadge type={poll.type} className="mb-1" />
-        <CardTitle className="text-base">{poll.title}</CardTitle>
-        {poll.description && (
-          <CardDescription className="line-clamp-2">{poll.description}</CardDescription>
+    <Link
+      to={`/polls/${poll.id}`}
+      className="group block h-full rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
+    >
+      <Card className="h-full pt-0 transition-shadow group-hover:ring-foreground/25">
+        {cover?.url ? (
+          <img src={cover.url} alt="" loading="lazy" className="aspect-video w-full object-cover" />
+        ) : (
+          <div className="flex aspect-video items-center justify-center bg-muted text-muted-foreground">
+            <Vote className="size-8" />
+          </div>
         )}
-      </CardHeader>
-      <CardContent className="mt-auto">
-        <PollFacts endsAt={poll.endsAt} budgetAmount={poll.budgetAmount} />
-      </CardContent>
-    </Card>
+        <CardHeader>
+          <PollTypeBadge type={poll.type} className="mb-1" />
+          <CardTitle className="text-base">{poll.title}</CardTitle>
+          {poll.description && (
+            <CardDescription className="line-clamp-2">{poll.description}</CardDescription>
+          )}
+        </CardHeader>
+        <CardContent className="mt-auto">
+          <PollFacts endsAt={poll.endsAt} budgetAmount={poll.budgetAmount} />
+        </CardContent>
+      </Card>
+    </Link>
   )
 }
 
