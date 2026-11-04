@@ -11,6 +11,7 @@ import { AdminIdeasPage } from './pages/admin/AdminIdeasPage'
 import { AdminPollCreatePage } from './pages/admin/AdminPollCreatePage'
 import { AdminPollEditPage } from './pages/admin/AdminPollEditPage'
 import { AdminPollsPage } from './pages/admin/AdminPollsPage'
+import { AdminUsersPage } from './pages/admin/AdminUsersPage'
 import { CityPage } from './pages/CityPage'
 import { CreateIdeaPage } from './pages/CreateIdeaPage'
 import { HomePage } from './pages/HomePage'
@@ -52,6 +53,9 @@ export default function App() {
             </Route>
             <Route element={<RequirePermission permission="ideas.read.any" />}>
               <Route path="ideas" element={<AdminIdeasPage />} />
+            </Route>
+            <Route element={<RequirePermission permission="users.read.any" />}>
+              <Route path="users" element={<AdminUsersPage />} />
             </Route>
           </Route>
         </Route>

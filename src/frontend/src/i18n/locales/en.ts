@@ -111,6 +111,7 @@ export const en = {
       cities: 'Cities',
       polls: 'Polls',
       ideas: 'Ideas',
+      users: 'Users',
     },
     polls: {
       searchPlaceholder: 'Search polls',
@@ -187,6 +188,42 @@ export const en = {
       deleteTitle: 'Delete “{{title}}”?',
       deleteDescription:
         'The idea is deleted permanently together with its images. This cannot be undone.',
+    },
+    users: {
+      searchPlaceholder: 'Search by nickname',
+      empty: 'No users yet.',
+      noMatches: 'No users match “{{search}}”.',
+      loadFailed: 'Could not load users',
+      notFound: 'This user no longer exists.',
+      actionFailed: 'Could not update the user. Please try again.',
+      actionsFor: 'Actions for {{nickname}}',
+      allCities: 'All cities',
+      noCity: 'No city',
+      you: '(you)',
+      columns: {
+        nickname: 'Nickname',
+        city: 'City',
+        status: 'Status',
+        createdAt: 'Joined',
+        actions: 'Actions',
+      },
+      status: {
+        active: 'Active',
+        inactive: 'Inactive',
+        suspended: 'Suspended',
+      },
+      activate: 'Activate',
+      deactivate: 'Deactivate',
+      delete: 'Delete',
+      activateTitle: 'Activate {{nickname}}?',
+      activateDescription:
+        'The user can sign in again, and their ideas become visible to residents again.',
+      deactivateTitle: 'Deactivate {{nickname}}?',
+      deactivateDescription:
+        'The user is blocked from signing in, and their ideas are hidden from residents. You can activate them again later.',
+      deleteTitle: 'Delete {{nickname}}?',
+      deleteDescription:
+        'The account is deleted permanently, including the sign-in account. This cannot be undone.',
     },
     pollForm: {
       newTitle: 'New poll',

@@ -117,6 +117,7 @@ export const ru: RussianTranslation = {
       cities: 'Города',
       polls: 'Опросы',
       ideas: 'Идеи',
+      users: 'Пользователи',
     },
     polls: {
       searchPlaceholder: 'Поиск опросов',
@@ -193,6 +194,42 @@ export const ru: RussianTranslation = {
       deleteTitle: 'Удалить «{{title}}»?',
       deleteDescription:
         'Идея будет удалена навсегда вместе с изображениями. Это действие нельзя отменить.',
+    },
+    users: {
+      searchPlaceholder: 'Поиск по никнейму',
+      empty: 'Пользователей пока нет.',
+      noMatches: 'Нет пользователей по запросу «{{search}}».',
+      loadFailed: 'Не удалось загрузить пользователей',
+      notFound: 'Этот пользователь больше не существует.',
+      actionFailed: 'Не удалось изменить пользователя. Попробуйте ещё раз.',
+      actionsFor: 'Действия для {{nickname}}',
+      allCities: 'Все города',
+      noCity: 'Без города',
+      you: '(вы)',
+      columns: {
+        nickname: 'Никнейм',
+        city: 'Город',
+        status: 'Статус',
+        createdAt: 'Регистрация',
+        actions: 'Действия',
+      },
+      status: {
+        active: 'Активен',
+        inactive: 'Неактивен',
+        suspended: 'Приостановлен',
+      },
+      activate: 'Активировать',
+      deactivate: 'Деактивировать',
+      delete: 'Удалить',
+      activateTitle: 'Активировать {{nickname}}?',
+      activateDescription:
+        'Пользователь снова сможет входить, а его идеи снова станут видны жителям.',
+      deactivateTitle: 'Деактивировать {{nickname}}?',
+      deactivateDescription:
+        'Пользователь не сможет входить, а его идеи будут скрыты от жителей. Позже его можно активировать снова.',
+      deleteTitle: 'Удалить {{nickname}}?',
+      deleteDescription:
+        'Аккаунт будет удалён навсегда, включая учётную запись для входа. Это действие нельзя отменить.',
     },
     pollForm: {
       newTitle: 'Новый опрос',
