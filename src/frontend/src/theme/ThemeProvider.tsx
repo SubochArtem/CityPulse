@@ -33,7 +33,7 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  const [theme, setThemeState] = useState<Theme>(readStoredTheme)
+  const [theme, setTheme] = useState<Theme>(readStoredTheme)
 
   useEffect(() => {
     if (theme !== 'system') {
@@ -52,7 +52,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
       theme,
       setTheme: (next: Theme) => {
         storeTheme(next)
-        setThemeState(next)
+        setTheme(next)
       },
     }),
     [theme],
