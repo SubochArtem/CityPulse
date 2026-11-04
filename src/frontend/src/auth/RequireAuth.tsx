@@ -6,15 +6,23 @@ import { Outlet, useLocation } from 'react-router'
 export function RequireAuth() {
   const { isLoading, isAuthenticated, loginWithRedirect } = useAuth0()
   const location = useLocation()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       void loginWithRedirect({
         appState: { returnTo: location.pathname + location.search },
+        authorizationParams: { ui_locales: i18n.resolvedLanguage },
       })
     }
-  }, [isLoading, isAuthenticated, loginWithRedirect, location.pathname, location.search])
+  }, [
+    isLoading,
+    isAuthenticated,
+    loginWithRedirect,
+    location.pathname,
+    location.search,
+    i18n.resolvedLanguage,
+  ])
 
   if (isLoading || !isAuthenticated) {
     return <p className="text-muted-foreground">{t('auth.loading')}</p>

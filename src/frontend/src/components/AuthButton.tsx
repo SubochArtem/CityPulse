@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 
 export function AuthButton() {
   const { isLoading, isAuthenticated, loginWithRedirect, logout } = useAuth0()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   if (isLoading) {
     return null
@@ -25,7 +25,12 @@ export function AuthButton() {
   }
 
   return (
-    <Button size="sm" onClick={() => loginWithRedirect()}>
+    <Button
+      size="sm"
+      onClick={() =>
+        loginWithRedirect({ authorizationParams: { ui_locales: i18n.resolvedLanguage } })
+      }
+    >
       <LogIn />
       {t('auth.logIn')}
     </Button>
