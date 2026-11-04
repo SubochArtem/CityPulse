@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Skeleton } from '@/components/ui/skeleton'
 import { coverImage } from '@/lib/images'
 import { PollFacts } from '@/polls/PollFacts'
+import { PollLineBadge } from '@/polls/PollLineBadge'
 import { PollTypeBadge } from '@/polls/PollTypeBadge'
 
 type City = components['schemas']['CityWithPollsDto']
@@ -70,9 +71,9 @@ function CityDetails({ city }: Readonly<{ city: City }>) {
         <h2 className="text-xl font-semibold tracking-tight">{t('city.activePolls')}</h2>
         {polls.length ? (
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {polls.map((poll) => (
+            {polls.map((poll, index) => (
               <li key={poll.id}>
-                <PollCard poll={poll} />
+                <PollCard poll={poll} number={index + 1} />
               </li>
             ))}
           </ul>
@@ -84,7 +85,7 @@ function CityDetails({ city }: Readonly<{ city: City }>) {
   )
 }
 
-function PollCard({ poll }: Readonly<{ poll: Poll }>) {
+function PollCard({ poll, number }: Readonly<{ poll: Poll; number: number }>) {
   const cover = coverImage(poll.images)
 
   return (
@@ -101,7 +102,10 @@ function PollCard({ poll }: Readonly<{ poll: Poll }>) {
           </div>
         )}
         <CardHeader>
-          <PollTypeBadge type={poll.type} className="mb-1" />
+          <div className="mb-1 flex items-center gap-2">
+            <PollLineBadge pollId={poll.id} number={number} />
+            <PollTypeBadge type={poll.type} />
+          </div>
           <CardTitle className="text-base">{poll.title}</CardTitle>
           {poll.description && (
             <CardDescription className="line-clamp-2">{poll.description}</CardDescription>

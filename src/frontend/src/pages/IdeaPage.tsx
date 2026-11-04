@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { IdeaApprovalBadge } from '@/ideas/IdeaApprovalBadge'
 import { useIdeaWithPoll } from '@/ideas/useIdeaWithPoll'
 import { PollFacts } from '@/polls/PollFacts'
+import { PollLineBadge } from '@/polls/PollLineBadge'
 import { PollTypeBadge } from '@/polls/PollTypeBadge'
 import { usePublicProfiles } from '@/users/usePublicProfiles'
 
@@ -118,7 +119,10 @@ function PollLink({ poll }: Readonly<{ poll: Poll }>) {
     >
       <Card className="transition-shadow group-hover:ring-foreground/25">
         <CardHeader>
-          <PollTypeBadge type={poll.type} className="mb-1" />
+          <div className="mb-1 flex items-center gap-2">
+            <PollLineBadge pollId={poll.id} />
+            <PollTypeBadge type={poll.type} />
+          </div>
           <CardTitle className="text-base">{poll.title}</CardTitle>
           {poll.description && (
             <CardDescription className="line-clamp-2">{poll.description}</CardDescription>

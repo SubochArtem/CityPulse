@@ -13,6 +13,7 @@ import { IdeaApprovalBadge } from '@/ideas/IdeaApprovalBadge'
 import { useIdeaCreationAccess } from '@/ideas/useIdeaCreationAccess'
 import { coverImage } from '@/lib/images'
 import { PollFacts } from '@/polls/PollFacts'
+import { PollLineBadge } from '@/polls/PollLineBadge'
 import { PollTypeBadge } from '@/polls/PollTypeBadge'
 import { usePollWithIdeas } from '@/polls/usePollWithIdeas'
 import { usePublicProfiles } from '@/users/usePublicProfiles'
@@ -65,7 +66,10 @@ function PollDetails({ poll }: Readonly<{ poll: Poll }>) {
       <div className="space-y-4">
         <ImageGallery key={poll.id} images={poll.images} alt={poll.title ?? ''} />
         <div className="space-y-2">
-          <PollTypeBadge type={poll.type} />
+          <div className="flex items-center gap-2">
+            <PollLineBadge pollId={poll.id} />
+            <PollTypeBadge type={poll.type} />
+          </div>
           <h1 className="text-3xl font-semibold tracking-tight">{poll.title}</h1>
           <PollFacts endsAt={poll.endsAt} budgetAmount={poll.budgetAmount} />
         </div>
