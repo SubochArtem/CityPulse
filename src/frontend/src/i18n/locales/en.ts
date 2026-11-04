@@ -51,7 +51,14 @@ export const en = {
     },
   },
   idea: {
+    back: 'Back to poll',
+    notFound: 'Idea not found',
+    loadFailed: 'Could not load the idea',
+    author: 'By {{nickname}}',
+    unknownAuthor: 'Unknown author',
     createdAt: 'Added {{date}}',
+    updatedAt: 'Updated {{date}}',
+    poll: 'Poll',
     approval: {
       approved: 'Approved',
       rejected: 'Rejected',
