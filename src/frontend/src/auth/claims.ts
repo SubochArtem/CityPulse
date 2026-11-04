@@ -11,8 +11,9 @@ export function readPermissions(accessToken: string): string[] {
     return []
   }
   const json = new TextDecoder().decode(
-    Uint8Array.from(atob(payload.replaceAll('-', '+').replaceAll('_', '/')), (c) =>
-      c.charCodeAt(0),
+    Uint8Array.from(
+      atob(payload.replaceAll('-', '+').replaceAll('_', '/')),
+      (c) => c.codePointAt(0) ?? 0,
     ),
   )
   const claims: { permissions?: unknown } = JSON.parse(json)
