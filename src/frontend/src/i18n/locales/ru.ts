@@ -57,7 +57,14 @@ export const ru: RussianTranslation = {
     },
   },
   idea: {
+    back: 'К опросу',
+    notFound: 'Идея не найдена',
+    loadFailed: 'Не удалось загрузить идею',
+    author: 'Автор: {{nickname}}',
+    unknownAuthor: 'Неизвестный автор',
     createdAt: 'Добавлена {{date}}',
+    updatedAt: 'Обновлена {{date}}',
+    poll: 'Опрос',
     approval: {
       approved: 'Одобрена',
       rejected: 'Отклонена',

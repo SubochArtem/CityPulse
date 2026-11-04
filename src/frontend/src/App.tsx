@@ -4,6 +4,7 @@ import { Layout } from './components/Layout'
 import { CitiesPage } from './pages/CitiesPage'
 import { CityPage } from './pages/CityPage'
 import { HomePage } from './pages/HomePage'
+import { IdeaPage } from './pages/IdeaPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { PollPage } from './pages/PollPage'
 import { ProfilePage } from './pages/ProfilePage'
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="cities" element={<CitiesPage />} />
         <Route path="cities/:cityId" element={<CityPage />} />
         <Route path="polls/:pollId" element={<PollPage />} />
+        <Route path="ideas/:ideaId" element={<IdeaPage />} />
         <Route element={<RequireAuth />}>
           <Route path="profile" element={<ProfilePage />} />
         </Route>
