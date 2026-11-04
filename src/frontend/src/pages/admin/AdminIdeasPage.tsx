@@ -328,7 +328,7 @@ function IdeaRow({
                   <Ellipsis />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="min-w-44">
                 {permissions.approval && (
                   <>
                     <DropdownMenuLabel>{t('admin.ideas.columns.approval')}</DropdownMenuLabel>
