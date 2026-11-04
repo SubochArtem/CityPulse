@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { TableCell, TableHead, TableRow } from '@/components/ui/table'
 import { useListSearchParams } from '@/lib/useListSearchParams'
+import { PollLineBadge } from '@/polls/PollLineBadge'
 import { PollTypeBadge } from '@/polls/PollTypeBadge'
 
 type Poll = components['schemas']['PollDto']
@@ -269,17 +270,20 @@ function PollRow({
   return (
     <TableRow>
       <TableCell className="font-medium whitespace-normal">
-        {permissions.update ? (
-          <Link
-            to={editPath}
-            state={{ listSearch }}
-            className="underline-offset-4 outline-none hover:underline focus-visible:underline"
-          >
-            {poll.title}
-          </Link>
-        ) : (
-          poll.title
-        )}
+        <span className="flex items-center gap-2">
+          <PollLineBadge pollId={poll.id} />
+          {permissions.update ? (
+            <Link
+              to={editPath}
+              state={{ listSearch }}
+              className="underline-offset-4 outline-none hover:underline focus-visible:underline"
+            >
+              {poll.title}
+            </Link>
+          ) : (
+            poll.title
+          )}
+        </span>
       </TableCell>
       <TableCell className="hidden text-muted-foreground md:table-cell">{cityTitle}</TableCell>
       <TableCell className="hidden lg:table-cell">
