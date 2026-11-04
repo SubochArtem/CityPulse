@@ -23,6 +23,9 @@ export function Layout() {
             CityPulse
           </Link>
           <nav className="flex items-center gap-4">
+            <NavLink to="/cities" className={navLinkClass}>
+              {t('nav.cities')}
+            </NavLink>
             <NavLink to="/profile" className={navLinkClass}>
               {t('nav.profile')}
             </NavLink>
