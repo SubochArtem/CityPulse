@@ -16,10 +16,11 @@ export function AuthButton() {
       <Button
         variant="outline"
         size="sm"
+        aria-label={t('auth.logOut')}
         onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
       >
         <LogOut />
-        {t('auth.logOut')}
+        <span className="hidden sm:inline">{t('auth.logOut')}</span>
       </Button>
     )
   }
@@ -27,12 +28,13 @@ export function AuthButton() {
   return (
     <Button
       size="sm"
+      aria-label={t('auth.logIn')}
       onClick={() =>
         loginWithRedirect({ authorizationParams: { ui_locales: i18n.resolvedLanguage } })
       }
     >
       <LogIn />
-      {t('auth.logIn')}
+      <span className="hidden sm:inline">{t('auth.logIn')}</span>
     </Button>
   )
 }

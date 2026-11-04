@@ -18,25 +18,29 @@ export function Layout() {
   return (
     <div className="min-h-svh bg-background text-foreground">
       <header className="border-b">
-        <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-6">
-          <Link to="/" className="text-lg font-semibold tracking-tight">
+        <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between gap-2 px-4 sm:gap-4 sm:px-6">
+          <Link to="/" className="text-base font-semibold tracking-tight sm:text-lg">
             CityPulse
           </Link>
-          <nav className="flex items-center gap-4">
-            <NavLink to="/cities" className={navLinkClass}>
-              {t('nav.cities')}
-            </NavLink>
-            <NavLink to="/profile" className={navLinkClass}>
-              {t('nav.profile')}
-            </NavLink>
-            <LanguageSwitcher />
-            <ThemeToggle />
-            <AuthButton />
-          </nav>
+          <div className="flex items-center gap-2 sm:gap-4">
+            <nav className="flex items-center gap-2 sm:gap-4">
+              <NavLink to="/cities" className={navLinkClass}>
+                {t('nav.cities')}
+              </NavLink>
+              <NavLink to="/profile" className={navLinkClass}>
+                {t('nav.profile')}
+              </NavLink>
+            </nav>
+            <div className="flex items-center sm:gap-2">
+              <LanguageSwitcher />
+              <ThemeToggle />
+              <AuthButton />
+            </div>
+          </div>
         </div>
       </header>
       <AuthError />
-      <main className="mx-auto w-full max-w-5xl px-6 py-8">
+      <main className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
         <Outlet />
       </main>
     </div>
