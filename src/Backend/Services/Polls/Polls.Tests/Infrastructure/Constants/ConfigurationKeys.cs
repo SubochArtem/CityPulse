@@ -22,6 +22,7 @@ internal static class ConfigurationKeys
         public const string AccessKey = "ImageStorage:AccessKey";
         public const string SecretKey = "ImageStorage:SecretKey";
         public const string BucketName = "ImageStorage:BucketName";
+        public const string PublicBaseUrl = "ImageStorage:PublicBaseUrl";
         public const string UseSsl = "ImageStorage:UseSsl";
     }
 
