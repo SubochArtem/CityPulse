@@ -68,14 +68,16 @@ export const en = {
       pending: 'Pending review',
     },
   },
+  form: {
+    optional: '(optional)',
+    counter: '{{current}} / {{max}}',
+  },
   ideaForm: {
     heading: 'Suggest an idea',
     forPoll: 'For the poll “{{poll}}”',
     title: 'Title',
     description: 'Description',
     images: 'Images',
-    optional: '(optional)',
-    counter: '{{current}} / {{max}}',
     submit: 'Publish idea',
     submitting: 'Publishing…',
     cancel: 'Cancel',

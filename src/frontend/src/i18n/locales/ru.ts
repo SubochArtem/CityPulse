@@ -74,14 +74,16 @@ export const ru: RussianTranslation = {
       pending: 'На рассмотрении',
     },
   },
+  form: {
+    optional: '(необязательно)',
+    counter: '{{current}} / {{max}}',
+  },
   ideaForm: {
     heading: 'Предложить идею',
     forPoll: 'Для опроса «{{poll}}»',
     title: 'Название',
     description: 'Описание',
     images: 'Изображения',
-    optional: '(необязательно)',
-    counter: '{{current}} / {{max}}',
     submit: 'Опубликовать идею',
     submitting: 'Публикуем…',
     cancel: 'Отмена',
