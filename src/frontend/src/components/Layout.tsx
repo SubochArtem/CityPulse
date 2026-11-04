@@ -12,8 +12,10 @@ import { ThemeToggle } from './ThemeToggle'
 
 const navLinkClass = ({ isActive }: { isActive: boolean }) =>
   cn(
-    'text-sm transition-colors hover:text-foreground',
-    isActive ? 'font-medium text-foreground' : 'text-muted-foreground',
+    'py-1 text-sm transition-colors hover:text-foreground',
+    isActive
+      ? 'font-medium text-foreground shadow-[inset_0_-3px_0_var(--primary)]'
+      : 'text-muted-foreground',
   )
 
 export function Layout() {
@@ -21,9 +23,13 @@ export function Layout() {
 
   return (
     <div className="min-h-svh bg-background text-foreground">
-      <header className="border-b">
-        <div className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between gap-2 px-4 sm:gap-4 sm:px-6">
-          <Link to="/" className="text-base font-semibold tracking-tight sm:text-lg">
+      <header className="bg-navy text-navy-foreground dark:border-b">
+        <div className="dark mx-auto flex h-14 w-full max-w-5xl items-center justify-between gap-2 px-4 sm:gap-4 sm:px-6">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 font-heading text-sm font-extrabold sm:text-base"
+          >
+            <span className="size-5 rounded-full border-[5px] border-navy-foreground bg-primary" />
             CityPulse
           </Link>
           <div className="flex items-center gap-2 sm:gap-4">
