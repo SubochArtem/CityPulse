@@ -8,6 +8,7 @@ type RussianTranslation = Translation & {
     readonly daysLeft_few: string
     readonly daysLeft_many: string
   }
+  readonly feedback: { readonly likes_few: string; readonly likes_many: string }
   readonly poll: {
     readonly route: { readonly daysLeft_few: string; readonly daysLeft_many: string }
   }
@@ -107,6 +108,29 @@ export const ru: RussianTranslation = {
       deferred: 'Отложена',
       pending: 'На рассмотрении',
     },
+  },
+  feedback: {
+    title: 'Обсуждение',
+    likes_one: '{{formatted}} лайк',
+    likes_few: '{{formatted}} лайка',
+    likes_many: '{{formatted}} лайков',
+    likes_other: '{{formatted}} лайка',
+    placeholder: 'Поделитесь мнением об этой идее',
+    submit: 'Отправить',
+    noComments: 'Комментариев пока нет. Будьте первым.',
+    loginPrompt: 'Войдите, чтобы читать обсуждение и участвовать в нём.',
+    otherCity: 'Отмечать и комментировать могут только жители этого города.',
+    noPermission: 'У вас нет доступа к обсуждениям.',
+    loadFailed: 'Не удалось загрузить обсуждение',
+    actionFailed: 'Не удалось сохранить изменения. Попробуйте ещё раз.',
+    showMore: 'Показать ещё',
+    edited: 'изменено',
+    edit: 'Изменить',
+    delete: 'Удалить',
+    save: 'Сохранить',
+    cancel: 'Отмена',
+    deleteTitle: 'Удалить комментарий?',
+    deleteDescription: 'Это действие нельзя отменить.',
   },
   form: {
     optional: '(необязательно)',
