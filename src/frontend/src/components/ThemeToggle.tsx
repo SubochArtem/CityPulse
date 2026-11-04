@@ -24,13 +24,13 @@ function isTheme(value: string): value is Theme {
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
   const { t } = useTranslation()
+  const CurrentIcon = options.find((option) => option.value === theme)?.icon ?? Monitor
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" aria-label={t('theme.label')}>
-          <Sun className="dark:hidden" />
-          <Moon className="hidden dark:block" />
+          <CurrentIcon />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
