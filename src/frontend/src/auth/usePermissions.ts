@@ -5,7 +5,7 @@ import { readPermissions } from './claims'
 export function usePermissions() {
   const { user, isAuthenticated, getAccessTokenSilently } = useAuth0()
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['permissions', user?.sub],
     enabled: isAuthenticated,
     queryFn: async () => {
@@ -18,6 +18,7 @@ export function usePermissions() {
 
   return {
     permissions,
+    isLoading,
     can: (permission: string) => permissions.includes(permission),
   }
 }

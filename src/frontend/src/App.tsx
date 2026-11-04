@@ -3,6 +3,7 @@ import { RequireAuth } from './auth/RequireAuth'
 import { Layout } from './components/Layout'
 import { CitiesPage } from './pages/CitiesPage'
 import { CityPage } from './pages/CityPage'
+import { CreateIdeaPage } from './pages/CreateIdeaPage'
 import { HomePage } from './pages/HomePage'
 import { IdeaPage } from './pages/IdeaPage'
 import { NotFoundPage } from './pages/NotFoundPage'
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="ideas/:ideaId" element={<IdeaPage />} />
         <Route element={<RequireAuth />}>
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="polls/:pollId/ideas/new" element={<CreateIdeaPage />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Route>
