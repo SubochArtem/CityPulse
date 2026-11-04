@@ -2,6 +2,7 @@ using ErrorOr;
 using Feedback.API.Common.Errors;
 using Feedback.API.Common.Interfaces;
 using Feedback.API.Domain;
+using Feedback.API.Features.Activity;
 using Feedback.API.Infrastructure.Mongo;
 using MediatR;
 using MongoDB.Driver;
@@ -11,7 +12,8 @@ namespace Feedback.API.Features.Feedback.AddFeedback;
 public class AddFeedbackCommandHandler(
     MongoDbContext context,
     IDateTimeProvider dateTimeProvider,
-    IIdeaService ideaService)
+    IIdeaService ideaService,
+    ActivityStore activityStore)
     : IRequestHandler<AddFeedbackCommand, ErrorOr<FeedbackResponse>>
 {
     public async Task<ErrorOr<FeedbackResponse>> Handle(
@@ -49,7 +51,34 @@ public class AddFeedbackCommandHandler(
             return FeedbackErrors.LikeAlreadyExists;
         }
 
+        if (item.Text is not null)
+            await RecordCommentAsync(item, cityResult.Value, cancellationToken);
+
         return FeedbackResponse.FromEntity(item);
+    }
+
+    private async Task RecordCommentAsync(
+        FeedbackItem item,
+        Guid cityId,
+        CancellationToken cancellationToken)
+    {
+        var proposal = await activityStore.FindIdeaProposalAsync(item.IdeaId, cancellationToken);
+
+        var entry = new ActivityEntry
+        {
+            Key = ActivityKeys.IdeaCommented(item.Id),
+            Kind = ActivityKind.IdeaCommented,
+            CityId = cityId,
+            PollId = proposal?.PollId,
+            PollTitle = proposal?.PollTitle,
+            IdeaId = item.IdeaId,
+            IdeaTitle = proposal?.IdeaTitle,
+            UserId = item.UserId,
+            FeedbackId = item.Id,
+            OccurredAt = item.CreatedAt
+        };
+
+        await activityStore.AddAsync(entry, cancellationToken);
     }
 
     private async Task<bool> LikeExistsAsync(

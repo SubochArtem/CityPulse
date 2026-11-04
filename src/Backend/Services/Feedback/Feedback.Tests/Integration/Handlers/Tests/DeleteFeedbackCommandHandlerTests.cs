@@ -1,5 +1,6 @@
 using ErrorOr;
 using Feedback.API.Common.Errors;
+using Feedback.API.Features.Activity;
 using Feedback.API.Features.Feedback.DeleteFeedback;
 using Feedback.Tests.Infrastructure;
 using Xunit;
@@ -11,7 +12,7 @@ public sealed class DeleteFeedbackCommandHandlerTests(MongoFixture fixture) : Mo
     private static readonly Guid AuthorId = Guid.NewGuid();
     private static readonly Guid OtherUserId = Guid.NewGuid();
 
-    private DeleteFeedbackCommandHandler CreateSut() => new(Context);
+    private DeleteFeedbackCommandHandler CreateSut() => new(Context, new ActivityStore(Context));
 
     private static DeleteFeedbackCommand BuildCommand(Guid id, Guid userId, bool bypassRestrictions = false) =>
         new(userId, id, bypassRestrictions);
@@ -93,5 +94,33 @@ public sealed class DeleteFeedbackCommandHandlerTests(MongoFixture fixture) : Mo
 
         Assert.Null(exception);
         Assert.Single(await ReadAllAsync());
+    }
+
+    [Fact]
+    public async Task Handle_OwnComment_RemovesItsActivityOnly()
+    {
+        var deleted = FeedbackItems.Comment(AuthorId);
+        var kept = FeedbackItems.Comment(AuthorId, deleted.IdeaId);
+        await SeedAsync(deleted, kept);
+        var deletedEntry = ActivityEntries.IdeaCommented(ideaId: deleted.IdeaId, userId: AuthorId, feedbackId: deleted.Id);
+        var keptEntry = ActivityEntries.IdeaCommented(ideaId: kept.IdeaId, userId: AuthorId, feedbackId: kept.Id);
+        await SeedActivityAsync(deletedEntry, keptEntry);
+
+        await CreateSut().Handle(BuildCommand(deleted.Id, AuthorId), CancellationToken.None);
+
+        Assert.Equal(keptEntry.Id, Assert.Single(await ReadActivityAsync()).Id);
+    }
+
+    [Fact]
+    public async Task Handle_OwnLike_LeavesActivityUntouched()
+    {
+        var like = FeedbackItems.Like(AuthorId);
+        await SeedAsync(like);
+        var proposal = ActivityEntries.IdeaProposed(ideaId: like.IdeaId);
+        await SeedActivityAsync(proposal);
+
+        await CreateSut().Handle(BuildCommand(like.Id, AuthorId), CancellationToken.None);
+
+        Assert.Equal(proposal.Id, Assert.Single(await ReadActivityAsync()).Id);
     }
 }

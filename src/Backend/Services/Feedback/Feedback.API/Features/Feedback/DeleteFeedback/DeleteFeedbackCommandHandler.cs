@@ -1,12 +1,13 @@
 using ErrorOr;
 using Feedback.API.Common.Errors;
+using Feedback.API.Features.Activity;
 using Feedback.API.Infrastructure.Mongo;
 using MediatR;
 using MongoDB.Driver;
 
 namespace Feedback.API.Features.Feedback.DeleteFeedback;
 
-public class DeleteFeedbackCommandHandler(MongoDbContext context)
+public class DeleteFeedbackCommandHandler(MongoDbContext context, ActivityStore activityStore)
     : IRequestHandler<DeleteFeedbackCommand, ErrorOr<Deleted>>
 {
     public async Task<ErrorOr<Deleted>> Handle(
@@ -26,6 +27,9 @@ public class DeleteFeedbackCommandHandler(MongoDbContext context)
         await context.FeedbackItems.DeleteOneAsync(
             x => x.Id == item.Id,
             cancellationToken);
+
+        if (item.Text is not null)
+            await activityStore.DeleteByKeyAsync(ActivityKeys.IdeaCommented(item.Id), cancellationToken);
 
         return Result.Deleted;
     }

@@ -55,20 +55,21 @@ internal static class ActivityEntries
         Guid? pollId = null,
         Guid? ideaId = null,
         Guid? userId = null,
+        Guid? feedbackId = null,
         DateTimeOffset? occurredAt = null)
     {
-        var feedbackId = Guid.NewGuid();
+        var id = feedbackId ?? Guid.NewGuid();
 
         return new ActivityEntry
         {
             Id = Guid.NewGuid(),
-            Key = ActivityKeys.IdeaCommented(feedbackId),
+            Key = ActivityKeys.IdeaCommented(id),
             Kind = ActivityKind.IdeaCommented,
             CityId = cityId ?? Guid.NewGuid(),
             PollId = pollId ?? Guid.NewGuid(),
             IdeaId = ideaId ?? Guid.NewGuid(),
             UserId = userId ?? Guid.NewGuid(),
-            FeedbackId = feedbackId,
+            FeedbackId = id,
             OccurredAt = occurredAt ?? DefaultOccurredAt
         };
     }
