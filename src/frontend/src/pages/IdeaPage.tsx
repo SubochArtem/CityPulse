@@ -7,17 +7,14 @@ import type { components } from '@/api/schema/polls'
 import { ImageGallery } from '@/components/ImageGallery'
 import { Alert, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { IdeaApprovalBadge } from '@/ideas/IdeaApprovalBadge'
 import { useIdeaWithPoll } from '@/ideas/useIdeaWithPoll'
-import { PollFacts } from '@/polls/PollFacts'
 import { PollLineBadge } from '@/polls/PollLineBadge'
-import { PollTypeBadge } from '@/polls/PollTypeBadge'
+import { PollLineTile } from '@/polls/PollLineTile'
 import { usePublicProfiles } from '@/users/usePublicProfiles'
 
 type Idea = components['schemas']['IdeaWithPollDto']
-type Poll = components['schemas']['PollDto']
 
 export function IdeaPage() {
   const { t } = useTranslation()
@@ -61,7 +58,10 @@ function IdeaDetails({ idea }: Readonly<{ idea: Idea }>) {
       <div className="space-y-4">
         <ImageGallery key={idea.id} images={idea.images} alt={idea.title ?? ''} />
         <div className="space-y-2">
-          <IdeaApprovalBadge status={idea.approvalStatus} />
+          <div className="flex items-center gap-2">
+            <PollLineBadge pollId={idea.pollId} />
+            <IdeaApprovalBadge status={idea.approvalStatus} />
+          </div>
           <h1 className="text-3xl font-semibold tracking-tight">{idea.title}</h1>
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground">
             <IdeaAuthor userId={idea.userId} />
@@ -85,9 +85,9 @@ function IdeaDetails({ idea }: Readonly<{ idea: Idea }>) {
         )}
       </div>
 
-      <div className="max-w-md space-y-4">
+      <div className="max-w-xl space-y-4">
         <h2 className="text-xl font-semibold tracking-tight">{t('idea.poll')}</h2>
-        <PollLink poll={idea.poll} />
+        <PollLineTile poll={idea.poll} />
       </div>
     </>
   )
@@ -108,29 +108,6 @@ function IdeaAuthor({ userId }: Readonly<{ userId: string | undefined }>) {
       <UserRound className="size-4" />
       {nickname ? t('idea.author', { nickname }) : t('idea.unknownAuthor')}
     </span>
-  )
-}
-
-function PollLink({ poll }: Readonly<{ poll: Poll }>) {
-  return (
-    <Link
-      to={`/polls/${poll.id}`}
-      className="group block rounded-xl outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-    >
-      <Card className="transition-shadow group-hover:ring-foreground/25">
-        <CardHeader>
-          <div className="mb-1 flex items-center gap-2">
-            <PollLineBadge pollId={poll.id} />
-            <PollTypeBadge type={poll.type} />
-          </div>
-          <CardTitle className="text-base">{poll.title}</CardTitle>
-          {poll.description && (
-            <CardDescription className="line-clamp-2">{poll.description}</CardDescription>
-          )}
-          <PollFacts endsAt={poll.endsAt} budgetAmount={poll.budgetAmount} className="mt-2" />
-        </CardHeader>
-      </Card>
-    </Link>
   )
 }
 
