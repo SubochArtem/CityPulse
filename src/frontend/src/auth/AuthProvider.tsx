@@ -1,5 +1,6 @@
 import { Auth0Provider, useAuth0 } from '@auth0/auth0-react'
 import type { ReactNode } from 'react'
+import { useNavigate } from 'react-router'
 import { setTokenGetter } from '../api/client'
 import { authConfig } from './config'
 
@@ -16,6 +17,8 @@ function TokenBridge({ children }: AuthProviderProps) {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
+  const navigate = useNavigate()
+
   return (
     <Auth0Provider
       domain={authConfig.domain}
@@ -25,6 +28,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         redirect_uri: window.location.origin,
       }}
       useRefreshTokens
+      onRedirectCallback={(appState) => navigate(appState?.returnTo ?? '/', { replace: true })}
     >
       <TokenBridge>{children}</TokenBridge>
     </Auth0Provider>
