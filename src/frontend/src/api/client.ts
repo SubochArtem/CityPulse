@@ -6,7 +6,7 @@ import type { paths as UsersPaths } from './schema/users'
 
 type TokenGetter = () => Promise<string | undefined>
 
-let getToken: TokenGetter = async () => undefined
+let getToken: TokenGetter = () => Promise.resolve(undefined)
 
 export function setTokenGetter(getter: TokenGetter) {
   getToken = getter
