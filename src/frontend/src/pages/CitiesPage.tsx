@@ -9,6 +9,7 @@ import { Pagination } from '@/components/Pagination'
 import { Alert, AlertTitle } from '@/components/ui/alert'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
+import { coverImage } from '@/lib/images'
 import { useListSearchParams } from '@/lib/useListSearchParams'
 
 type City = components['schemas']['CityDto']
@@ -93,6 +94,7 @@ function CityTile({ city }: Readonly<{ city: City }>) {
     >
       <IsoCityTile
         seed={city.id ?? city.title ?? ''}
+        photoUrl={coverImage(city.images)?.url}
         className="max-w-64 px-6 transition-transform duration-300 group-hover:-translate-y-1.5 motion-reduce:transition-none"
       />
       <TileMarker />
