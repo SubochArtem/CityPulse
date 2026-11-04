@@ -10,6 +10,7 @@ public sealed class UsersOpenApiTests(IntegrationTestWebAppFactory factory) : Us
 {
     private const string DocumentPath = "/swagger/v1/swagger.json";
     private const string WebhookPath = "/api/v1/Auth0Webhook";
+    private const string PublicProfilesPath = "/api/v1/Users/profiles";
     private const string ProblemSchema = "ApiProblemDetails";
     private const string ProblemContentType = "application/problem+json";
     private const string JsonContentType = "application/json";
@@ -78,6 +79,19 @@ public sealed class UsersOpenApiTests(IntegrationTestWebAppFactory factory) : Us
 
         Assert.Equal("array", errors.GetProperty("type").GetString());
         Assert.Equal("string", errors.GetProperty("items").GetProperty("type").GetString());
+    }
+
+    [Fact]
+    public async Task PublicProfiles_Responses_DocumentBadRequestAndNoAuthorizationProblems()
+    {
+        using var document = await LoadDocumentAsync();
+
+        var responses = Operation(document, PublicProfilesPath, "get").GetProperty("responses");
+
+        Assert.True(responses.TryGetProperty("200", out _));
+        Assert.True(responses.GetProperty("400").GetProperty("content").TryGetProperty(ProblemContentType, out _));
+        Assert.False(responses.TryGetProperty("401", out _));
+        Assert.False(responses.TryGetProperty("403", out _));
     }
 
     [Fact]
