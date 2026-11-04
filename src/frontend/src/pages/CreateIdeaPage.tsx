@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { useCreateIdea } from '@/ideas/useCreateIdea'
 import { type IdeaCreationAccess, useIdeaCreationAccess } from '@/ideas/useIdeaCreationAccess'
+import { PollLineBadge } from '@/polls/PollLineBadge'
 import { usePollWithIdeas } from '@/polls/usePollWithIdeas'
 
 type Poll = components['schemas']['PollDto']
@@ -61,7 +62,10 @@ export function CreateIdeaPage() {
       <div className="space-y-1">
         <h1 className="text-3xl font-semibold tracking-tight">{t('ideaForm.heading')}</h1>
         {poll?.title && (
-          <p className="text-muted-foreground">{t('ideaForm.forPoll', { poll: poll.title })}</p>
+          <p className="flex items-center gap-2 text-muted-foreground">
+            <PollLineBadge pollId={poll.id} />
+            {t('ideaForm.forPoll', { poll: poll.title })}
+          </p>
         )}
       </div>
       {content}

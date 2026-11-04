@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, CircleAlert } from 'lucide-react'
+import { ArrowLeft, CircleAlert } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
@@ -11,18 +11,12 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { coverImage } from '@/lib/images'
 import { cn } from '@/lib/utils'
-import { pollLineStyle } from '@/polls/pollLine'
 import { PollLineBadge } from '@/polls/PollLineBadge'
-import { PollRoute } from '@/polls/PollRoute'
+import { PollLineTile } from '@/polls/PollLineTile'
 import { pollDaysLeft } from '@/polls/pollTimeline'
 
 type City = components['schemas']['CityWithPollsDto']
 type Poll = components['schemas']['PollDto']
-
-const pollTypeKeys = {
-  1: 'poll.type.userVote',
-  2: 'poll.type.managerVote',
-} as const
 
 export function CityPage() {
   const { t } = useTranslation()
@@ -84,7 +78,7 @@ function CityDetails({ city }: Readonly<{ city: City }>) {
         <CityTile city={city} pollCount={polls.length} />
         {featured ? (
           <>
-            <FeaturedPollTile poll={featured} />
+            <PollLineTile poll={featured} number={1} className="col-span-2" />
             <DaysLeftTile poll={featured} wide={!featured.budgetAmount} />
             {featured.budgetAmount ? <BudgetTile amount={featured.budgetAmount} /> : null}
           </>
@@ -131,42 +125,6 @@ function CityTile({ city, pollCount }: Readonly<{ city: City; pollCount: number 
         <span className="inline-flex rounded-md bg-primary px-2.5 py-1 text-sm font-semibold text-primary-foreground">
           {t('city.openPolls', { count: pollCount })}
         </span>
-      </div>
-    </div>
-  )
-}
-
-function FeaturedPollTile({ poll }: Readonly<{ poll: Poll }>) {
-  const { t, i18n } = useTranslation()
-  const typeKey = pollTypeKeys[poll.type as keyof typeof pollTypeKeys]
-
-  return (
-    <div
-      style={pollLineStyle(poll.id)}
-      className="col-span-2 flex min-w-0 flex-col gap-4 rounded-xl bg-(--poll-line) p-5 text-line-foreground"
-    >
-      <div className="flex items-center gap-2.5 text-sm">
-        <PollLineBadge pollId={poll.id} number={1} inverted />
-        {typeKey && <span>{t(typeKey)}</span>}
-      </div>
-      <h2 className="text-xl font-bold [overflow-wrap:anywhere]">{poll.title}</h2>
-      <PollRoute pollId={poll.id} createdAt={poll.createdAt} endsAt={poll.endsAt} onLine />
-      <div className="mt-auto flex flex-wrap items-center justify-between gap-3">
-        {poll.endsAt && (
-          <span className="text-sm text-line-foreground/85">
-            {t('poll.endsAt', {
-              date: new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' }).format(
-                new Date(poll.endsAt),
-              ),
-            })}
-          </span>
-        )}
-        <Button asChild>
-          <Link to={`/polls/${poll.id}`}>
-            {t('city.viewPoll')}
-            <ArrowRight />
-          </Link>
-        </Button>
       </div>
     </div>
   )

@@ -1,10 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Badge } from '@/components/ui/badge'
-
-const pollTypeKeys = {
-  1: 'poll.type.userVote',
-  2: 'poll.type.managerVote',
-} as const
+import { pollTypeKey } from '@/polls/pollTypes'
 
 interface PollTypeBadgeProps {
   type: number | undefined
@@ -13,7 +9,7 @@ interface PollTypeBadgeProps {
 
 export function PollTypeBadge({ type, className }: Readonly<PollTypeBadgeProps>) {
   const { t } = useTranslation()
-  const key = pollTypeKeys[type as keyof typeof pollTypeKeys]
+  const key = pollTypeKey(type)
 
   if (!key) {
     return null

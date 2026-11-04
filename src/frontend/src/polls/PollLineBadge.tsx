@@ -20,7 +20,8 @@ export function PollLineBadge({
         aria-hidden="true"
         style={pollLineStyle(pollId)}
         className={cn(
-          'inline-block size-4 shrink-0 rounded-full border-4 border-(--poll-line) bg-card',
+          'inline-block size-4 shrink-0 rounded-full border-4',
+          inverted ? 'border-line-foreground bg-(--poll-line)' : 'border-(--poll-line) bg-card',
           className,
         )}
       />
