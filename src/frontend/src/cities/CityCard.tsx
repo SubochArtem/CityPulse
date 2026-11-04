@@ -2,6 +2,7 @@ import { ArrowRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import type { components } from '@/api/schema/polls'
+import { BoxAction } from '@/components/BoxAction'
 import { coverImage } from '@/lib/images'
 import { cn } from '@/lib/utils'
 import { IsoCityTile } from './IsoCityTile'
@@ -46,16 +47,7 @@ export function CityCard({ city, highlighted = false }: Readonly<CityCardProps>)
       {city.description && (
         <p className="mt-1 line-clamp-2 px-4 text-sm text-muted-foreground">{city.description}</p>
       )}
-      {highlighted && (
-        <span className="mt-4 inline-flex min-h-10 items-stretch border border-heading">
-          <span className="grid w-10 place-items-center border-r border-heading bg-primary text-primary-foreground">
-            <ArrowRight className="size-4" />
-          </span>
-          <span className="inline-flex items-center px-4 font-heading text-xs tracking-[0.2em] uppercase">
-            {t('home.openCity')}
-          </span>
-        </span>
-      )}
+      {highlighted && <BoxAction icon={ArrowRight} label={t('home.openCity')} className="mt-4" />}
     </Link>
   )
 }
