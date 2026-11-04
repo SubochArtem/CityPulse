@@ -1,28 +1,17 @@
-import {
-  CircleAlert,
-  Ellipsis,
-  ListChecks,
-  Pencil,
-  Plus,
-  Power,
-  PowerOff,
-  Trash2,
-} from 'lucide-react'
-import { type ReactNode, useState } from 'react'
+import { Ellipsis, ListChecks, Pencil, Plus, Power, PowerOff, Trash2 } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
 import { ApiError } from '@/api/errors'
 import type { components } from '@/api/schema/polls'
 import { ADMIN_CITIES_PAGE_SIZE, useAdminCities } from '@/admin/cities/useAdminCities'
 import { useChangeCityStatus, useDeleteCity } from '@/admin/cities/useCityMutations'
+import { AdminListContent } from '@/admin/components/AdminListContent'
 import { ActionErrorAlert } from '@/admin/components/ActionErrorAlert'
 import { AdminSearchInput } from '@/admin/components/AdminSearchInput'
 import { ConfirmDialog } from '@/admin/components/ConfirmDialog'
 import { FilterSelect } from '@/admin/components/FilterSelect'
-import { TableSkeleton } from '@/admin/components/TableSkeleton'
 import { usePermissions } from '@/auth/usePermissions'
-import { Pagination } from '@/components/Pagination'
-import { Alert, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -31,14 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { TableCell, TableHead, TableRow } from '@/components/ui/table'
 import { useListSearchParams } from '@/lib/useListSearchParams'
 
 type City = components['schemas']['CityDto']
@@ -104,7 +86,6 @@ export function AdminCitiesPage() {
     useListSearchParams()
   const status = readStatus(searchParams.get('status'))
   const { data, error, isPending, isPlaceholderData } = useAdminCities({ search, status, page })
-  const totalPages = Math.max(1, Math.ceil((data?.totalCount ?? 0) / ADMIN_CITIES_PAGE_SIZE))
   const changeStatus = useChangeCityStatus()
   const deleteCity = useDeleteCity()
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null)
@@ -132,73 +113,6 @@ export function AdminCitiesPage() {
       changeStatus.mutate({ id, status: pendingAction.type === 'activate' ? ACTIVE : INACTIVE })
     }
     setPendingAction(null)
-  }
-
-  let content: ReactNode
-  if (isPending) {
-    content = <TableSkeleton />
-  } else if (error) {
-    content = (
-      <Alert variant="destructive" className="max-w-md">
-        <CircleAlert />
-        <AlertTitle>{t('admin.cities.loadFailed')}</AlertTitle>
-      </Alert>
-    )
-  } else if (data.items?.length) {
-    content = (
-      <>
-        <div
-          className="rounded-lg border transition-opacity data-[stale=true]:opacity-60"
-          data-stale={isPlaceholderData}
-        >
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t('admin.cities.columns.title')}</TableHead>
-                <TableHead>{t('admin.cities.columns.status')}</TableHead>
-                <TableHead className="hidden md:table-cell">
-                  {t('admin.cities.columns.coordinates')}
-                </TableHead>
-                <TableHead className="hidden sm:table-cell">
-                  {t('admin.cities.columns.createdAt')}
-                </TableHead>
-                {hasActions && (
-                  <TableHead className="w-12">
-                    <span className="sr-only">{t('admin.cities.columns.actions')}</span>
-                  </TableHead>
-                )}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.items.map((city) => (
-                <CityRow
-                  key={city.id}
-                  city={city}
-                  permissions={permissions}
-                  listSearch={listSearch}
-                  disabled={isMutating}
-                  onAction={(type) => setPendingAction({ type, city })}
-                />
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-        <Pagination
-          page={page}
-          totalPages={totalPages}
-          hasPrevious={Boolean(data.hasPreviousPage)}
-          hasNext={Boolean(data.hasNextPage)}
-          disabled={isPlaceholderData}
-          onPageChange={goToPage}
-        />
-      </>
-    )
-  } else {
-    content = (
-      <p className="text-muted-foreground">
-        {search ? t('admin.cities.noMatches', { search }) : t('admin.cities.empty')}
-      </p>
-    )
   }
 
   const dialog = pendingAction ? dialogKeys[pendingAction.type] : null
@@ -230,7 +144,45 @@ export function AdminCitiesPage() {
 
       {actionError && <ActionErrorAlert message={t(actionErrorKey(actionError))} />}
 
-      {content}
+      <AdminListContent
+        data={data}
+        error={error}
+        isPending={isPending}
+        isPlaceholderData={isPlaceholderData}
+        page={page}
+        pageSize={ADMIN_CITIES_PAGE_SIZE}
+        onPageChange={goToPage}
+        loadFailedLabel={t('admin.cities.loadFailed')}
+        emptyLabel={search ? t('admin.cities.noMatches', { search }) : t('admin.cities.empty')}
+        head={
+          <>
+            <TableHead>{t('admin.cities.columns.title')}</TableHead>
+            <TableHead>{t('admin.cities.columns.status')}</TableHead>
+            <TableHead className="hidden md:table-cell">
+              {t('admin.cities.columns.coordinates')}
+            </TableHead>
+            <TableHead className="hidden sm:table-cell">
+              {t('admin.cities.columns.createdAt')}
+            </TableHead>
+            {hasActions && (
+              <TableHead className="w-12">
+                <span className="sr-only">{t('admin.cities.columns.actions')}</span>
+              </TableHead>
+            )}
+          </>
+        }
+      >
+        {data?.items?.map((city) => (
+          <CityRow
+            key={city.id}
+            city={city}
+            permissions={permissions}
+            listSearch={listSearch}
+            disabled={isMutating}
+            onAction={(type) => setPendingAction({ type, city })}
+          />
+        ))}
+      </AdminListContent>
 
       <ConfirmDialog
         content={

@@ -1,10 +1,11 @@
 export interface AdminSection {
   path: string
-  labelKey: 'admin.sections.cities' | 'admin.sections.polls'
+  labelKey: 'admin.sections.cities' | 'admin.sections.polls' | 'admin.sections.ideas'
   permission: string
 }
 
 export const adminSections: readonly AdminSection[] = [
   { path: 'cities', labelKey: 'admin.sections.cities', permission: 'cities.read.any' },
   { path: 'polls', labelKey: 'admin.sections.polls', permission: 'polls.read.any' },
+  { path: 'ideas', labelKey: 'admin.sections.ideas', permission: 'ideas.read.any' },
 ]
