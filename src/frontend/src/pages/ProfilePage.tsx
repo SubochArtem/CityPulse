@@ -1,4 +1,5 @@
 import { CircleAlert } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { ApiError } from '@/api/errors'
 import { useCurrentUser } from '@/auth/useCurrentUser'
 import { usePermissions } from '@/auth/usePermissions'
@@ -7,6 +8,7 @@ import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/ca
 import { Skeleton } from '@/components/ui/skeleton'
 
 export function ProfilePage() {
+  const { t } = useTranslation()
   const { data: user, error, isPending } = useCurrentUser()
   const { permissions } = usePermissions()
 
@@ -26,8 +28,8 @@ export function ProfilePage() {
     return (
       <Alert variant="destructive" className="max-w-md">
         <CircleAlert />
-        <AlertTitle>{notFound ? 'Profile not found' : 'Could not load your profile'}</AlertTitle>
-        {notFound && <AlertDescription>Please contact support.</AlertDescription>}
+        <AlertTitle>{notFound ? t('profile.notFound') : t('profile.loadFailed')}</AlertTitle>
+        {notFound && <AlertDescription>{t('profile.contactSupport')}</AlertDescription>}
       </Alert>
     )
   }
@@ -36,7 +38,7 @@ export function ProfilePage() {
     <Card className="max-w-md">
       <CardHeader>
         <CardTitle className="text-xl">{user.nickname}</CardTitle>
-        <CardDescription>{permissions.length} permissions</CardDescription>
+        <CardDescription>{t('profile.permissions', { count: permissions.length })}</CardDescription>
       </CardHeader>
     </Card>
   )
