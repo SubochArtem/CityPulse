@@ -8,7 +8,7 @@ export const MAX_IMAGES = 5
 export const MAX_IMAGE_SIZE_MB = 5
 
 const maxImageSizeBytes = MAX_IMAGE_SIZE_MB * 1024 * 1024
-const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp']
+const allowedExtensions = new Set(['jpg', 'jpeg', 'png', 'webp'])
 const accept = '.jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp'
 
 const fileIds = new WeakMap<File, number>()
@@ -45,7 +45,7 @@ export function ImagePicker({ files, onChange, disabled }: Readonly<ImagePickerP
     const accepted: File[] = []
     const rejected: string[] = []
     for (const file of selected) {
-      if (!allowedExtensions.includes(extensionOf(file))) {
+      if (!allowedExtensions.has(extensionOf(file))) {
         rejected.push(t('imagePicker.invalidFormat', { name: file.name }))
       } else if (file.size > maxImageSizeBytes) {
         rejected.push(t('imagePicker.tooLarge', { name: file.name, max: MAX_IMAGE_SIZE_MB }))
