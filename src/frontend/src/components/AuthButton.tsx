@@ -1,7 +1,6 @@
 import { useAuth0 } from '@auth0/auth0-react'
-
-const buttonClass =
-  'rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700'
+import { LogIn, LogOut } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 export function AuthButton() {
   const { isLoading, isAuthenticated, loginWithRedirect, logout } = useAuth0()
@@ -12,18 +11,21 @@ export function AuthButton() {
 
   if (isAuthenticated) {
     return (
-      <button
-        className={buttonClass}
+      <Button
+        variant="outline"
+        size="sm"
         onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
       >
+        <LogOut />
         Log out
-      </button>
+      </Button>
     )
   }
 
   return (
-    <button className={buttonClass} onClick={() => loginWithRedirect()}>
+    <Button size="sm" onClick={() => loginWithRedirect()}>
+      <LogIn />
       Log in
-    </button>
+    </Button>
   )
 }

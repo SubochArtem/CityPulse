@@ -15,7 +15,7 @@ export function RequireAuth() {
   }, [isLoading, isAuthenticated, loginWithRedirect, location.pathname, location.search])
 
   if (isLoading || !isAuthenticated) {
-    return <p className="p-6 text-slate-600">Loading…</p>
+    return <p className="text-muted-foreground">Loading…</p>
   }
 
   return <Outlet />
