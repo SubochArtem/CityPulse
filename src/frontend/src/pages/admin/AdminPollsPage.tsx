@@ -1,4 +1,4 @@
-import { Ellipsis, Pause, Pencil, Play, Plus, Trash2 } from 'lucide-react'
+import { Ellipsis, Lightbulb, Pause, Pencil, Play, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
@@ -50,6 +50,7 @@ type PendingAction = { type: 'suspend' | 'resume' | 'delete'; poll: Poll }
 
 interface PollPermissions {
   update: boolean
+  ideas: boolean
   changeStatus: boolean
   delete: boolean
 }
@@ -103,6 +104,7 @@ export function AdminPollsPage() {
 
   const permissions: PollPermissions = {
     update: can('polls.update.any'),
+    ideas: can('ideas.read.any'),
     changeStatus: can('polls.changestatus.any'),
     delete: can('polls.delete.any'),
   }
@@ -294,7 +296,11 @@ function PollRow({
       </TableCell>
       {hasActions && (
         <TableCell>
-          {(permissions.update || canSuspend || canResume || permissions.delete) && (
+          {(permissions.update ||
+            permissions.ideas ||
+            canSuspend ||
+            canResume ||
+            permissions.delete) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -312,6 +318,14 @@ function PollRow({
                     <Link to={editPath} state={{ listSearch }}>
                       <Pencil />
                       {t('admin.polls.edit')}
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                {permissions.ideas && (
+                  <DropdownMenuItem asChild>
+                    <Link to={`/admin/ideas?poll=${poll.id}`}>
+                      <Lightbulb />
+                      {t('admin.polls.ideas')}
                     </Link>
                   </DropdownMenuItem>
                 )}
