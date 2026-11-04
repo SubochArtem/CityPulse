@@ -1,20 +1,19 @@
-import { CircleAlert, Ellipsis, Pause, Pencil, Play, Plus, Trash2 } from 'lucide-react'
-import { type ReactNode, useState } from 'react'
+import { Ellipsis, Pause, Pencil, Play, Plus, Trash2 } from 'lucide-react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
 import { ApiError } from '@/api/errors'
 import type { components } from '@/api/schema/polls'
 import { useAdminCityOptions } from '@/admin/cities/useAdminCityOptions'
+import { AdminListContent } from '@/admin/components/AdminListContent'
 import { ActionErrorAlert } from '@/admin/components/ActionErrorAlert'
 import { AdminSearchInput } from '@/admin/components/AdminSearchInput'
 import { ConfirmDialog } from '@/admin/components/ConfirmDialog'
 import { FilterSelect } from '@/admin/components/FilterSelect'
-import { TableSkeleton } from '@/admin/components/TableSkeleton'
 import { ADMIN_POLLS_PAGE_SIZE, useAdminPolls } from '@/admin/polls/useAdminPolls'
 import { useChangePollStatus, useDeletePoll } from '@/admin/polls/usePollMutations'
+import { readEnum } from '@/admin/readEnum'
 import { usePermissions } from '@/auth/usePermissions'
-import { Pagination } from '@/components/Pagination'
-import { Alert, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -23,14 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { TableCell, TableHead, TableRow } from '@/components/ui/table'
 import { useListSearchParams } from '@/lib/useListSearchParams'
 import { PollTypeBadge } from '@/polls/PollTypeBadge'
 
@@ -80,11 +72,6 @@ const dialogKeys = {
   },
 } as const
 
-function readEnum<T extends number>(value: string | null, allowed: Partial<Record<T, string>>) {
-  const number = Number(value)
-  return value && number in allowed ? (number as T) : undefined
-}
-
 function actionErrorKey(error: Error) {
   if (error instanceof ApiError && error.status === 404) {
     return 'admin.polls.notFound'
@@ -110,7 +97,6 @@ export function AdminPollsPage() {
   })
   const { data: cities } = useAdminCityOptions()
   const cityTitles = new Map(cities?.map((city) => [city.id, city.title]))
-  const totalPages = Math.max(1, Math.ceil((data?.totalCount ?? 0) / ADMIN_POLLS_PAGE_SIZE))
   const changeStatus = useChangePollStatus()
   const deletePoll = useDeletePoll()
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null)
@@ -137,76 +123,6 @@ export function AdminPollsPage() {
       changeStatus.mutate({ id, status: pendingAction.type === 'resume' ? ACTIVE : SUSPENDED })
     }
     setPendingAction(null)
-  }
-
-  let content: ReactNode
-  if (isPending) {
-    content = <TableSkeleton />
-  } else if (error) {
-    content = (
-      <Alert variant="destructive" className="max-w-md">
-        <CircleAlert />
-        <AlertTitle>{t('admin.polls.loadFailed')}</AlertTitle>
-      </Alert>
-    )
-  } else if (data.items?.length) {
-    content = (
-      <>
-        <div
-          className="rounded-lg border transition-opacity data-[stale=true]:opacity-60"
-          data-stale={isPlaceholderData}
-        >
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t('admin.polls.columns.title')}</TableHead>
-                <TableHead className="hidden md:table-cell">
-                  {t('admin.polls.columns.city')}
-                </TableHead>
-                <TableHead className="hidden lg:table-cell">
-                  {t('admin.polls.columns.type')}
-                </TableHead>
-                <TableHead>{t('admin.polls.columns.status')}</TableHead>
-                <TableHead className="hidden sm:table-cell">
-                  {t('admin.polls.columns.endsAt')}
-                </TableHead>
-                <TableHead className="hidden text-right lg:table-cell">
-                  {t('admin.polls.columns.budget')}
-                </TableHead>
-                {hasActions && (
-                  <TableHead className="w-12">
-                    <span className="sr-only">{t('admin.polls.columns.actions')}</span>
-                  </TableHead>
-                )}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.items.map((poll) => (
-                <PollRow
-                  key={poll.id}
-                  poll={poll}
-                  cityTitle={cityTitles.get(poll.cityId ?? '')}
-                  permissions={permissions}
-                  listSearch={listSearch}
-                  disabled={isMutating}
-                  onAction={(actionType) => setPendingAction({ type: actionType, poll })}
-                />
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-        <Pagination
-          page={page}
-          totalPages={totalPages}
-          hasPrevious={Boolean(data.hasPreviousPage)}
-          hasNext={Boolean(data.hasNextPage)}
-          disabled={isPlaceholderData}
-          onPageChange={goToPage}
-        />
-      </>
-    )
-  } else {
-    content = <p className="text-muted-foreground">{t('admin.polls.empty')}</p>
   }
 
   const dialog = pendingAction ? dialogKeys[pendingAction.type] : null
@@ -260,7 +176,48 @@ export function AdminPollsPage() {
 
       {actionError && <ActionErrorAlert message={t(actionErrorKey(actionError))} />}
 
-      {content}
+      <AdminListContent
+        data={data}
+        error={error}
+        isPending={isPending}
+        isPlaceholderData={isPlaceholderData}
+        page={page}
+        pageSize={ADMIN_POLLS_PAGE_SIZE}
+        onPageChange={goToPage}
+        loadFailedLabel={t('admin.polls.loadFailed')}
+        emptyLabel={t('admin.polls.empty')}
+        head={
+          <>
+            <TableHead>{t('admin.polls.columns.title')}</TableHead>
+            <TableHead className="hidden md:table-cell">{t('admin.polls.columns.city')}</TableHead>
+            <TableHead className="hidden lg:table-cell">{t('admin.polls.columns.type')}</TableHead>
+            <TableHead>{t('admin.polls.columns.status')}</TableHead>
+            <TableHead className="hidden sm:table-cell">
+              {t('admin.polls.columns.endsAt')}
+            </TableHead>
+            <TableHead className="hidden text-right lg:table-cell">
+              {t('admin.polls.columns.budget')}
+            </TableHead>
+            {hasActions && (
+              <TableHead className="w-12">
+                <span className="sr-only">{t('admin.polls.columns.actions')}</span>
+              </TableHead>
+            )}
+          </>
+        }
+      >
+        {data?.items?.map((poll) => (
+          <PollRow
+            key={poll.id}
+            poll={poll}
+            cityTitle={cityTitles.get(poll.cityId ?? '')}
+            permissions={permissions}
+            listSearch={listSearch}
+            disabled={isMutating}
+            onAction={(actionType) => setPendingAction({ type: actionType, poll })}
+          />
+        ))}
+      </AdminListContent>
 
       <ConfirmDialog
         content={
