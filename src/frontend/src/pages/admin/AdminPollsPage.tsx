@@ -1,6 +1,7 @@
-import { CircleAlert, Ellipsis, Pause, Play, Trash2 } from 'lucide-react'
+import { CircleAlert, Ellipsis, Pause, Pencil, Play, Plus, Trash2 } from 'lucide-react'
 import { type ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link, useLocation } from 'react-router'
 import { ApiError } from '@/api/errors'
 import type { components } from '@/api/schema/polls'
 import { useAdminCityOptions } from '@/admin/cities/useAdminCityOptions'
@@ -56,6 +57,7 @@ const typeLabels = {
 type PendingAction = { type: 'suspend' | 'resume' | 'delete'; poll: Poll }
 
 interface PollPermissions {
+  update: boolean
   changeStatus: boolean
   delete: boolean
 }
@@ -93,6 +95,7 @@ function actionErrorKey(error: Error) {
 export function AdminPollsPage() {
   const { t } = useTranslation()
   const { can } = usePermissions()
+  const { search: listSearch } = useLocation()
   const { searchParams, search, page, searchInput, setSearchInput, setParam, goToPage } =
     useListSearchParams()
   const cityId = searchParams.get('city') ?? undefined
@@ -113,10 +116,11 @@ export function AdminPollsPage() {
   const [pendingAction, setPendingAction] = useState<PendingAction | null>(null)
 
   const permissions: PollPermissions = {
+    update: can('polls.update.any'),
     changeStatus: can('polls.changestatus.any'),
     delete: can('polls.delete.any'),
   }
-  const hasActions = permissions.changeStatus || permissions.delete
+  const hasActions = Object.values(permissions).some(Boolean)
   const actionError = changeStatus.error ?? deletePoll.error
   const isMutating = changeStatus.isPending || deletePoll.isPending
 
@@ -183,6 +187,7 @@ export function AdminPollsPage() {
                   poll={poll}
                   cityTitle={cityTitles.get(poll.cityId ?? '')}
                   permissions={permissions}
+                  listSearch={listSearch}
                   disabled={isMutating}
                   onAction={(actionType) => setPendingAction({ type: actionType, poll })}
                 />
@@ -240,6 +245,17 @@ export function AdminPollsPage() {
             onChange={(value) => setParam('type', value)}
           />
         </div>
+        {can('polls.create.any') && (
+          <Button asChild className="lg:ml-auto">
+            <Link
+              to={cityId ? `/admin/polls/new?city=${cityId}` : '/admin/polls/new'}
+              state={{ listSearch }}
+            >
+              <Plus />
+              {t('admin.polls.create')}
+            </Link>
+          </Button>
+        )}
       </div>
 
       {actionError && <ActionErrorAlert message={t(actionErrorKey(actionError))} />}
@@ -268,23 +284,44 @@ interface PollRowProps {
   poll: Poll
   cityTitle: string | undefined
   permissions: PollPermissions
+  listSearch: string
   disabled: boolean
   onAction: (type: PendingAction['type']) => void
 }
 
-function PollRow({ poll, cityTitle, permissions, disabled, onAction }: Readonly<PollRowProps>) {
+function PollRow({
+  poll,
+  cityTitle,
+  permissions,
+  listSearch,
+  disabled,
+  onAction,
+}: Readonly<PollRowProps>) {
   const { t, i18n } = useTranslation()
   const statusKey = statusLabels[poll.status as keyof typeof statusLabels]
   const canSuspend = permissions.changeStatus && poll.status === ACTIVE
   const canResume = permissions.changeStatus && poll.status === SUSPENDED
-  const hasActions = permissions.changeStatus || permissions.delete
+  const hasActions = Object.values(permissions).some(Boolean)
+  const editPath = `/admin/polls/${poll.id}/edit`
   const endsAt = poll.endsAt
     ? new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' }).format(new Date(poll.endsAt))
     : null
 
   return (
     <TableRow>
-      <TableCell className="font-medium whitespace-normal">{poll.title}</TableCell>
+      <TableCell className="font-medium whitespace-normal">
+        {permissions.update ? (
+          <Link
+            to={editPath}
+            state={{ listSearch }}
+            className="underline-offset-4 outline-none hover:underline focus-visible:underline"
+          >
+            {poll.title}
+          </Link>
+        ) : (
+          poll.title
+        )}
+      </TableCell>
       <TableCell className="hidden text-muted-foreground md:table-cell">{cityTitle}</TableCell>
       <TableCell className="hidden lg:table-cell">
         <PollTypeBadge type={poll.type} />
@@ -300,7 +337,7 @@ function PollRow({ poll, cityTitle, permissions, disabled, onAction }: Readonly<
       </TableCell>
       {hasActions && (
         <TableCell>
-          {(canSuspend || canResume || permissions.delete) && (
+          {(permissions.update || canSuspend || canResume || permissions.delete) && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -313,6 +350,14 @@ function PollRow({ poll, cityTitle, permissions, disabled, onAction }: Readonly<
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                {permissions.update && (
+                  <DropdownMenuItem asChild>
+                    <Link to={editPath} state={{ listSearch }}>
+                      <Pencil />
+                      {t('admin.polls.edit')}
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 {canSuspend && (
                   <DropdownMenuItem onSelect={() => onAction('suspend')}>
                     <Pause />

@@ -7,6 +7,8 @@ import { CitiesPage } from './pages/CitiesPage'
 import { AdminCitiesPage } from './pages/admin/AdminCitiesPage'
 import { AdminCityCreatePage } from './pages/admin/AdminCityCreatePage'
 import { AdminCityEditPage } from './pages/admin/AdminCityEditPage'
+import { AdminPollCreatePage } from './pages/admin/AdminPollCreatePage'
+import { AdminPollEditPage } from './pages/admin/AdminPollEditPage'
 import { AdminPollsPage } from './pages/admin/AdminPollsPage'
 import { CityPage } from './pages/CityPage'
 import { CreateIdeaPage } from './pages/CreateIdeaPage'
@@ -40,6 +42,12 @@ export default function App() {
             </Route>
             <Route element={<RequirePermission permission="polls.read.any" />}>
               <Route path="polls" element={<AdminPollsPage />} />
+              <Route element={<RequirePermission permission="polls.create.any" />}>
+                <Route path="polls/new" element={<AdminPollCreatePage />} />
+              </Route>
+              <Route element={<RequirePermission permission="polls.update.any" />}>
+                <Route path="polls/:pollId/edit" element={<AdminPollEditPage />} />
+              </Route>
             </Route>
           </Route>
         </Route>
