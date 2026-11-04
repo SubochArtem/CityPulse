@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router'
+import { AdminLayout } from './admin/AdminLayout'
 import { RequireAuth } from './auth/RequireAuth'
 import { Layout } from './components/Layout'
 import { CitiesPage } from './pages/CitiesPage'
@@ -22,6 +23,7 @@ export default function App() {
         <Route element={<RequireAuth />}>
           <Route path="profile" element={<ProfilePage />} />
           <Route path="polls/:pollId/ideas/new" element={<CreateIdeaPage />} />
+          <Route path="admin" element={<AdminLayout />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Route>

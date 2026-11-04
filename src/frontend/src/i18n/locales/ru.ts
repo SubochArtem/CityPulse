@@ -8,6 +8,7 @@ export const ru: RussianTranslation = {
   nav: {
     cities: 'Города',
     profile: 'Профиль',
+    admin: 'Админка',
   },
   auth: {
     logIn: 'Войти',
@@ -102,6 +103,13 @@ export const ru: RussianTranslation = {
     previous: 'Назад',
     next: 'Вперёд',
     pageOf: 'Страница {{page}} из {{total}}',
+  },
+  admin: {
+    title: 'Администрирование',
+    noAccess: 'У вас нет доступа к этому разделу.',
+    sections: {
+      cities: 'Города',
+    },
   },
   notFound: {
     title: 'Страница не найдена',

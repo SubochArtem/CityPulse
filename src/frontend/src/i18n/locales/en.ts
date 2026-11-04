@@ -2,6 +2,7 @@ export const en = {
   nav: {
     cities: 'Cities',
     profile: 'Profile',
+    admin: 'Admin',
   },
   auth: {
     logIn: 'Log in',
@@ -96,6 +97,13 @@ export const en = {
     previous: 'Previous',
     next: 'Next',
     pageOf: 'Page {{page}} of {{total}}',
+  },
+  admin: {
+    title: 'Administration',
+    noAccess: 'You do not have access to this section.',
+    sections: {
+      cities: 'Cities',
+    },
   },
   notFound: {
     title: 'Page not found',
