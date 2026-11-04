@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
+import { coverImage } from '@/lib/images'
 import { useDebouncedValue } from '@/lib/useDebouncedValue'
 
 type City = components['schemas']['CityDto']
@@ -130,7 +131,7 @@ export function CitiesPage() {
 }
 
 function CityCard({ city }: Readonly<{ city: City }>) {
-  const cover = [...(city.images ?? [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))[0]
+  const cover = coverImage(city.images)
 
   return (
     <Card className="h-full pt-0">
