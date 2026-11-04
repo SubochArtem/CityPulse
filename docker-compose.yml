@@ -58,6 +58,19 @@ services:
       MC_HOST_local: http://${MINIO_ROOT_USER}:${MINIO_ROOT_PASSWORD}@minio:9000
     command: mb --ignore-existing local/polls-images
 
+  minio-public-policy:
+    image: cgr.dev/chainguard/minio-client:latest
+    container_name: polls_minio_public_policy
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
+    restart: on-failure
+    environment:
+      MC_HOST_local: http://${MINIO_ROOT_USER}:${MINIO_ROOT_PASSWORD}@minio:9000
+    volumes:
+      - ./docker/minio:/policies:ro
+    command: anonymous set-json /policies/polls-images-public-read.json local/polls-images
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: citypulse_rabbitmq
@@ -189,6 +202,8 @@ services:
         condition: service_started
       minio-init:
         condition: service_completed_successfully
+      minio-public-policy:
+        condition: service_completed_successfully
     healthcheck: *app-healthcheck
     environment:
       <<: [*auth0, *rabbitmq]
@@ -198,6 +213,7 @@ services:
       ImageStorage__AccessKey: ${MINIO_ROOT_USER}
       ImageStorage__SecretKey: ${MINIO_ROOT_PASSWORD}
       ImageStorage__BucketName: polls-images
+      ImageStorage__PublicBaseUrl: ${MINIO_PUBLIC_URL:-http://localhost:9000}
       ImageStorage__UseSsl: false
       Kestrel__Endpoints__Http1__Url: http://+:8080
       Kestrel__Endpoints__Http1__Protocols: Http1
