@@ -24,6 +24,14 @@ public static class ValidationConstants
         public const string InvalidFormat = "IdentityId must be in format '<provider>|<provider_user_id>'";
     }
     
+    public static class PublicProfiles
+    {
+        public const int MaxIds = 100;
+
+        public const string IdsRequired = "At least one user id is required";
+        public static readonly string TooManyIds = $"Cannot request more than {MaxIds} profiles at once";
+    }
+
     public static class Pagination
     {
         public const int MinPageSize = 1;

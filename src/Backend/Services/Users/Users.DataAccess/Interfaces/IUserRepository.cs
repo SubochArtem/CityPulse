@@ -10,6 +10,10 @@ public interface IUserRepository : IRepository<User>
         string identityId, 
         CancellationToken cancellationToken = default);
     
+    Task<IReadOnlyList<User>> GetByIdsAsync(
+        IReadOnlyCollection<Guid> ids,
+        CancellationToken cancellationToken = default);
+
     Task<PagedList<User>> GetFilteredAsync(
         UserFilter filter,
         CancellationToken cancellationToken = default);

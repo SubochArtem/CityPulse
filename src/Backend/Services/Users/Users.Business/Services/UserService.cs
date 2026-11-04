@@ -178,6 +178,20 @@ public class UserService(
         return mapper.Map<PagedList<GetUserDto>>(users);
     }
 
+    public async Task<IReadOnlyList<PublicUserProfileDto>> GetPublicProfilesAsync(
+        PublicProfilesRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        await validators.PublicProfiles.ValidateAndThrowAsync(
+            request,
+            cancellationToken);
+
+        var ids = request.Ids.Distinct().ToList();
+        var users = await userRepository.GetByIdsAsync(ids, cancellationToken);
+
+        return mapper.Map<List<PublicUserProfileDto>>(users);
+    }
+
     private async Task<User> GetExistingUserAsync(
         Guid id,
         string identitySource,

@@ -21,6 +21,10 @@ public interface IUserService
         UserFilterDto filter,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<PublicUserProfileDto>> GetPublicProfilesAsync(
+        PublicProfilesRequestDto request,
+        CancellationToken cancellationToken = default);
+
     public Task DeleteUserAsync(
         Guid id,
         CancellationToken cancellationToken = default);

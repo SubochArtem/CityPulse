@@ -18,6 +18,16 @@ public class UserRepository(ApplicationDbContext context)
             .FirstOrDefaultAsync(u => u.IdentityId == identityId, cancellationToken);
     }
     
+    public async Task<IReadOnlyList<User>> GetByIdsAsync(
+        IReadOnlyCollection<Guid> ids,
+        CancellationToken cancellationToken = default)
+    {
+        return await _dbSet
+            .AsNoTracking()
+            .Where(u => ids.Contains(u.Id))
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<PagedList<User>> GetFilteredAsync(
         UserFilter filter,
         CancellationToken cancellationToken = default)
