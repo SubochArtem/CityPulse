@@ -25,7 +25,8 @@ public sealed class MongoFixture : IAsyncLifetime
         {
             ConnectionString = connectionString,
             DatabaseName = databaseName,
-            FeedbackCollectionName = EnvironmentConstants.Mongo.FeedbackCollection
+            FeedbackCollectionName = EnvironmentConstants.Mongo.FeedbackCollection,
+            ActivityCollectionName = EnvironmentConstants.Mongo.ActivityCollection
         };
 
         var rawCollection = new MongoClient(connectionString)
