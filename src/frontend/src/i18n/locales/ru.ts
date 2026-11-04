@@ -2,6 +2,15 @@ import type { Translation } from './en'
 
 type RussianTranslation = Translation & {
   readonly profile: { readonly permissions_few: string; readonly permissions_many: string }
+  readonly city: {
+    readonly openPolls_few: string
+    readonly openPolls_many: string
+    readonly daysLeft_few: string
+    readonly daysLeft_many: string
+  }
+  readonly poll: {
+    readonly route: { readonly daysLeft_few: string; readonly daysLeft_many: string }
+  }
 }
 
 export const ru: RussianTranslation = {
@@ -44,8 +53,21 @@ export const ru: RussianTranslation = {
     back: 'Все города',
     notFound: 'Город не найден',
     loadFailed: 'Не удалось загрузить город',
-    activePolls: 'Активные опросы',
     noPolls: 'В этом городе пока нет активных опросов.',
+    openPolls_one: '{{count}} открытый опрос',
+    openPolls_few: '{{count}} открытых опроса',
+    openPolls_many: '{{count}} открытых опросов',
+    openPolls_other: '{{count}} открытых опроса',
+    daysLeft_one: 'день до конца опроса',
+    daysLeft_few: 'дня до конца опроса',
+    daysLeft_many: 'дней до конца опроса',
+    daysLeft_other: 'дня до конца опроса',
+    budget: 'бюджет опроса',
+    viewPoll: 'Открыть опрос',
+    otherPolls: 'Другие открытые опросы',
+    until: 'до {{date}}',
+    about: 'О городе',
+    photos: 'Фотографии',
   },
   poll: {
     back: 'К городу',
@@ -56,6 +78,15 @@ export const ru: RussianTranslation = {
     suggestIdea: 'Предложить идею',
     endsAt: 'До {{date}}',
     budget: 'Бюджет {{amount}}',
+    route: {
+      opened: 'Открыт',
+      closes: 'Закроется',
+      closed: 'Завершён',
+      daysLeft_one: 'Остался {{count}} день',
+      daysLeft_few: 'Осталось {{count}} дня',
+      daysLeft_many: 'Осталось {{count}} дней',
+      daysLeft_other: 'Осталось {{count}} дня',
+    },
     type: {
       userVote: 'Голосование жителей',
       managerVote: 'Решение менеджера',

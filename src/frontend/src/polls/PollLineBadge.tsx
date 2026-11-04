@@ -4,10 +4,16 @@ import { pollLineStyle } from '@/polls/pollLine'
 interface PollLineBadgeProps {
   pollId: string | undefined
   number?: number
+  inverted?: boolean
   className?: string
 }
 
-export function PollLineBadge({ pollId, number, className }: Readonly<PollLineBadgeProps>) {
+export function PollLineBadge({
+  pollId,
+  number,
+  inverted = false,
+  className,
+}: Readonly<PollLineBadgeProps>) {
   if (number === undefined) {
     return (
       <span
@@ -26,7 +32,10 @@ export function PollLineBadge({ pollId, number, className }: Readonly<PollLineBa
       aria-hidden="true"
       style={pollLineStyle(pollId)}
       className={cn(
-        'inline-grid size-7 shrink-0 place-items-center rounded-full bg-(--poll-line) font-heading text-xs font-bold text-line-foreground tabular-nums',
+        'inline-grid size-7 shrink-0 place-items-center rounded-full font-heading text-xs font-bold tabular-nums',
+        inverted
+          ? 'bg-line-foreground text-(--poll-line)'
+          : 'bg-(--poll-line) text-line-foreground',
         className,
       )}
     >
