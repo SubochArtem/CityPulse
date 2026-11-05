@@ -4,6 +4,8 @@ import { Pagination } from '@/components/Pagination'
 import { Alert, AlertTitle } from '@/components/ui/alert'
 import { Table, TableBody, TableHeader, TableRow } from '@/components/ui/table'
 import { TableSkeleton } from './TableSkeleton'
+import { adminSheetClass } from './adminSheet'
+import { cn } from '@/lib/utils'
 
 interface PagedList {
   items?: readonly unknown[] | null
@@ -61,7 +63,7 @@ export function AdminListContent({
   return (
     <>
       <div
-        className="border bg-card transition-opacity data-[stale=true]:opacity-60"
+        className={cn(adminSheetClass, 'transition-opacity data-[stale=true]:opacity-60')}
         data-stale={isPlaceholderData}
       >
         <Table>

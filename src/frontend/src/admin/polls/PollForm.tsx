@@ -12,6 +12,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import type { CreatePollValues } from './usePollMutations'
+import { adminSheetClass } from '@/admin/components/adminSheet'
+import { cn } from '@/lib/utils'
 
 type Poll = components['schemas']['PollDto']
 type PollType = components['schemas']['PollType']
@@ -155,7 +157,7 @@ export function PollForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-2xl space-y-6 border bg-card px-4 py-8 sm:px-8"
+      className={cn(adminSheetClass, 'max-w-2xl space-y-6 px-4 py-8 sm:px-8')}
       noValidate
     >
       <div className="grid gap-4 sm:grid-cols-2">

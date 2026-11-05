@@ -5,6 +5,8 @@ import { ImagesAndActions, TitleDescriptionFields } from '@/admin/components/Adm
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import type { CityFormValues } from './useCityMutations'
+import { adminSheetClass } from '@/admin/components/adminSheet'
+import { cn } from '@/lib/utils'
 
 type City = components['schemas']['CityDto']
 
@@ -82,7 +84,7 @@ export function CityForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-2xl space-y-6 border bg-card px-4 py-8 sm:px-8"
+      className={cn(adminSheetClass, 'max-w-2xl space-y-6 px-4 py-8 sm:px-8')}
       noValidate
     >
       <TitleDescriptionFields
