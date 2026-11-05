@@ -47,6 +47,10 @@
   --color-line-foreground: var(--line-foreground);
   --color-heading: var(--heading);
   --color-coral: var(--coral);
+  --color-ink: var(--ink);
+  --color-paper: var(--paper);
+  --color-riot: var(--riot);
+  --color-fluo: var(--fluo);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -57,6 +61,10 @@
 }
 
 :root {
+  --ink: oklch(0.192 0.003 68);
+  --paper: oklch(0.979 0.011 90);
+  --riot: oklch(0.567 0.212 29);
+  --fluo: oklch(0.905 0.193 106);
   --background: oklch(0.868 0.021 89);
   --foreground: oklch(0.192 0.003 68);
   --card: oklch(0.979 0.011 90);
