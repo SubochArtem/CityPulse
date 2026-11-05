@@ -125,7 +125,6 @@ export const ru: RussianTranslation = {
     noIdeas: 'В этом опросе пока нет идей.',
     open: 'Открыть опрос',
     suggestIdea: 'Предложить идею',
-    endsAt: 'До {{date}}',
     route: {
       opened: 'Открыт',
       closes: 'Закроется',

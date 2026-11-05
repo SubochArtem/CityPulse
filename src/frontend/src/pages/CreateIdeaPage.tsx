@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
 import { ApiError } from '@/api/errors'
 import type { components } from '@/api/schema/polls'
+import { BoxAction } from '@/components/BoxAction'
 import { CharacterCount } from '@/components/CharacterCount'
 import { ImagePicker } from '@/components/ImagePicker'
 import { Alert, AlertTitle } from '@/components/ui/alert'
@@ -38,7 +39,7 @@ export function CreateIdeaPage() {
   if (error) {
     const notFound = error instanceof ApiError && error.status === 404
     content = (
-      <Alert variant="destructive" className="max-w-md">
+      <Alert variant="destructive" className="mx-auto max-w-md">
         <CircleAlert />
         <AlertTitle>{notFound ? t('poll.notFound') : t('poll.loadFailed')}</AlertTitle>
       </Alert>
@@ -52,24 +53,22 @@ export function CreateIdeaPage() {
   }
 
   return (
-    <section className="max-w-2xl space-y-6">
-      <Button variant="ghost" size="sm" asChild className="-ml-2">
-        <Link to={`/polls/${pollId}`}>
-          <ArrowLeft />
-          {t('idea.back')}
-        </Link>
-      </Button>
-      <div className="space-y-1">
-        <h1 className="text-3xl font-semibold tracking-tight">{t('ideaForm.heading')}</h1>
-        {poll?.title && (
-          <p className="flex items-center gap-2 text-muted-foreground">
-            <PollLineBadge pollId={poll.id} />
-            {t('ideaForm.forPoll', { poll: poll.title })}
-          </p>
-        )}
+    <div className="space-y-10">
+      <BoxAction icon={ArrowLeft} label={t('idea.back')} to={`/polls/${pollId}`} />
+      <div className="mx-auto max-w-2xl space-y-10">
+        <div className="flex flex-col items-center gap-4 text-center">
+          <h1 className="text-4xl font-medium text-heading sm:text-5xl">{t('ideaForm.heading')}</h1>
+          <span aria-hidden="true" className="size-2.5 rotate-45 border border-heading" />
+          {poll?.title && (
+            <p className="inline-flex items-center gap-2 text-muted-foreground [overflow-wrap:anywhere]">
+              <PollLineBadge pollId={poll.id} />
+              {t('ideaForm.forPoll', { poll: poll.title })}
+            </p>
+          )}
+        </div>
+        {content}
       </div>
-      {content}
-    </section>
+    </div>
   )
 }
 
@@ -79,7 +78,7 @@ function AccessDenied({
   const { t } = useTranslation()
 
   return (
-    <Alert className="max-w-md">
+    <Alert className="mx-auto max-w-md">
       <CircleAlert />
       <AlertTitle>{t(deniedMessages[access])}</AlertTitle>
     </Alert>
@@ -121,7 +120,11 @@ function IdeaForm({ poll }: Readonly<{ poll: Poll }>) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 border bg-card px-4 py-8 sm:px-10"
+      noValidate
+    >
       <div className="space-y-2">
         <Label htmlFor={titleId}>{t('ideaForm.title')}</Label>
         <Input
@@ -183,7 +186,7 @@ function IdeaForm({ poll }: Readonly<{ poll: Poll }>) {
 
 function FormSkeleton() {
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 border bg-card px-4 py-8 sm:px-10">
       <div className="space-y-2">
         <Skeleton className="h-4 w-20" />
         <Skeleton className="h-8 w-full" />
@@ -192,7 +195,7 @@ function FormSkeleton() {
         <Skeleton className="h-4 w-28" />
         <Skeleton className="h-32 w-full" />
       </div>
-      <Skeleton className="aspect-video w-1/3 rounded-lg" />
+      <Skeleton className="aspect-video w-1/3" />
     </div>
   )
 }
