@@ -25,7 +25,7 @@ export function Layout() {
   const { t } = useTranslation()
 
   return (
-    <div className="flex min-h-svh flex-col bg-background text-foreground">
+    <div className="flex min-h-svh flex-col text-foreground">
       <header className="dark torn-bottom bg-navy pb-3 text-navy-foreground">
         <div className="mx-auto flex w-full max-w-5xl items-stretch gap-2 px-4 pt-3 sm:px-6">
           <Link
