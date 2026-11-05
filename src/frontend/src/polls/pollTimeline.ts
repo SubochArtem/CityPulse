@@ -22,3 +22,9 @@ export function pollDaysLeft(endsAt: string | undefined, now: number) {
   }
   return Math.max(0, Math.ceil((new Date(endsAt).getTime() - now) / DAY_MS))
 }
+
+const MAX_TALLY_DAYS = 20
+
+export function showsTally(daysLeft: number) {
+  return daysLeft > 0 && daysLeft <= MAX_TALLY_DAYS
+}

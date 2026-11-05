@@ -14,12 +14,10 @@ import { coverImage } from '@/lib/images'
 import { cn } from '@/lib/utils'
 import { useNow } from '@/lib/useNow'
 import { PollLineBadge } from '@/polls/PollLineBadge'
-import { pollDaysLeft } from '@/polls/pollTimeline'
+import { pollDaysLeft, showsTally } from '@/polls/pollTimeline'
 import { pollTypeKey } from '@/polls/pollTypes'
 
 type Poll = components['schemas']['PollDto']
-
-const MAX_TALLY = 20
 
 export function CityPolls({ cityId }: Readonly<{ cityId: string }>) {
   const { t } = useTranslation()
@@ -117,9 +115,7 @@ function SelectedPoll({ poll, number }: Readonly<{ poll: Poll; number: number }>
               <Clock className="size-4" />
               {t('poll.route.daysLeft', { count: daysLeft })}
             </span>
-            {daysLeft > 0 && daysLeft <= MAX_TALLY && (
-              <TallyMarks count={daysLeft} className="text-heading" />
-            )}
+            {showsTally(daysLeft) && <TallyMarks count={daysLeft} className="text-heading" />}
           </span>
         )}
       </div>

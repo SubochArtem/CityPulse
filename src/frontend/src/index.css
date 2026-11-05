@@ -5,7 +5,7 @@
 @import '@fontsource/rubik-dirt';
 @import '@fontsource/pt-mono';
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:is(.dark *):not(.paper, .paper *));
 
 @theme inline {
   --font-heading: 'Rubik Dirt', 'Golos Text Variable', sans-serif;

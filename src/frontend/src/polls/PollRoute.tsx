@@ -3,9 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { TallyMarks } from '@/components/TallyMarks'
 import { cn } from '@/lib/utils'
 import { pollLineStyle } from '@/polls/pollLine'
-import { pollDaysLeft, pollProgress } from '@/polls/pollTimeline'
-
-const MAX_TALLY = 20
+import { pollDaysLeft, pollProgress, showsTally } from '@/polls/pollTimeline'
 
 interface PollRouteProps {
   pollId: string | undefined
@@ -49,9 +47,7 @@ export function PollRoute({ pollId, createdAt, endsAt, className }: Readonly<Pol
       <div className="grid grid-cols-3 gap-2 font-label text-[0.65rem] tracking-[0.2em] text-muted-foreground uppercase">
         <RouteStop date={formatDate(createdAt)} label={t('poll.route.opened')} />
         <span className="flex flex-col items-center gap-1.5 self-end text-center">
-          {daysLeft > 0 && daysLeft <= MAX_TALLY && (
-            <TallyMarks count={daysLeft} className="text-foreground" />
-          )}
+          {showsTally(daysLeft) && <TallyMarks count={daysLeft} className="text-foreground" />}
           {todayLabel}
         </span>
         <RouteStop
