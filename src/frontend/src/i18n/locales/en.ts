@@ -103,7 +103,6 @@ export const en = {
     noIdeas: 'No ideas in this poll yet.',
     open: 'Open poll',
     suggestIdea: 'Suggest an idea',
-    endsAt: 'Ends {{date}}',
     route: {
       opened: 'Opened',
       closes: 'Closes',
