@@ -233,10 +233,12 @@
     0 12px 24px -14px oklch(0 0 0 / 0.45);
 }
 
-@utility tape {
-  position: relative;
-  &::before,
-  &::after {
+@layer components {
+  .tape {
+    position: relative;
+  }
+  .tape::before,
+  .tape::after {
     content: '';
     position: absolute;
     top: -0.6rem;
@@ -246,11 +248,11 @@
     box-shadow: 0 1px 2px oklch(0 0 0 / 0.12);
     pointer-events: none;
   }
-  &::before {
+  .tape::before {
     left: 1.1rem;
     rotate: -6deg;
   }
-  &::after {
+  .tape::after {
     right: 1.1rem;
     rotate: 5deg;
   }
