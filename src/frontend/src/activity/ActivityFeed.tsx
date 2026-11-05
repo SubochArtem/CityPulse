@@ -84,14 +84,15 @@ export function ActivityFeed({ cityId, actions }: Readonly<ActivityFeedProps>) {
       </Alert>
     )
   } else if (entries.length === 0) {
-    content = <p className="text-muted-foreground">{t('activity.empty')}</p>
+    content = (
+      <p className="border bg-card px-6 py-10 text-center text-muted-foreground">
+        {t('activity.empty')}
+      </p>
+    )
   } else {
     content = (
       <>
-        <ol
-          ref={listRef}
-          className="relative scroll-mt-24 before:absolute before:top-2 before:bottom-2 before:left-[calc(0.875rem-2px)] before:w-1 before:rounded-full before:bg-border"
-        >
+        <ol ref={listRef} className="scroll-mt-24 border bg-card">
           {entries.map((entry) => (
             <ActivityItem
               key={entry.id}
@@ -120,13 +121,11 @@ export function ActivityFeed({ cityId, actions }: Readonly<ActivityFeedProps>) {
 
   return (
     <section aria-labelledby="activity-title" className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <h2 id="activity-title" className="text-2xl font-extrabold tracking-tight">
-            {t('activity.title')}
-          </h2>
-          <LiveIndicator status={status} />
-        </div>
+      <div className="flex flex-col items-center gap-4 text-center">
+        <h2 id="activity-title" className="text-4xl font-medium text-heading sm:text-5xl">
+          {t('activity.title')}
+        </h2>
+        <LiveIndicator status={status} />
         {actions}
       </div>
 
@@ -161,7 +160,7 @@ function LiveIndicator({ status }: Readonly<{ status: LiveStatus }>) {
   }
 
   return (
-    <output className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+    <output className="inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-0.5 font-heading text-xs tracking-[0.15em] text-muted-foreground uppercase">
       <span aria-hidden="true" className={cn('size-2 rounded-full', dotClass)} />
       {label}
     </output>
@@ -170,9 +169,12 @@ function LiveIndicator({ status }: Readonly<{ status: LiveStatus }>) {
 
 function FeedSkeleton() {
   return (
-    <ul className="space-y-6">
+    <ul className="border bg-card">
       {Array.from({ length: 5 }, (_, index) => (
-        <li key={index} className="grid grid-cols-[1.75rem_1fr] gap-x-3">
+        <li
+          key={index}
+          className="grid grid-cols-[1.75rem_1fr] gap-x-3 border-b px-4 py-4 last:border-b-0 sm:px-6"
+        >
           <Skeleton className="mx-auto size-3 rounded-full" />
           <div className="space-y-2">
             <Skeleton className="h-4 w-3/4" />

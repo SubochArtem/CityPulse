@@ -1,18 +1,13 @@
 import { CircleAlert, Search } from 'lucide-react'
 import { type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
-import type { components } from '@/api/schema/polls'
-import { IsoCityTile } from '@/cities/IsoCityTile'
+import { CityCard } from '@/cities/CityCard'
 import { CITIES_PAGE_SIZE, useCities } from '@/cities/useCities'
 import { Pagination } from '@/components/Pagination'
 import { Alert, AlertTitle } from '@/components/ui/alert'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
-import { coverImage } from '@/lib/images'
 import { useListSearchParams } from '@/lib/useListSearchParams'
-
-type City = components['schemas']['CityDto']
 
 export function CitiesPage() {
   const { t } = useTranslation()
@@ -39,7 +34,7 @@ export function CitiesPage() {
         >
           {data.items?.map((city) => (
             <li key={city.id} className="grid">
-              <CityTile city={city} />
+              <CityCard city={city} />
             </li>
           ))}
         </ul>
@@ -83,37 +78,6 @@ export function CitiesPage() {
 
       {content}
     </section>
-  )
-}
-
-function CityTile({ city }: Readonly<{ city: City }>) {
-  return (
-    <Link
-      to={`/cities/${city.id}`}
-      className="group flex flex-col items-center pb-2 text-center outline-none focus-visible:ring-3 focus-visible:ring-ring/50"
-    >
-      <IsoCityTile
-        seed={city.id ?? city.title ?? ''}
-        photoUrl={coverImage(city.images)?.url}
-        className="max-w-64 px-6 transition-transform duration-300 group-hover:-translate-y-1.5 motion-reduce:transition-none"
-      />
-      <TileMarker />
-      <h2 className="mt-3 px-3 text-2xl font-medium text-coral [overflow-wrap:anywhere] group-hover:underline group-hover:underline-offset-4">
-        {city.title}
-      </h2>
-      {city.description && (
-        <p className="mt-1 line-clamp-2 px-4 text-sm text-muted-foreground">{city.description}</p>
-      )}
-    </Link>
-  )
-}
-
-function TileMarker() {
-  return (
-    <div aria-hidden="true" className="relative flex w-full justify-center">
-      <span className="absolute inset-x-0 top-1/2 h-px bg-border" />
-      <span className="relative size-3 rounded-full border border-muted-foreground/60 bg-background" />
-    </div>
   )
 }
 
