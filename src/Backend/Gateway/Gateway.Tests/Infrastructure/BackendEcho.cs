@@ -6,4 +6,5 @@ public sealed record BackendEcho(
     string Path,
     string Query,
     string Authorization,
+    string Cookie,
     string Body);

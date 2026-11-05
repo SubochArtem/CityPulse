@@ -31,6 +31,8 @@ internal static class TestConstants
         public const string Origin = "Origin";
         public const string AccessControlRequestMethod = "Access-Control-Request-Method";
         public const string AccessControlAllowOrigin = "Access-Control-Allow-Origin";
+        public const string Cookie = "Cookie";
+        public const string SetCookie = "Set-Cookie";
     }
 
     public static class Swagger
@@ -54,7 +56,6 @@ internal static class TestConstants
         public const string ClientSecret = "bff-test-secret";
         public const string Audience = "https://bff-test-api";
         public const string AuthorizationEndpoint = "https://citypulse-test.auth0.example/authorize";
-        public const string TokenEndpoint = "https://citypulse-test.auth0.example/oauth/token";
         public const string LogoutEndpoint = "https://citypulse-test.auth0.example/v2/logout";
         public const string LoginPath = "/bff/login";
         public const string UserPath = "/bff/user";
@@ -66,6 +67,15 @@ internal static class TestConstants
         public const string UserId = "auth0|bff-test-user";
         public const string PollsReadPermission = "polls.read";
         public const string IdeasCreatePermission = "ideas.create.city";
+        public const string TokenPath = "/oauth/token";
+        public const string ExpiresInParam = "expiresIn";
+        public const string RefreshTokenParam = "refreshToken";
+        public const string ValidRefreshTokenPrefix = "valid-";
+        public const string FailingRefreshTokenPrefix = "failing-";
+        public const string RefreshedAccessTokenPrefix = "refreshed-";
+        public const string RotatedRefreshTokenPrefix = "rotated-";
+        public const string CsrfHeader = "X-CSRF";
+        public const string CsrfHeaderValue = "1";
     }
 
     public static class HealthPaths
