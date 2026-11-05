@@ -5,6 +5,7 @@ import { Link, useParams } from 'react-router'
 import { ApiError } from '@/api/errors'
 import type { components } from '@/api/schema/polls'
 import { BoxAction } from '@/components/BoxAction'
+import { HalftonePoster } from '@/components/HalftonePoster'
 import { IconFact } from '@/components/IconFact'
 import { ImageGallery } from '@/components/ImageGallery'
 import { PillHeading } from '@/components/PillHeading'
@@ -13,15 +14,16 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { IdeaApprovalBadge } from '@/ideas/IdeaApprovalBadge'
 import { useIdeaCreationAccess } from '@/ideas/useIdeaCreationAccess'
 import { coverImage } from '@/lib/images'
-import { PollLineBadge } from '@/polls/PollLineBadge'
 import { PollRoute } from '@/polls/PollRoute'
+import { pollLineStyle } from '@/polls/pollLine'
 import { pollTypeKey } from '@/polls/pollTypes'
 import { usePollWithIdeas } from '@/polls/usePollWithIdeas'
 import { usePublicProfiles } from '@/users/usePublicProfiles'
-import { HalftonePoster } from '@/components/HalftonePoster'
 
 type Poll = components['schemas']['PollWithIdeasDto']
 type Idea = components['schemas']['IdeaDto']
+
+const heroGrid = 'grid items-center gap-10 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]'
 
 export function PollPage() {
   const { t } = useTranslation()
@@ -34,10 +36,12 @@ export function PollPage() {
   } else if (error) {
     const notFound = error instanceof ApiError && error.status === 404
     content = (
-      <Alert variant="destructive" className="mx-auto max-w-md">
-        <CircleAlert />
-        <AlertTitle>{notFound ? t('poll.notFound') : t('poll.loadFailed')}</AlertTitle>
-      </Alert>
+      <div className="paper poster tape mx-auto max-w-md rotate-1 p-4 pt-6">
+        <Alert variant="destructive" className="border-none bg-transparent">
+          <CircleAlert />
+          <AlertTitle>{notFound ? t('poll.notFound') : t('poll.loadFailed')}</AlertTitle>
+        </Alert>
+      </div>
     )
   } else {
     content = <PollDetails poll={poll} />
@@ -66,21 +70,32 @@ function PollDetails({ poll }: Readonly<{ poll: Poll }>) {
 
   return (
     <div className="space-y-20">
-      <section className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
-        <div className="flex flex-col items-center gap-5 text-center">
-          <span className="inline-flex items-center gap-2.5 font-label text-xs tracking-[0.25em] text-coral uppercase">
-            <PollLineBadge pollId={poll.id} />
-            {typeKey && t(typeKey)}
-          </span>
-          <h1 className="max-w-lg text-4xl leading-[1.05] font-medium text-heading [overflow-wrap:anywhere] sm:text-6xl">
-            {poll.title}
-          </h1>
-          <span aria-hidden="true" className="size-2.5 rotate-45 border border-heading" />
-          {poll.description && (
-            <p className="max-w-md whitespace-pre-line text-muted-foreground">{poll.description}</p>
-          )}
+      <section className={heroGrid}>
+        <div className="paper poster tape relative rotate-[0.5deg] px-6 pt-10 pb-8 sm:px-10">
+          <span
+            aria-hidden="true"
+            className="halftone pointer-events-none absolute right-0 bottom-0 h-2/3 w-1/2 text-riot/45 [mask-image:linear-gradient(315deg,black,transparent_75%)]"
+          />
+          <div className="relative flex flex-col items-start gap-5">
+            <p className="flex flex-wrap items-center gap-2 font-label text-xs tracking-[0.25em] uppercase">
+              <span
+                aria-hidden="true"
+                style={pollLineStyle(poll.id)}
+                className="h-5 w-10 -rotate-2 bg-(--poll-line)"
+              />
+              {typeKey && <span className="bg-ink px-2 py-0.5 text-paper">{t(typeKey)}</span>}
+            </p>
+            <h1 className="text-4xl leading-[1.05] text-foreground [overflow-wrap:anywhere] sm:text-6xl">
+              {poll.title}
+            </h1>
+            {poll.description && (
+              <p className="max-w-lg whitespace-pre-line text-muted-foreground">
+                {poll.description}
+              </p>
+            )}
+          </div>
         </div>
-        <div className="group mx-auto w-full max-w-xl">
+        <div className="group mx-auto w-full max-w-sm">
           <HalftonePoster
             seed={poll.id ?? poll.title ?? ''}
             title={poll.title}
@@ -206,13 +221,13 @@ function IdeaCard({ idea, author }: Readonly<{ idea: Idea; author: string | unde
 
 function PollSkeleton() {
   return (
-    <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
-      <div className="flex flex-col items-center gap-4">
-        <Skeleton className="h-4 w-32" />
-        <Skeleton className="h-28 w-80" />
-        <Skeleton className="h-12 w-80" />
+    <div className={heroGrid}>
+      <div className="paper poster flex flex-col items-start gap-5 px-6 pt-10 pb-8 sm:px-10">
+        <Skeleton className="h-5 w-40" />
+        <Skeleton className="h-28 w-full max-w-lg" />
+        <Skeleton className="h-12 w-full max-w-md" />
       </div>
-      <Skeleton className="mx-auto aspect-square w-full max-w-xl" />
+      <Skeleton className="mx-auto aspect-square w-full max-w-sm" />
     </div>
   )
 }
