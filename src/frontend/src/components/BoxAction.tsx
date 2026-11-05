@@ -21,7 +21,7 @@ export function BoxAction({ icon: Icon, label, to, className }: Readonly<BoxActi
     </>
   )
   const boxClass = cn(
-    'inline-flex min-h-11 items-stretch border border-heading bg-card text-foreground',
+    'inline-flex min-h-11 items-stretch border-2 border-heading bg-card text-foreground shadow-[3px_3px_0_var(--heading)]',
     className,
   )
 
@@ -34,7 +34,7 @@ export function BoxAction({ icon: Icon, label, to, className }: Readonly<BoxActi
       to={to}
       className={cn(
         boxClass,
-        'outline-none transition-colors hover:bg-secondary focus-visible:ring-3 focus-visible:ring-ring/50',
+        'outline-none transition-[translate,box-shadow,background-color] hover:-translate-px hover:bg-secondary hover:shadow-[4px_4px_0_var(--heading)] focus-visible:ring-3 focus-visible:ring-ring/50 active:translate-0.5 active:shadow-none motion-reduce:transition-none',
       )}
     >
       {content}
