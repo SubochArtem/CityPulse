@@ -5,7 +5,7 @@ import {
   LogLevel,
 } from '@microsoft/signalr'
 import { useEffect, useRef, useState } from 'react'
-import { apiBaseUrl } from '@/api/config'
+import { csrfHeaders } from '@/api/csrf'
 import type { Activity } from './useActivityFeed'
 
 export type LiveStatus = 'connecting' | 'live' | 'offline'
@@ -32,7 +32,7 @@ export function useActivityLive(cityId: string | null, handlers: LiveHandlers) {
     let retryTimer: ReturnType<typeof setTimeout> | undefined
 
     const connection = new HubConnectionBuilder()
-      .withUrl(`${apiBaseUrl}/hubs/activity`, { withCredentials: false })
+      .withUrl('/hubs/activity', { headers: { ...csrfHeaders } })
       .withAutomaticReconnect()
       .configureLogging(LogLevel.None)
       .build()
