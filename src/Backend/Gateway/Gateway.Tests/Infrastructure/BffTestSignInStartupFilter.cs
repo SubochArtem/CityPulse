@@ -43,7 +43,10 @@ public sealed class BffTestSignInStartupFilter : IStartupFilter
     private static Task SignInAsync(HttpContext context)
     {
         var identity = new ClaimsIdentity(
-            [new Claim(BffDefaults.SubjectClaim, TestConstants.Bff.UserId)],
+            [
+                new Claim(BffDefaults.SubjectClaim, TestConstants.Bff.UserId),
+                new Claim(BffDefaults.InternalUserIdClaim, TestConstants.Bff.InternalUserId)
+            ],
             BffDefaults.CookieScheme);
         var properties = new AuthenticationProperties();
         properties.StoreTokens(CreateTokens(context.Request.Query));

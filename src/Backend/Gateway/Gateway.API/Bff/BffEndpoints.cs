@@ -45,6 +45,7 @@ public static class BffEndpoints
         return Results.Ok(new BffUserResponse(
             true,
             result.Principal.FindFirstValue(BffDefaults.SubjectClaim),
+            result.Principal.FindFirstValue(BffDefaults.InternalUserIdClaim),
             AccessTokenReader.ReadPermissions(accessToken),
             sessionId is null ? null : BffRedirects.Logout(sessionId)));
     }

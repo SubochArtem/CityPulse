@@ -25,6 +25,7 @@ public static class BffDefaults
     public const string RootPath = "/";
     public const string SessionIdClaim = "bff_sid";
     public const string SubjectClaim = "sub";
+    public const string InternalUserIdClaim = "https://city-pulse.com/internal_user_id";
     public const string PermissionsClaim = "permissions";
     public const string AccessTokenName = "access_token";
     public const string RefreshTokenName = "refresh_token";
