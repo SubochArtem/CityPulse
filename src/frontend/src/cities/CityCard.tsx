@@ -3,9 +3,10 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import type { components } from '@/api/schema/polls'
 import { BoxAction } from '@/components/BoxAction'
+import { HalftonePoster } from '@/components/HalftonePoster'
 import { coverImage } from '@/lib/images'
+import { tiltFor } from '@/lib/tilt'
 import { cn } from '@/lib/utils'
-import { IsoCityTile } from './IsoCityTile'
 
 type City = components['schemas']['CityDto']
 
@@ -16,47 +17,37 @@ interface CityCardProps {
 
 export function CityCard({ city, highlighted = false }: Readonly<CityCardProps>) {
   const { t } = useTranslation()
+  const seed = city.id ?? city.title ?? ''
 
   return (
     <Link
       to={`/cities/${city.id}`}
-      className={cn(
-        'group flex h-full flex-col items-center pb-2 text-center outline-none focus-visible:ring-3 focus-visible:ring-ring/50',
-        highlighted && 'border bg-card pb-5',
-      )}
+      style={{ rotate: `${tiltFor(seed)}deg` }}
+      className="group paper poster tape flex h-full flex-col p-3 pb-4 outline-none transition-[rotate,translate] duration-300 hover:-translate-y-1 hover:rotate-0! focus-visible:rotate-0! focus-visible:ring-3 focus-visible:ring-ring/50 motion-reduce:transition-none"
     >
-      <IsoCityTile
-        seed={city.id ?? city.title ?? ''}
+      <HalftonePoster
+        seed={seed}
+        title={city.title}
         photoUrl={coverImage(city.images)?.url}
-        className="w-full max-w-64 px-6 transition-transform duration-300 group-hover:-translate-y-1.5 motion-reduce:transition-none"
+        framed={false}
       />
-      <TileMarker />
       {highlighted && (
-        <span className="mt-3 font-label text-xs tracking-[0.2em] text-muted-foreground uppercase">
+        <span className="mt-3 self-start bg-fluo px-2 py-0.5 font-label text-xs tracking-[0.2em] text-ink uppercase">
           {t('home.yourCity')}
         </span>
       )}
       <h2
         className={cn(
-          'px-3 text-2xl font-medium text-coral [overflow-wrap:anywhere] group-hover:underline group-hover:underline-offset-4',
-          highlighted ? 'mt-1' : 'mt-3',
+          'text-3xl leading-none text-foreground [overflow-wrap:anywhere] group-hover:text-coral',
+          highlighted ? 'mt-2' : 'mt-3',
         )}
       >
         {city.title}
       </h2>
       {city.description && (
-        <p className="mt-1 line-clamp-2 px-4 text-sm text-muted-foreground">{city.description}</p>
+        <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{city.description}</p>
       )}
       {highlighted && <BoxAction icon={ArrowRight} label={t('home.openCity')} className="mt-4" />}
     </Link>
-  )
-}
-
-function TileMarker() {
-  return (
-    <div aria-hidden="true" className="relative flex w-full justify-center">
-      <span className="absolute inset-x-0 top-1/2 h-px bg-border" />
-      <span className="relative size-3 rounded-full border border-muted-foreground/60 bg-background" />
-    </div>
   )
 }

@@ -41,7 +41,7 @@ export function CitiesStrip({ cityId }: Readonly<{ cityId: string | null }>) {
             {t('home.cityCount', { count: total })}
           </span>
         </div>
-        <ul className="grid grid-cols-2 gap-y-10 lg:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-4">
           {ordered.map((city) => (
             <li key={city.id} className="grid">
               <CityCard city={city} highlighted={city.id === cityId} />
@@ -69,7 +69,7 @@ export function CitiesStrip({ cityId }: Readonly<{ cityId: string | null }>) {
 
 function StripSkeleton() {
   return (
-    <ul className="grid grid-cols-2 gap-y-10 lg:grid-cols-4">
+    <ul className="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-4">
       {Array.from({ length: STRIP_SIZE }, (_, index) => (
         <li key={index} className="flex flex-col items-center gap-3 px-6">
           <Skeleton className="aspect-square w-full" />
