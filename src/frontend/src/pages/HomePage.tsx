@@ -7,7 +7,7 @@ import { useCityWithPolls } from '@/cities/useCityWithPolls'
 import { boxCellClass } from '@/components/boxCell'
 import { Skeleton } from '@/components/ui/skeleton'
 import { CitiesStrip } from '@/home/CitiesStrip'
-import { CityPolls } from '@/home/CityPolls'
+import { CityPolls } from '@/cities/CityPolls'
 import { HomeHero } from '@/home/HomeHero'
 import { cn } from '@/lib/utils'
 
