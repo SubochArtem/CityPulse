@@ -5,8 +5,6 @@ type RussianTranslation = Translation & {
   readonly city: {
     readonly openPolls_few: string
     readonly openPolls_many: string
-    readonly daysLeft_few: string
-    readonly daysLeft_many: string
   }
   readonly feedback: { readonly likes_few: string; readonly likes_many: string }
   readonly activity: { readonly newEvents_few: string; readonly newEvents_many: string }
@@ -113,19 +111,10 @@ export const ru: RussianTranslation = {
     back: 'Все города',
     notFound: 'Город не найден',
     loadFailed: 'Не удалось загрузить город',
-    noPolls: 'В этом городе пока нет активных опросов.',
     openPolls_one: '{{count}} открытый опрос',
     openPolls_few: '{{count}} открытых опроса',
     openPolls_many: '{{count}} открытых опросов',
     openPolls_other: '{{count}} открытых опроса',
-    daysLeft_one: 'день до конца опроса',
-    daysLeft_few: 'дня до конца опроса',
-    daysLeft_many: 'дней до конца опроса',
-    daysLeft_other: 'дня до конца опроса',
-    budget: 'бюджет опроса',
-    otherPolls: 'Другие открытые опросы',
-    until: 'до {{date}}',
-    about: 'О городе',
     photos: 'Фотографии',
   },
   poll: {
