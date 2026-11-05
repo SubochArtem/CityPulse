@@ -18,11 +18,14 @@ public sealed class GatewayWebAppFactory : WebApplicationFactory<Program>, IAsyn
     private StubBackend _polls = null!;
     private StubBackend _feedback = null!;
 
+    public StubTokenEndpoint TokenEndpoint { get; private set; } = null!;
+
     public async Task InitializeAsync()
     {
         _users = await StubBackend.StartAsync(TestConstants.Services.Users);
         _polls = await StubBackend.StartAsync(TestConstants.Services.Polls);
         _feedback = await StubBackend.StartAsync(TestConstants.Services.Feedback);
+        TokenEndpoint = await StubTokenEndpoint.StartAsync();
     }
 
     async Task IAsyncLifetime.DisposeAsync()
@@ -35,6 +38,7 @@ public sealed class GatewayWebAppFactory : WebApplicationFactory<Program>, IAsyn
         await _users.DisposeAsync();
         await _polls.DisposeAsync();
         await _feedback.DisposeAsync();
+        await TokenEndpoint.DisposeAsync();
         await base.DisposeAsync();
     }
 
@@ -64,7 +68,7 @@ public sealed class GatewayWebAppFactory : WebApplicationFactory<Program>, IAsyn
                 {
                     Issuer = TestConstants.Bff.Domain,
                     AuthorizationEndpoint = TestConstants.Bff.AuthorizationEndpoint,
-                    TokenEndpoint = TestConstants.Bff.TokenEndpoint
+                    TokenEndpoint = TokenEndpoint.Address
                 };
                 options.ConfigurationManager =
                     new StaticConfigurationManager<OpenIdConnectConfiguration>(options.Configuration);

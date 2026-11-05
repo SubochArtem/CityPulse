@@ -46,6 +46,7 @@ public sealed class StubBackend : IAsyncDisposable
             context.Request.Path.Value ?? string.Empty,
             context.Request.QueryString.Value ?? string.Empty,
             context.Request.Headers.Authorization.ToString(),
+            context.Request.Headers.Cookie.ToString(),
             body));
     }
 

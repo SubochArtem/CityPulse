@@ -103,6 +103,12 @@ public static class DependencyInjection
                 ResponseWriter = ServicesHealthResponseWriter.WriteAsync
             });
         app.UseGatewayBff();
-        app.MapReverseProxy();
+        app.MapReverseProxy(proxy =>
+        {
+            proxy.UseGatewayBffTokenForwarding();
+            proxy.UseSessionAffinity();
+            proxy.UseLoadBalancing();
+            proxy.UsePassiveHealthChecks();
+        });
     }
 }

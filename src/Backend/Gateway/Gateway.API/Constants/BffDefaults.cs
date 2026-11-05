@@ -27,6 +27,22 @@ public static class BffDefaults
     public const string SubjectClaim = "sub";
     public const string PermissionsClaim = "permissions";
     public const string AccessTokenName = "access_token";
+    public const string RefreshTokenName = "refresh_token";
+    public const string IdTokenName = "id_token";
+    public const string ExpiresAtName = "expires_at";
+    public const string CookieSessionKeyClaim = "Microsoft.AspNetCore.Authentication.Cookies-SessionId";
+
+    public const string GrantTypeParam = "grant_type";
+    public const string ClientSecretParam = "client_secret";
+    public const string RefreshTokenGrant = "refresh_token";
+    public const string TokenClientName = "Bff.TokenEndpoint";
+
+    public const string CsrfHeader = "X-CSRF";
+    public const string CsrfHeaderValue = "1";
+    public const string BearerScheme = "Bearer";
+    public const int SessionLockCount = 64;
+
+    public static TimeSpan TokenRefreshSkew { get; } = TimeSpan.FromSeconds(60);
 
     public const string OpenIdScope = "openid";
     public const string ProfileScope = "profile";

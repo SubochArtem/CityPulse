@@ -61,6 +61,7 @@ public static class BffExtensions
             .Configure<IOptions<BffSettings>>((options, settings) => ConfigureOpenIdConnect(options, settings.Value));
 
         AddSessionStorage(services);
+        AddTokenForwarding(services);
 
         return services;
     }
@@ -70,6 +71,14 @@ public static class BffExtensions
         if (app.Services.GetRequiredService<IOptions<BffSettings>>().Value.Enabled)
         {
             app.MapBffEndpoints();
+        }
+    }
+
+    public static void UseGatewayBffTokenForwarding(this IReverseProxyApplicationBuilder proxy)
+    {
+        if (proxy.ApplicationServices.GetRequiredService<IOptions<BffSettings>>().Value.Enabled)
+        {
+            proxy.UseMiddleware<BffTokenForwardingMiddleware>();
         }
     }
 
@@ -87,7 +96,8 @@ public static class BffExtensions
         options.Events.OnRedirectToAccessDenied = context => WriteStatus(context.Response, StatusCodes.Status403Forbidden);
         options.Events.OnSigningIn = context =>
         {
-            if (context.Principal?.Identity is ClaimsIdentity identity)
+            if (context.Principal?.Identity is ClaimsIdentity identity
+                && !identity.HasClaim(claim => claim.Type == BffDefaults.SessionIdClaim))
             {
                 identity.AddClaim(new Claim(BffDefaults.SessionIdClaim, Guid.NewGuid().ToString("N")));
             }
@@ -196,6 +206,15 @@ public static class BffExtensions
 
         services.TryAddSingleton(TimeProvider.System);
         services.AddSingleton<ITicketStore, DistributedTicketStore>();
+    }
+
+    private static void AddTokenForwarding(IServiceCollection services)
+    {
+        services.AddHttpClient(BffDefaults.TokenClientName);
+        services.AddSingleton<SessionKeyReader>();
+        services.AddSingleton<SessionLocks>();
+        services.AddSingleton<TokenRefreshClient>();
+        services.AddSingleton<SessionTokenProvider>();
     }
 
     private static Task WriteStatus(HttpResponse response, int statusCode)
