@@ -49,6 +49,16 @@ function PhotoPrint({ photoUrl }: Readonly<{ photoUrl: string }>) {
   )
 }
 
+function stampTextClass(title: string) {
+  if (title.length <= 16) {
+    return 'text-[clamp(1.5rem,14cqi,4.5rem)]'
+  }
+  if (title.length <= 40) {
+    return 'text-[clamp(1.25rem,9cqi,3rem)]'
+  }
+  return 'text-[clamp(1rem,6.5cqi,2.25rem)]'
+}
+
 function Stamp({ title }: Readonly<{ title?: string | null }>) {
   return (
     <>
@@ -58,7 +68,10 @@ function Stamp({ title }: Readonly<{ title?: string | null }>) {
       />
       <span
         aria-hidden="true"
-        className="absolute inset-0 grid place-items-center p-4 text-center font-heading text-[clamp(1.5rem,14cqi,4.5rem)] leading-none text-riot [overflow-wrap:anywhere]"
+        className={cn(
+          'absolute inset-0 grid place-items-center p-4 text-center font-heading leading-none text-riot [overflow-wrap:anywhere]',
+          stampTextClass(title ?? ''),
+        )}
       >
         <span className="-rotate-6 border-4 border-double border-riot px-3 py-2">{title}</span>
       </span>
