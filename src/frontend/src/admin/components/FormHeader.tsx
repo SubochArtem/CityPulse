@@ -1,6 +1,5 @@
 import { ArrowLeft } from 'lucide-react'
-import { Link } from 'react-router'
-import { Button } from '@/components/ui/button'
+import { BoxAction } from '@/components/BoxAction'
 
 interface FormHeaderProps {
   title: string
@@ -10,14 +9,9 @@ interface FormHeaderProps {
 
 export function FormHeader({ title, backTo, backLabel }: Readonly<FormHeaderProps>) {
   return (
-    <div className="space-y-2">
-      <Button variant="ghost" size="sm" asChild className="-ml-2">
-        <Link to={backTo}>
-          <ArrowLeft />
-          {backLabel}
-        </Link>
-      </Button>
-      <h2 className="text-3xl font-medium text-heading">{title}</h2>
+    <div className="flex flex-col items-start gap-5">
+      <BoxAction icon={ArrowLeft} label={backLabel} to={backTo} />
+      <h2 className="text-3xl text-heading [overflow-wrap:anywhere]">{title}</h2>
     </div>
   )
 }
