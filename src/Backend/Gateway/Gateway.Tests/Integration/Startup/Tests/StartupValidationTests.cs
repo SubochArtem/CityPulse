@@ -46,6 +46,37 @@ public sealed class StartupValidationTests
     }
 
     [Fact]
+    public void Start_BffEnabledWithoutClientSecret_ShouldFailWithOptionsValidationException()
+    {
+        using var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+        {
+            builder.UseEnvironment(TestConstants.Environment);
+            builder.ConfigureAppConfiguration((_, configuration) =>
+                configuration.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    [TestConstants.ConfigurationKeys.BffEnabled] = bool.TrueString,
+                    [TestConstants.ConfigurationKeys.BffDomain] = TestConstants.Bff.Domain,
+                    [TestConstants.ConfigurationKeys.BffClientId] = TestConstants.Bff.ClientId,
+                    [TestConstants.ConfigurationKeys.BffAudience] = TestConstants.Bff.Audience
+                }));
+        });
+
+        Assert.Throws<OptionsValidationException>(() => factory.CreateClient());
+    }
+
+    [Fact]
+    public async Task Start_BffDisabled_ShouldNotExposeBffEndpoints()
+    {
+        using var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+            builder.UseEnvironment(TestConstants.Environment));
+        using var client = factory.CreateClient();
+
+        var response = await client.GetAsync(TestConstants.Bff.UserPath);
+
+        Assert.NotEqual(System.Net.HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Fact]
     public void Start_DefaultConfiguration_ShouldSucceed()
     {
         using var factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>

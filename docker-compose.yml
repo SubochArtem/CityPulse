@@ -252,6 +252,8 @@ services:
     image: citypulse-gateway
     container_name: citypulse_gateway
     depends_on:
+      redis:
+        condition: service_healthy
       users:
         condition: service_healthy
       polls:
@@ -262,6 +264,12 @@ services:
     ports:
       - "8080:8080"
     environment:
+      <<: *redis
+      Bff__Enabled: true
+      Bff__Domain: ${AUTH0_DOMAIN:-}
+      Bff__ClientId: ${AUTH0_WEB_CLIENT_ID:-}
+      Bff__ClientSecret: ${AUTH0_WEB_CLIENT_SECRET:-}
+      Bff__Audience: ${AUTH0_AUDIENCE:-}
       Swagger__Enabled: true
       Swagger__ClientId: ${AUTH0_CLIENT_ID:-}
       Swagger__Audience: ${AUTH0_AUDIENCE:-}

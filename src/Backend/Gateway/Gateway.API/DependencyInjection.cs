@@ -77,6 +77,8 @@ public static class DependencyInjection
                 args: [cluster]);
         }
 
+        services.AddGatewayBff(configuration);
+
         services.AddReverseProxy()
             .LoadFromConfig(configuration.GetSection(GatewayDefaults.ReverseProxySectionName));
 
@@ -85,7 +87,9 @@ public static class DependencyInjection
 
     public static void UseGateway(this WebApplication app)
     {
+        app.UseForwardedHeaders();
         app.UseCors();
+        app.UseAuthentication();
         app.UseRateLimiter();
         app.UseGatewaySwagger();
         app.MapHealthChecks(
@@ -98,6 +102,7 @@ public static class DependencyInjection
                 Predicate = registration => registration.Tags.Contains(GatewayDefaults.ServicesHealthTag),
                 ResponseWriter = ServicesHealthResponseWriter.WriteAsync
             });
+        app.UseGatewayBff();
         app.MapReverseProxy();
     }
 }
