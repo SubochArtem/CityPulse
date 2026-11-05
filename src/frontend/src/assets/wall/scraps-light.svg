@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="880" height="880" viewBox="0 0 880 880">
+<defs>
+<pattern id="r" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="4" cy="4" r="1.7" fill="#d7261e"/></pattern>
+<pattern id="k" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="3.5" cy="3.5" r="1.4" fill="#151413"/></pattern>
+</defs>
+<g opacity="0.5">
+<g transform="rotate(-4 150 110)">
+<polygon points="34,44 236,24 252,96 244,170 150,186 64,200 44,150 52,98" fill="#efe9da"/>
+<rect x="70" y="62" width="120" height="96" fill="url(#r)" opacity=".3"/>
+</g>
+<clipPath id="c"><polygon points="450,330 720,348 712,420 704,500 640,472 560,508 470,482 462,410"/></clipPath>
+<g transform="rotate(3 590 420)">
+<polygon points="450,330 720,348 712,420 704,500 640,472 560,508 470,482 462,410" fill="#efe9da"/>
+<g clip-path="url(#c)"><path d="M482 372h26v80h-26zM530 372h58v22h-36v18h30v20h-30v20h36v22h-58zM612 372h26l20 46v-46h24v102h-24l-22-48v48h-24z" fill="#151413" opacity=".09" transform="translate(-20 40) scale(1.15)"/></g>
+</g>
+<g transform="rotate(6 220 700)">
+<polygon points="134,606 316,624 306,700 302,790 214,782 154,774 124,700" fill="#efe9da"/>
+<rect x="150" y="630" width="140" height="130" fill="url(#k)" opacity=".18"/>
+</g>
+<g transform="rotate(-8 700 120)">
+<polygon points="640,64 760,54 780,164 680,184" fill="#f2e600" opacity="0.45"/>
+</g>
+<g transform="rotate(-2 330 300)">
+<polygon points="300,250 420,256 414,312 382,300 352,322 306,310" fill="#efe9da"/>
+</g>
+</g>
+<g fill="#151413" opacity=".16">
+<rect x="40" y="44" width="2.5" height="8"/><rect x="232" y="24" width="2.5" height="8"/>
+<rect x="452" y="330" width="8" height="2.5"/><rect x="714" y="346" width="8" height="2.5"/>
+<rect x="138" y="604" width="2.5" height="8"/>
+</g>
+</svg>

@@ -110,6 +110,9 @@
   --sidebar-accent-foreground: oklch(0.192 0.003 68);
   --sidebar-border: oklch(0.78 0.022 88);
   --sidebar-ring: oklch(0.3 0.008 75);
+  --wall-tags: url('./assets/wall/tags-light.svg');
+  --wall-scraps: url('./assets/wall/scraps-light.svg');
+  --wall-grit: url('./assets/wall/grit-light.svg');
 }
 
 .paper {
@@ -181,6 +184,9 @@
   --sidebar-accent-foreground: oklch(0.95 0.012 88);
   --sidebar-border: oklch(0.38 0.01 78);
   --sidebar-ring: oklch(0.85 0.015 85);
+  --wall-tags: url('./assets/wall/tags-dark.svg');
+  --wall-scraps: url('./assets/wall/scraps-dark.svg');
+  --wall-grit: url('./assets/wall/grit-dark.svg');
 }
 
 @utility poster {
@@ -271,8 +277,33 @@
   }
   body {
     @apply bg-background text-foreground;
-    background-image: radial-gradient(oklch(0 0 0 / 0.06) 1px, transparent 1.5px);
-    background-size: 7px 7px;
+    background-image:
+      var(--wall-scraps), var(--wall-grit),
+      radial-gradient(oklch(0 0 0 / 0.06) 1px, transparent 1.5px);
+    background-size:
+      880px 880px,
+      400px 400px,
+      7px 7px;
+    background-position:
+      300px 180px,
+      0 0,
+      0 0;
+
+    @variant sm {
+      background-image:
+        var(--wall-tags), var(--wall-scraps), var(--wall-grit),
+        radial-gradient(oklch(0 0 0 / 0.06) 1px, transparent 1.5px);
+      background-size:
+        760px 620px,
+        880px 880px,
+        400px 400px,
+        7px 7px;
+      background-position:
+        0 0,
+        300px 180px,
+        0 0,
+        0 0;
+    }
   }
   button:not(:disabled),
   [role='button']:not(:disabled) {
