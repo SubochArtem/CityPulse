@@ -11,12 +11,14 @@ import { ImageGallery } from '@/components/ImageGallery'
 import { PillHeading } from '@/components/PillHeading'
 import { Alert, AlertTitle } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
+import { approvalStampClass } from '@/ideas/approvalStamp'
 import { IdeaApprovalBadge } from '@/ideas/IdeaApprovalBadge'
 import { useIdeaCreationAccess } from '@/ideas/useIdeaCreationAccess'
 import { coverImage } from '@/lib/images'
 import { tiltFor } from '@/lib/tilt'
 import { PollRoute } from '@/polls/PollRoute'
 import { pollLineStyle } from '@/polls/pollLine'
+import { PollTicketBand } from '@/polls/PollTicketBand'
 import { pollTypeKey } from '@/polls/pollTypes'
 import { usePollWithIdeas } from '@/polls/usePollWithIdeas'
 import { usePublicProfiles } from '@/users/usePublicProfiles'
@@ -105,11 +107,8 @@ function PollDetails({ poll }: Readonly<{ poll: Poll }>) {
         </div>
       </section>
 
-      <section style={pollLineStyle(poll.id)} className="paper poster -rotate-[0.3deg] pb-10">
-        <div
-          aria-hidden="true"
-          className="h-4 bg-(--poll-line) [mask:radial-gradient(circle_at_10px_100%,transparent_6px,black_6.5px)_0_0/20px_100%]"
-        />
+      <section className="paper poster -rotate-[0.3deg] pb-10">
+        <PollTicketBand pollId={poll.id} />
         <div className="space-y-10 px-4 pt-8 sm:px-10">
           <dl className="flex flex-wrap justify-center gap-x-14 gap-y-6">
             {poll.endsAt && (
@@ -215,10 +214,7 @@ function IdeaCard({ idea, author }: Readonly<{ idea: Idea; author: string | unde
         />
       )}
       <div className="flex flex-1 flex-col items-start gap-2 pt-4 pb-4">
-        <IdeaApprovalBadge
-          status={idea.approvalStatus}
-          className="h-auto -rotate-2 rounded-none border-2 border-current px-1.5 font-label text-[0.65rem] tracking-[0.2em] uppercase"
-        />
+        <IdeaApprovalBadge status={idea.approvalStatus} className={approvalStampClass} />
         <h3 className="text-2xl leading-tight text-foreground [overflow-wrap:anywhere] group-hover:text-coral">
           {idea.title}
         </h3>
