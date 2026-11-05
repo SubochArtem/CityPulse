@@ -62,13 +62,13 @@ export function IdeaFeedback({ ideaId, cityId }: Readonly<IdeaFeedbackProps>) {
   return (
     <section
       aria-labelledby="idea-feedback-title"
-      className="mx-auto max-w-3xl space-y-6 border bg-card px-4 py-10 sm:px-10"
+      className="paper poster tape mx-auto max-w-4xl -rotate-[0.3deg] space-y-6 px-4 pt-10 pb-8 sm:px-10"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 id="idea-feedback-title" className="text-3xl font-medium text-heading">
+        <h2 id="idea-feedback-title" className="text-4xl text-foreground">
           {t('feedback.title')}
           {access.canRead && commentCount > 0 && (
-            <span className="ml-3 font-heading text-xl text-coral tabular-nums">
+            <span className="ml-3 inline-block -rotate-3 bg-riot px-2 py-0.5 align-middle font-label text-sm text-paper tabular-nums">
               {commentCount}
             </span>
           )}
@@ -115,26 +115,26 @@ function LikeButton({ ideaId, count, myLikeId, canLike, canUnlike }: Readonly<Li
 
   if (!enabled) {
     return (
-      <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground tabular-nums">
-        <Heart className={cn('size-4', liked && 'fill-current')} />
+      <span className="inline-flex items-center gap-2 font-label text-xs tracking-[0.2em] text-muted-foreground uppercase tabular-nums">
+        <Heart className={cn('size-4', liked && 'fill-riot text-riot')} />
         {t('feedback.likes', { count, formatted: formattedCount })}
       </span>
     )
   }
 
   return (
-    <Button
-      variant={liked ? 'default' : 'outline'}
-      size="sm"
+    <button
+      type="button"
       aria-pressed={liked}
       disabled={pending}
       onClick={toggle}
+      className="inline-flex min-h-10 items-center gap-2 border-2 border-foreground bg-card px-4 font-label text-xs tracking-[0.2em] text-foreground uppercase shadow-[3px_3px_0_var(--foreground)] outline-none transition-[translate,box-shadow,background-color] hover:-translate-px hover:shadow-[4px_4px_0_var(--foreground)] focus-visible:ring-3 focus-visible:ring-ring/50 active:translate-0.5 active:shadow-none disabled:pointer-events-none disabled:opacity-60 aria-pressed:bg-fluo aria-pressed:text-ink motion-reduce:transition-none"
     >
-      <Heart className={cn(liked && 'fill-current')} />
+      <Heart className={cn('size-4', liked && 'fill-riot text-riot')} />
       <span className="tabular-nums">
         {t('feedback.likes', { count, formatted: formattedCount })}
       </span>
-    </Button>
+    </button>
   )
 }
 
@@ -143,9 +143,9 @@ function GuestPrompt() {
   const { login } = useAuth()
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border bg-background p-4">
-      <p className="text-muted-foreground">{t('feedback.loginPrompt')}</p>
-      <Button size="sm" onClick={() => login()}>
+    <div className="flex -rotate-1 flex-wrap items-center justify-between gap-3 bg-fluo p-4 text-ink shadow-[0_8px_16px_-10px_oklch(0_0_0/0.6)]">
+      <p>{t('feedback.loginPrompt')}</p>
+      <Button size="sm" className="bg-ink text-paper hover:bg-ink/85" onClick={() => login()}>
         <LogIn />
         {t('auth.logIn')}
       </Button>
@@ -235,11 +235,11 @@ function CommentList({ ideaId, access, comments }: Readonly<CommentListProps>) {
   return (
     <div className="space-y-4">
       {deleteFeedback.error && <ActionErrorAlert message={t('feedback.actionFailed')} />}
-      <ul className="divide-y">
+      <ul className="divide-y-2 divide-dashed divide-foreground/40 border-t-2 border-dashed border-foreground/40">
         {items.map((comment) => {
           const own = Boolean(access.userId) && comment.userId === access.userId
           return (
-            <li key={comment.id} className="py-4 first:pt-0">
+            <li key={comment.id} className="py-4">
               <CommentItem
                 ideaId={ideaId}
                 comment={comment}
@@ -306,10 +306,8 @@ function CommentItem({
 
   return (
     <article className="space-y-1.5">
-      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm">
-        <span className="font-label text-base text-heading">
-          {author ?? t('idea.unknownAuthor')}
-        </span>
+      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 font-label text-xs tracking-[0.15em] uppercase">
+        <span className="bg-ink px-1.5 py-0.5 text-paper">{author ?? t('idea.unknownAuthor')}</span>
         {createdAt && <span className="text-muted-foreground">{createdAt}</span>}
         {comment.updatedAt && (
           <span className="text-muted-foreground">· {t('feedback.edited')}</span>
