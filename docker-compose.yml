@@ -281,13 +281,11 @@ services:
     profiles: [app]
     build:
       context: src/frontend
-      args:
-        VITE_AUTH0_DOMAIN: ${AUTH0_DOMAIN:-}
-        VITE_AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID:-}
-        VITE_AUTH0_AUDIENCE: ${AUTH0_AUDIENCE:-}
-        VITE_API_BASE_URL: http://localhost:8080
     image: citypulse-frontend
     container_name: citypulse_frontend
+    depends_on:
+      gateway:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/health"]
       interval: 10s
