@@ -1,8 +1,8 @@
 import { ArrowRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { IsoCityTile } from '@/cities/IsoCityTile'
 import { useCityWithPolls } from '@/cities/useCityWithPolls'
 import { BoxAction } from '@/components/BoxAction'
+import { HalftonePoster } from '@/components/HalftonePoster'
 
 const GUEST_SEED = 'citypulse'
 
@@ -28,7 +28,11 @@ export function HomeHero({ cityId }: Readonly<{ cityId: string | null }>) {
           <BoxAction icon={ArrowRight} label={t('home.browseCities')} to="/cities" />
         )}
       </div>
-      <IsoCityTile seed={cityId ?? GUEST_SEED} className="mx-auto w-full max-w-xl" />
+      <HalftonePoster
+        seed={cityId ?? GUEST_SEED}
+        title="CityPulse"
+        className="mx-auto w-full max-w-md"
+      />
     </section>
   )
 }

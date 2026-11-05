@@ -2,7 +2,6 @@ import { ArrowRight, CalendarClock, CircleAlert, Clock, Vote, Wallet } from 'luc
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { components } from '@/api/schema/polls'
-import { IsoCityTile } from './IsoCityTile'
 import { useCityWithPolls } from './useCityWithPolls'
 import { BoxAction } from '@/components/BoxAction'
 import { boxCellClass } from '@/components/boxCell'
@@ -15,6 +14,7 @@ import { useNow } from '@/lib/useNow'
 import { PollLineBadge } from '@/polls/PollLineBadge'
 import { pollDaysLeft } from '@/polls/pollTimeline'
 import { pollTypeKey } from '@/polls/pollTypes'
+import { HalftonePoster } from '@/components/HalftonePoster'
 
 type Poll = components['schemas']['PollDto']
 
@@ -115,7 +115,11 @@ function SelectedPoll({ poll, number }: Readonly<{ poll: Poll; number: number }>
         )}
       </div>
       <div className="group mx-auto w-full max-w-80">
-        <IsoCityTile seed={poll.id ?? ''} photoUrl={coverImage(poll.images)?.url} />
+        <HalftonePoster
+          seed={poll.id ?? ''}
+          title={poll.title}
+          photoUrl={coverImage(poll.images)?.url}
+        />
       </div>
       <div className="flex flex-col items-center gap-6 lg:items-start">
         <dl className="flex flex-col gap-5">

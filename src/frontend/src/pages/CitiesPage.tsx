@@ -29,7 +29,7 @@ export function CitiesPage() {
     content = (
       <>
         <ul
-          className="grid gap-y-10 transition-opacity sm:grid-cols-2 lg:grid-cols-4 data-[stale=true]:opacity-60"
+          className="grid gap-x-6 gap-y-10 transition-opacity sm:grid-cols-2 lg:grid-cols-4 data-[stale=true]:opacity-60"
           data-stale={isPlaceholderData}
         >
           {data.items?.map((city) => (
@@ -83,7 +83,7 @@ export function CitiesPage() {
 
 function CityGridSkeleton() {
   return (
-    <ul className="grid gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+    <ul className="grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
       {Array.from({ length: 4 }, (_, index) => (
         <li key={index} className="flex flex-col items-center gap-3 px-6">
           <Skeleton className="aspect-square w-full" />
