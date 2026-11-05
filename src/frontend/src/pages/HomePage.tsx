@@ -54,7 +54,7 @@ function ScopeToggle({ cityId, scope, onChange }: Readonly<ScopeToggleProps>) {
   ]
 
   return (
-    <fieldset className="inline-flex min-w-0 border bg-card">
+    <fieldset className="inline-flex min-w-0 border-2 border-foreground bg-card">
       <legend className="sr-only">{t('activity.scopeLabel')}</legend>
       {options.map((option) => (
         <button
@@ -64,8 +64,9 @@ function ScopeToggle({ cityId, scope, onChange }: Readonly<ScopeToggleProps>) {
           onClick={() => onChange(option.value)}
           className={cn(
             boxCellClass,
-            'min-w-0 border-l first:border-l-0',
-            scope === option.value && 'bg-secondary shadow-[inset_0_-3px_0_var(--primary)]',
+            'min-w-0 border-l-2 border-foreground first:border-l-0',
+            scope === option.value &&
+              'bg-primary text-primary-foreground hover:bg-primary/85 focus-visible:bg-primary/85',
           )}
         >
           <span className="truncate">{option.label}</span>
@@ -77,13 +78,9 @@ function ScopeToggle({ cityId, scope, onChange }: Readonly<ScopeToggleProps>) {
 
 function HomeSkeleton() {
   return (
-    <div className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
-      <div className="flex flex-col items-center gap-4">
-        <Skeleton className="h-28 w-80" />
-        <Skeleton className="h-4 w-48" />
-        <Skeleton className="h-11 w-56" />
-      </div>
-      <Skeleton className="mx-auto aspect-square w-full max-w-xl" />
+    <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+      <Skeleton className="h-80" />
+      <Skeleton className="mx-auto aspect-square w-full max-w-sm" />
     </div>
   )
 }

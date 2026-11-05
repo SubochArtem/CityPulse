@@ -51,7 +51,7 @@ export function ActivityItem({
   return (
     <li
       style={pollLineStyle(pollId)}
-      className="relative grid grid-cols-[1.75rem_1fr] gap-x-3 border-b px-4 py-4 last:border-b-0 sm:px-6"
+      className="paper poster relative grid grid-cols-[1.75rem_1fr] gap-x-3 px-4 py-3 odd:-rotate-[0.5deg] even:rotate-[0.4deg] even:bg-[color-mix(in_oklch,var(--fluo)_22%,var(--paper))] sm:px-5"
     >
       <span className="flex justify-center pt-1">
         {pollEvent ? (
@@ -101,7 +101,7 @@ export function ActivityItem({
               </span>
             )}
             {cityName && (
-              <span className="border bg-secondary px-2 py-0.5 font-label tracking-[0.15em] text-foreground uppercase">
+              <span className="bg-ink px-2 py-0.5 font-label tracking-[0.15em] text-paper uppercase">
                 {cityName}
               </span>
             )}

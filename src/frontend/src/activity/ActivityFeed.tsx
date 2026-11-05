@@ -85,14 +85,14 @@ export function ActivityFeed({ cityId, actions }: Readonly<ActivityFeedProps>) {
     )
   } else if (entries.length === 0) {
     content = (
-      <p className="border bg-card px-6 py-10 text-center text-muted-foreground">
+      <p className="paper poster tape px-6 py-10 text-center text-muted-foreground">
         {t('activity.empty')}
       </p>
     )
   } else {
     content = (
       <>
-        <ol ref={listRef} className="scroll-mt-24 border bg-card">
+        <ol ref={listRef} className="scroll-mt-24 space-y-3">
           {entries.map((entry) => (
             <ActivityItem
               key={entry.id}
@@ -131,7 +131,7 @@ export function ActivityFeed({ cityId, actions }: Readonly<ActivityFeedProps>) {
 
       {pending.length > 0 && (
         <div className="sticky top-3 z-10 flex justify-center">
-          <Button size="sm" className="rounded-full shadow-md" onClick={showPending}>
+          <Button size="sm" className="shadow-[3px_3px_0_var(--ink)]" onClick={showPending}>
             <ArrowUp />
             {t('activity.newEvents', { count: pending.length })}
           </Button>
@@ -147,20 +147,29 @@ function LiveIndicator({ status }: Readonly<{ status: LiveStatus }>) {
   const { t } = useTranslation()
 
   let label: string
+  let toneClass: string
   let dotClass: string
   if (status === 'live') {
     label = t('activity.live')
-    dotClass = 'bg-(--line-2) motion-safe:animate-pulse'
+    toneClass = 'bg-riot text-paper'
+    dotClass = 'bg-paper motion-safe:animate-pulse'
   } else if (status === 'connecting') {
     label = t('activity.connecting')
-    dotClass = 'bg-muted-foreground'
+    toneClass = 'bg-ink text-paper'
+    dotClass = 'bg-paper/60'
   } else {
     label = t('activity.offline')
-    dotClass = 'bg-destructive'
+    toneClass = 'border-2 border-dashed border-foreground text-foreground'
+    dotClass = 'bg-foreground'
   }
 
   return (
-    <output className="inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-0.5 font-label text-xs tracking-[0.15em] text-muted-foreground uppercase">
+    <output
+      className={cn(
+        'inline-flex -rotate-2 items-center gap-1.5 px-2 py-0.5 font-label text-xs tracking-[0.15em] uppercase',
+        toneClass,
+      )}
+    >
       <span aria-hidden="true" className={cn('size-2 rounded-full', dotClass)} />
       {label}
     </output>
@@ -169,11 +178,11 @@ function LiveIndicator({ status }: Readonly<{ status: LiveStatus }>) {
 
 function FeedSkeleton() {
   return (
-    <ul className="border bg-card">
+    <ul className="space-y-3">
       {Array.from({ length: 5 }, (_, index) => (
         <li
           key={index}
-          className="grid grid-cols-[1.75rem_1fr] gap-x-3 border-b px-4 py-4 last:border-b-0 sm:px-6"
+          className="paper poster grid grid-cols-[1.75rem_1fr] gap-x-3 px-4 py-3 sm:px-5"
         >
           <Skeleton className="mx-auto size-3 rounded-full" />
           <div className="space-y-2">
