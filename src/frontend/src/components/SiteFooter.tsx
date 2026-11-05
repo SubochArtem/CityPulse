@@ -35,7 +35,7 @@ export function SiteFooter() {
           <span className="hidden md:inline">{t('footer.toTop')}</span>
         </button>
       </div>
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 font-heading text-[0.7rem] tracking-[0.2em] text-muted-foreground uppercase">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2 font-label text-[0.7rem] tracking-[0.2em] text-muted-foreground uppercase">
         <span>{t('footer.copyright', { year: new Date().getFullYear() })}</span>
         <span>{t('footer.tagline')}</span>
       </div>

@@ -16,7 +16,7 @@ export function HomeHero({ cityId }: Readonly<{ cityId: string | null }>) {
           {t('home.heroTitle')}
         </h1>
         <span aria-hidden="true" className="size-2.5 rotate-45 border border-heading" />
-        <p className="font-heading text-xs tracking-[0.3em] text-heading uppercase">
+        <p className="font-label text-xs tracking-[0.3em] text-heading uppercase">
           <span aria-hidden="true">— </span>
           {t('footer.tagline')}
           <span aria-hidden="true"> —</span>

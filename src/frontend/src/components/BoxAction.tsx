@@ -15,7 +15,7 @@ export function BoxAction({ icon: Icon, label, to, className }: Readonly<BoxActi
       <span className="grid w-11 place-items-center border-r border-heading bg-primary text-primary-foreground">
         <Icon className="size-4" />
       </span>
-      <span className="inline-flex items-center px-5 font-heading text-xs tracking-[0.2em] uppercase">
+      <span className="inline-flex items-center px-5 font-label text-xs tracking-[0.2em] uppercase">
         {label}
       </span>
     </>

@@ -2,12 +2,14 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 @import '@fontsource-variable/golos-text';
-@import '@fontsource-variable/oswald';
+@import '@fontsource/rubik-dirt';
+@import '@fontsource/pt-mono';
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-heading: 'Oswald Variable', var(--font-sans);
+  --font-heading: 'Rubik Dirt', 'Golos Text Variable', sans-serif;
+  --font-label: 'PT Mono', ui-monospace, monospace;
   --font-sans: 'Golos Text Variable', sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -210,5 +212,12 @@
   h3 {
     font-family: var(--font-heading);
     text-wrap: balance;
+  }
+  h1,
+  h2,
+  h3,
+  .font-heading {
+    font-weight: 400;
+    font-synthesis: none;
   }
 }

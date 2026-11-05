@@ -100,7 +100,7 @@ function SelectedPoll({ poll, number }: Readonly<{ poll: Poll; number: number }>
   return (
     <div className="mt-10 grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,20rem)_minmax(0,1fr)]">
       <div className="flex flex-col items-center gap-3 text-center lg:items-end lg:text-right">
-        <span className="font-heading text-xs tracking-[0.25em] text-coral uppercase">
+        <span className="font-label text-xs tracking-[0.25em] text-coral uppercase">
           {t('home.openLine', { number })}
         </span>
         <h3 className="text-3xl font-normal text-heading [overflow-wrap:anywhere]">{poll.title}</h3>

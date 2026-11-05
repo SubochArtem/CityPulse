@@ -68,7 +68,7 @@ function PollDetails({ poll }: Readonly<{ poll: Poll }>) {
     <div className="space-y-20">
       <section className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
         <div className="flex flex-col items-center gap-5 text-center">
-          <span className="inline-flex items-center gap-2.5 font-heading text-xs tracking-[0.25em] text-coral uppercase">
+          <span className="inline-flex items-center gap-2.5 font-label text-xs tracking-[0.25em] text-coral uppercase">
             <PollLineBadge pollId={poll.id} />
             {typeKey && t(typeKey)}
           </span>
@@ -189,7 +189,7 @@ function IdeaCard({ idea, author }: Readonly<{ idea: Idea; author: string | unde
           <p className="line-clamp-3 text-sm text-muted-foreground">{idea.description}</p>
         )}
         {(author || createdAt) && (
-          <p className="mt-auto pt-2 font-heading text-[0.65rem] tracking-[0.2em] text-muted-foreground uppercase">
+          <p className="mt-auto pt-2 font-label text-[0.65rem] tracking-[0.2em] text-muted-foreground uppercase">
             {[author, createdAt && t('idea.createdAt', { date: createdAt })]
               .filter(Boolean)
               .join(' · ')}

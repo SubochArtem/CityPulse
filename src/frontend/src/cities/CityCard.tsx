@@ -32,7 +32,7 @@ export function CityCard({ city, highlighted = false }: Readonly<CityCardProps>)
       />
       <TileMarker />
       {highlighted && (
-        <span className="mt-3 font-heading text-xs tracking-[0.2em] text-muted-foreground uppercase">
+        <span className="mt-3 font-label text-xs tracking-[0.2em] text-muted-foreground uppercase">
           {t('home.yourCity')}
         </span>
       )}
