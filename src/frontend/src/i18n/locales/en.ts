@@ -104,7 +104,6 @@ export const en = {
     open: 'Open poll',
     suggestIdea: 'Suggest an idea',
     endsAt: 'Ends {{date}}',
-    budget: 'Budget {{amount}}',
     route: {
       opened: 'Opened',
       closes: 'Closes',
