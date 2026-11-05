@@ -18,7 +18,7 @@ import { useIdeaWithPoll } from '@/ideas/useIdeaWithPoll'
 import { coverImage } from '@/lib/images'
 import { useNow } from '@/lib/useNow'
 import { pollLineStyle } from '@/polls/pollLine'
-import { pollDaysLeft } from '@/polls/pollTimeline'
+import { pollDaysLeft, showsTally } from '@/polls/pollTimeline'
 import { PollTicketBand } from '@/polls/PollTicketBand'
 import { pollTypeKey } from '@/polls/pollTypes'
 import { usePublicProfiles } from '@/users/usePublicProfiles'
@@ -27,7 +27,6 @@ type Idea = components['schemas']['IdeaWithPollDto']
 type Poll = components['schemas']['PollDto']
 
 const heroGrid = 'grid items-center gap-10 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]'
-const MAX_TALLY = 20
 
 export function IdeaPage() {
   const { t } = useTranslation()
@@ -170,9 +169,7 @@ function IdeaPoll({ poll }: Readonly<{ poll: Poll }>) {
                   ? t('poll.route.daysLeft', { count: daysLeft })
                   : t('poll.route.closed')}
               </span>
-              {daysLeft > 0 && daysLeft <= MAX_TALLY && (
-                <TallyMarks count={daysLeft} className="text-foreground" />
-              )}
+              {showsTally(daysLeft) && <TallyMarks count={daysLeft} className="text-foreground" />}
             </span>
           )}
         </div>
