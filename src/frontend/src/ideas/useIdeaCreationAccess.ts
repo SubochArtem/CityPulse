@@ -1,7 +1,6 @@
-import { useAuth0 } from '@auth0/auth0-react'
 import type { components } from '@/api/schema/polls'
+import { useAuth } from '@/auth/useAuth'
 import { useCurrentUser } from '@/auth/useCurrentUser'
-import { usePermissions } from '@/auth/usePermissions'
 
 type Poll = components['schemas']['PollDto']
 
@@ -20,8 +19,7 @@ function isPollOpen(poll: Pick<Poll, 'status' | 'endsAt'>) {
 }
 
 export function useIdeaCreationAccess(poll: Poll | undefined): IdeaCreationAccess {
-  const { isLoading: authLoading, isAuthenticated } = useAuth0()
-  const { can, isLoading: permissionsLoading } = usePermissions()
+  const { isLoading: authLoading, isAuthenticated, can } = useAuth()
   const { data: user, isLoading: userLoading } = useCurrentUser()
 
   if (!poll) {
@@ -36,7 +34,7 @@ export function useIdeaCreationAccess(poll: Poll | undefined): IdeaCreationAcces
   if (!isAuthenticated) {
     return 'guest'
   }
-  if (permissionsLoading || userLoading) {
+  if (userLoading) {
     return 'loading'
   }
   if (!can(CREATE_IDEA_PERMISSION)) {

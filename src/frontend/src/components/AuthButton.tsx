@@ -1,12 +1,12 @@
-import { useAuth0 } from '@auth0/auth0-react'
 import { LogIn, LogOut } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useAuth } from '@/auth/useAuth'
 import { boxCellClass } from '@/components/boxCell'
 import { cn } from '@/lib/utils'
 
 export function AuthButton({ className }: Readonly<{ className?: string }>) {
-  const { isLoading, isAuthenticated, loginWithRedirect, logout } = useAuth0()
-  const { t, i18n } = useTranslation()
+  const { isLoading, isAuthenticated, login, logout } = useAuth()
+  const { t } = useTranslation()
 
   if (isLoading) {
     return null
@@ -18,7 +18,7 @@ export function AuthButton({ className }: Readonly<{ className?: string }>) {
         type="button"
         aria-label={t('auth.logOut')}
         className={cn(boxCellClass, className)}
-        onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+        onClick={logout}
       >
         <LogOut className="size-4" />
         <span className="hidden md:inline">{t('auth.logOut')}</span>
@@ -35,9 +35,7 @@ export function AuthButton({ className }: Readonly<{ className?: string }>) {
         'bg-primary text-primary-foreground hover:bg-primary/80 focus-visible:bg-primary/80',
         className,
       )}
-      onClick={() =>
-        loginWithRedirect({ authorizationParams: { ui_locales: i18n.resolvedLanguage } })
-      }
+      onClick={() => login()}
     >
       <LogIn className="size-4" />
       <span className="hidden md:inline">{t('auth.logIn')}</span>

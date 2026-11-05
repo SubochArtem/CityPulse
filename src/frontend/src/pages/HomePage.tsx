@@ -1,7 +1,7 @@
-import { useAuth0 } from '@auth0/auth0-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ActivityFeed } from '@/activity/ActivityFeed'
+import { useAuth } from '@/auth/useAuth'
 import { useCurrentUser } from '@/auth/useCurrentUser'
 import { useCityWithPolls } from '@/cities/useCityWithPolls'
 import { boxCellClass } from '@/components/boxCell'
@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils'
 type Scope = 'city' | 'all'
 
 export function HomePage() {
-  const { isAuthenticated, isLoading } = useAuth0()
+  const { isAuthenticated, isLoading } = useAuth()
   const { data: user, isPending: userPending } = useCurrentUser()
   const [scope, setScope] = useState<Scope>('city')
   const resolving = isLoading || (isAuthenticated && userPending)

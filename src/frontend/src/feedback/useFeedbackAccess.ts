@@ -1,13 +1,10 @@
-import { useAuth0 } from '@auth0/auth0-react'
-import { readInternalUserId } from '@/auth/claims'
+import { useAuth } from '@/auth/useAuth'
 import { useCurrentUser } from '@/auth/useCurrentUser'
-import { usePermissions } from '@/auth/usePermissions'
 
 export type FeedbackWriteAccess = 'loading' | 'guest' | 'noPermission' | 'otherCity' | 'allowed'
 
 export function useFeedbackAccess(cityId: string | undefined) {
-  const { isLoading: authLoading, isAuthenticated, user } = useAuth0()
-  const { can, isLoading: permissionsLoading } = usePermissions()
+  const { isLoading: authLoading, isAuthenticated, userId, can } = useAuth()
   const { data: currentUser, isLoading: userLoading } = useCurrentUser()
 
   let write: FeedbackWriteAccess = 'allowed'
@@ -15,7 +12,7 @@ export function useFeedbackAccess(cityId: string | undefined) {
     write = 'loading'
   } else if (!isAuthenticated) {
     write = 'guest'
-  } else if (permissionsLoading || userLoading) {
+  } else if (userLoading) {
     write = 'loading'
   } else if (!can('feedback.create.city')) {
     write = 'noPermission'
@@ -24,7 +21,7 @@ export function useFeedbackAccess(cityId: string | undefined) {
   }
 
   return {
-    userId: readInternalUserId(user),
+    userId,
     write,
     canRead: isAuthenticated && can('feedback.read.any'),
     canUpdateOwn: can('feedback.update.own'),

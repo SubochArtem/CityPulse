@@ -1,4 +1,3 @@
-import { useAuth0 } from '@auth0/auth0-react'
 import { Ellipsis, Trash2, UserCheck, UserX } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -12,8 +11,7 @@ import { ConfirmDialog } from '@/admin/components/ConfirmDialog'
 import { FilterSelect } from '@/admin/components/FilterSelect'
 import { ADMIN_USERS_PAGE_SIZE, useAdminUsers } from '@/admin/users/useAdminUsers'
 import { useActivateUser, useDeactivateUser, useDeleteUser } from '@/admin/users/useUserMutations'
-import { readInternalUserId } from '@/auth/claims'
-import { usePermissions } from '@/auth/usePermissions'
+import { useAuth } from '@/auth/useAuth'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -52,9 +50,7 @@ function actionErrorKey(error: Error) {
 
 export function AdminUsersPage() {
   const { t } = useTranslation()
-  const { user: authUser } = useAuth0()
-  const currentUserId = readInternalUserId(authUser)
-  const { can } = usePermissions()
+  const { userId: currentUserId, can } = useAuth()
   const { searchParams, search, page, searchInput, setSearchInput, setParam, goToPage } =
     useListSearchParams()
   const cityId = searchParams.get('city') ?? undefined

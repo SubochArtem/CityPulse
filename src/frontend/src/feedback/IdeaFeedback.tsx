@@ -1,10 +1,9 @@
-import { useAuth0 } from '@auth0/auth0-react'
 import { Heart, LoaderCircle, LogIn } from 'lucide-react'
 import { type FormEvent, type ReactNode, useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation } from 'react-router'
 import { ActionErrorAlert } from '@/admin/components/ActionErrorAlert'
 import { ConfirmDialog } from '@/admin/components/ConfirmDialog'
+import { useAuth } from '@/auth/useAuth'
 import type { components } from '@/api/schema/feedback'
 import { CharacterCount } from '@/components/CharacterCount'
 import { Button } from '@/components/ui/button'
@@ -140,22 +139,13 @@ function LikeButton({ ideaId, count, myLikeId, canLike, canUnlike }: Readonly<Li
 }
 
 function GuestPrompt() {
-  const { t, i18n } = useTranslation()
-  const { loginWithRedirect } = useAuth0()
-  const location = useLocation()
+  const { t } = useTranslation()
+  const { login } = useAuth()
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border bg-background p-4">
       <p className="text-muted-foreground">{t('feedback.loginPrompt')}</p>
-      <Button
-        size="sm"
-        onClick={() =>
-          void loginWithRedirect({
-            appState: { returnTo: location.pathname + location.search },
-            authorizationParams: { ui_locales: i18n.resolvedLanguage },
-          })
-        }
-      >
+      <Button size="sm" onClick={() => login()}>
         <LogIn />
         {t('auth.logIn')}
       </Button>
