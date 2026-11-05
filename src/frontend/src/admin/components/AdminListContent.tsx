@@ -61,11 +61,11 @@ export function AdminListContent({
   return (
     <>
       <div
-        className="rounded-lg border transition-opacity data-[stale=true]:opacity-60"
+        className="border bg-card transition-opacity data-[stale=true]:opacity-60"
         data-stale={isPlaceholderData}
       >
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-secondary/60 [&_th]:font-heading [&_th]:text-[0.7rem] [&_th]:font-normal [&_th]:tracking-[0.18em] [&_th]:text-muted-foreground [&_th]:uppercase">
             <TableRow>{head}</TableRow>
           </TableHeader>
           <TableBody>{children}</TableBody>
