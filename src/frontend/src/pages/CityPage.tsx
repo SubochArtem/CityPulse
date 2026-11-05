@@ -53,7 +53,7 @@ function CityDetails({ city }: Readonly<{ city: City }>) {
     <div className="space-y-20">
       <section className="grid items-center gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)]">
         <div className="flex flex-col items-center gap-5 text-center">
-          <span className="font-heading text-xs tracking-[0.25em] text-coral uppercase">
+          <span className="font-label text-xs tracking-[0.25em] text-coral uppercase">
             {t('city.openPolls', { count: pollCount })}
           </span>
           <h1 className="max-w-md text-5xl leading-[0.95] font-medium text-heading [overflow-wrap:anywhere] sm:text-7xl">

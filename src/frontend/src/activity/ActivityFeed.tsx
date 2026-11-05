@@ -160,7 +160,7 @@ function LiveIndicator({ status }: Readonly<{ status: LiveStatus }>) {
   }
 
   return (
-    <output className="inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-0.5 font-heading text-xs tracking-[0.15em] text-muted-foreground uppercase">
+    <output className="inline-flex items-center gap-1.5 rounded-full border bg-card px-3 py-0.5 font-label text-xs tracking-[0.15em] text-muted-foreground uppercase">
       <span aria-hidden="true" className={cn('size-2 rounded-full', dotClass)} />
       {label}
     </output>

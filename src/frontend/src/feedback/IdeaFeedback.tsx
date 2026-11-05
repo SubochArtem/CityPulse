@@ -307,7 +307,7 @@ function CommentItem({
   return (
     <article className="space-y-1.5">
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm">
-        <span className="font-heading text-base text-heading">
+        <span className="font-label text-base text-heading">
           {author ?? t('idea.unknownAuthor')}
         </span>
         {createdAt && <span className="text-muted-foreground">{createdAt}</span>}

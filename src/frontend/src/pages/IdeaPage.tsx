@@ -112,7 +112,7 @@ function IdeaMeta({ idea }: Readonly<{ idea: Idea }>) {
   ]
 
   return (
-    <p className="font-heading text-xs tracking-[0.2em] text-muted-foreground uppercase">
+    <p className="font-label text-xs tracking-[0.2em] text-muted-foreground uppercase">
       {parts.filter(Boolean).join(' · ')}
     </p>
   )
@@ -130,7 +130,7 @@ function IdeaPoll({ poll }: Readonly<{ poll: Poll }>) {
       className="flex flex-col items-center gap-6 border bg-card px-4 py-8 text-center sm:px-10 lg:flex-row lg:justify-between lg:text-left"
     >
       <div className="flex min-w-0 flex-col items-center gap-2 lg:items-start">
-        <span className="inline-flex items-center gap-2.5 font-heading text-xs tracking-[0.25em] text-coral uppercase">
+        <span className="inline-flex items-center gap-2.5 font-label text-xs tracking-[0.25em] text-coral uppercase">
           <PollLineBadge pollId={poll.id} />
           {t('idea.poll')}
           {typeKey && <span aria-hidden="true">·</span>}

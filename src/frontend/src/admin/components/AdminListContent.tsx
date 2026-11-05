@@ -65,7 +65,7 @@ export function AdminListContent({
         data-stale={isPlaceholderData}
       >
         <Table>
-          <TableHeader className="bg-secondary/60 [&_th]:font-heading [&_th]:text-[0.7rem] [&_th]:font-normal [&_th]:tracking-[0.18em] [&_th]:text-muted-foreground [&_th]:uppercase">
+          <TableHeader className="bg-secondary/60 [&_th]:font-label [&_th]:text-[0.7rem] [&_th]:font-normal [&_th]:tracking-[0.18em] [&_th]:text-muted-foreground [&_th]:uppercase">
             <TableRow>{head}</TableRow>
           </TableHeader>
           <TableBody>{children}</TableBody>

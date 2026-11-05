@@ -101,7 +101,7 @@ export function ActivityItem({
               </span>
             )}
             {cityName && (
-              <span className="border bg-secondary px-2 py-0.5 font-heading tracking-[0.15em] text-foreground uppercase">
+              <span className="border bg-secondary px-2 py-0.5 font-label tracking-[0.15em] text-foreground uppercase">
                 {cityName}
               </span>
             )}

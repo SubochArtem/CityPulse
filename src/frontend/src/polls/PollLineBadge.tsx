@@ -27,7 +27,7 @@ export function PollLineBadge({ pollId, number, className }: Readonly<PollLineBa
       aria-hidden="true"
       style={pollLineStyle(pollId)}
       className={cn(
-        'inline-grid size-7 shrink-0 place-items-center rounded-full font-heading text-xs font-bold tabular-nums',
+        'inline-grid size-7 shrink-0 place-items-center rounded-full font-label text-xs font-bold tabular-nums',
         'bg-(--poll-line) text-line-foreground',
         className,
       )}
