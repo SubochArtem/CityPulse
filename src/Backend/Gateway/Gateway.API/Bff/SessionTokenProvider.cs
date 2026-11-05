@@ -39,7 +39,7 @@ public sealed class SessionTokenProvider(
 
     private async Task<SessionToken> RefreshAsync(HttpContext context, string sessionKey)
     {
-        var ticket = await ticketStore.RetrieveAsync(sessionKey);
+        var ticket = await ticketStore.RetrieveAsync(sessionKey, context, context.RequestAborted);
         if (ticket is null)
         {
             return SessionToken.Expired;

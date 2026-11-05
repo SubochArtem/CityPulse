@@ -12,7 +12,7 @@ public sealed class BffTokenForwardingMiddleware(RequestDelegate next)
         if (!request.Headers.ContainsKey(HeaderNames.Authorization))
         {
             var authenticated = await context.AuthenticateAsync(BffDefaults.CookieScheme);
-            if (authenticated.Succeeded && !await TryAttachTokenAsync(context, tokenProvider, authenticated.Properties!))
+            if (authenticated.Succeeded && !await TryAttachTokenAsync(context, tokenProvider, authenticated.Properties))
             {
                 return;
             }
