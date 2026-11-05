@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 import { ApiError } from '@/api/errors'
 import type { components } from '@/api/schema/polls'
-import { IsoCityTile } from '@/cities/IsoCityTile'
 import { BoxAction } from '@/components/BoxAction'
 import { ImageGallery } from '@/components/ImageGallery'
 import { PillHeading } from '@/components/PillHeading'
@@ -19,6 +18,7 @@ import { PollLineBadge } from '@/polls/PollLineBadge'
 import { pollDaysLeft } from '@/polls/pollTimeline'
 import { pollTypeKey } from '@/polls/pollTypes'
 import { usePublicProfiles } from '@/users/usePublicProfiles'
+import { HalftonePoster } from '@/components/HalftonePoster'
 
 type Idea = components['schemas']['IdeaWithPollDto']
 type Poll = components['schemas']['PollDto']
@@ -77,7 +77,11 @@ function IdeaDetails({ idea }: Readonly<{ idea: Idea }>) {
           <IdeaMeta idea={idea} />
         </div>
         <div className="group mx-auto w-full max-w-xl">
-          <IsoCityTile seed={idea.id ?? idea.title ?? ''} photoUrl={coverImage(idea.images)?.url} />
+          <HalftonePoster
+            seed={idea.id ?? idea.title ?? ''}
+            title={idea.title}
+            photoUrl={coverImage(idea.images)?.url}
+          />
         </div>
       </section>
 

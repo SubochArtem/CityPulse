@@ -5,7 +5,6 @@ import { useParams } from 'react-router'
 import { ApiError } from '@/api/errors'
 import type { components } from '@/api/schema/polls'
 import { CityPolls } from '@/cities/CityPolls'
-import { IsoCityTile } from '@/cities/IsoCityTile'
 import { useCityWithPolls } from '@/cities/useCityWithPolls'
 import { BoxAction } from '@/components/BoxAction'
 import { ImageGallery } from '@/components/ImageGallery'
@@ -13,6 +12,7 @@ import { PillHeading } from '@/components/PillHeading'
 import { Alert, AlertTitle } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import { coverImage } from '@/lib/images'
+import { HalftonePoster } from '@/components/HalftonePoster'
 
 type City = components['schemas']['CityWithPollsDto']
 
@@ -65,7 +65,11 @@ function CityDetails({ city }: Readonly<{ city: City }>) {
           )}
         </div>
         <div className="group mx-auto w-full max-w-xl">
-          <IsoCityTile seed={city.id ?? city.title ?? ''} photoUrl={coverImage(city.images)?.url} />
+          <HalftonePoster
+            seed={city.id ?? city.title ?? ''}
+            title={city.title}
+            photoUrl={coverImage(city.images)?.url}
+          />
         </div>
       </section>
 

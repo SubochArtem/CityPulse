@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 import { ApiError } from '@/api/errors'
 import type { components } from '@/api/schema/polls'
-import { IsoCityTile } from '@/cities/IsoCityTile'
 import { BoxAction } from '@/components/BoxAction'
 import { IconFact } from '@/components/IconFact'
 import { ImageGallery } from '@/components/ImageGallery'
@@ -19,6 +18,7 @@ import { PollRoute } from '@/polls/PollRoute'
 import { pollTypeKey } from '@/polls/pollTypes'
 import { usePollWithIdeas } from '@/polls/usePollWithIdeas'
 import { usePublicProfiles } from '@/users/usePublicProfiles'
+import { HalftonePoster } from '@/components/HalftonePoster'
 
 type Poll = components['schemas']['PollWithIdeasDto']
 type Idea = components['schemas']['IdeaDto']
@@ -81,7 +81,11 @@ function PollDetails({ poll }: Readonly<{ poll: Poll }>) {
           )}
         </div>
         <div className="group mx-auto w-full max-w-xl">
-          <IsoCityTile seed={poll.id ?? poll.title ?? ''} photoUrl={coverImage(poll.images)?.url} />
+          <HalftonePoster
+            seed={poll.id ?? poll.title ?? ''}
+            title={poll.title}
+            photoUrl={coverImage(poll.images)?.url}
+          />
         </div>
       </section>
 
