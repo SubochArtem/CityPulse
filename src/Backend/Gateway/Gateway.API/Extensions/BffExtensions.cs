@@ -1,4 +1,3 @@
-using System.Net;
 using System.Security.Claims;
 using Gateway.API.Bff;
 using Gateway.API.Configuration;
@@ -23,14 +22,6 @@ namespace Gateway.API.Extensions;
 
 public static class BffExtensions
 {
-    private static readonly IPNetwork[] PrivateNetworks =
-    [
-        new(IPAddress.Parse("10.0.0.0"), 8),
-        new(IPAddress.Parse("172.16.0.0"), 12),
-        new(IPAddress.Parse("192.168.0.0"), 16),
-        new(IPAddress.Parse("127.0.0.0"), 8)
-    ];
-
     public static IServiceCollection AddGatewayBff(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddOptions<BffSettings>()
@@ -38,16 +29,22 @@ public static class BffExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        services.Configure<ForwardedHeadersOptions>(options =>
-        {
-            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-            options.KnownNetworks.Clear();
-            options.KnownProxies.Clear();
-            foreach (var network in PrivateNetworks)
+        services.AddOptions<ForwardedHeadersSettings>()
+            .Bind(configuration.GetSection(ForwardedHeadersSettings.SectionName))
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddOptions<ForwardedHeadersOptions>()
+            .Configure<IOptions<ForwardedHeadersSettings>>((options, settings) =>
             {
-                options.KnownNetworks.Add(network);
-            }
-        });
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+                options.KnownNetworks.Clear();
+                options.KnownProxies.Clear();
+                foreach (var network in settings.Value.KnownNetworks)
+                {
+                    options.KnownNetworks.Add(IPNetwork.Parse(network));
+                }
+            });
 
         services.AddOptions<RedisSettings>()
             .Bind(configuration.GetSection(RedisSettings.SectionName));
