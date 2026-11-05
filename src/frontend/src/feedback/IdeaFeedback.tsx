@@ -61,12 +61,15 @@ export function IdeaFeedback({ ideaId, cityId }: Readonly<IdeaFeedbackProps>) {
   }
 
   return (
-    <div className="max-w-2xl space-y-4">
+    <section
+      aria-labelledby="idea-feedback-title"
+      className="mx-auto max-w-3xl space-y-6 border bg-card px-4 py-10 sm:px-10"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold tracking-tight">
+        <h2 id="idea-feedback-title" className="text-3xl font-medium text-heading">
           {t('feedback.title')}
           {access.canRead && commentCount > 0 && (
-            <span className="ml-2 text-base font-normal text-muted-foreground tabular-nums">
+            <span className="ml-3 font-heading text-xl text-coral tabular-nums">
               {commentCount}
             </span>
           )}
@@ -82,7 +85,7 @@ export function IdeaFeedback({ ideaId, cityId }: Readonly<IdeaFeedbackProps>) {
         )}
       </div>
       {body}
-    </div>
+    </section>
   )
 }
 
@@ -142,7 +145,7 @@ function GuestPrompt() {
   const location = useLocation()
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-card p-4 ring-1 ring-foreground/10">
+    <div className="flex flex-wrap items-center justify-between gap-3 border bg-background p-4">
       <p className="text-muted-foreground">{t('feedback.loginPrompt')}</p>
       <Button
         size="sm"
@@ -314,7 +317,9 @@ function CommentItem({
   return (
     <article className="space-y-1.5">
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm">
-        <span className="font-semibold">{author ?? t('idea.unknownAuthor')}</span>
+        <span className="font-heading text-base text-heading">
+          {author ?? t('idea.unknownAuthor')}
+        </span>
         {createdAt && <span className="text-muted-foreground">{createdAt}</span>}
         {comment.updatedAt && (
           <span className="text-muted-foreground">· {t('feedback.edited')}</span>
