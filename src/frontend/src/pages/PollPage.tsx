@@ -104,36 +104,42 @@ function PollDetails({ poll }: Readonly<{ poll: Poll }>) {
         </div>
       </section>
 
-      <section className="space-y-10 border bg-card px-4 py-10 sm:px-10">
-        <dl className="flex flex-wrap justify-center gap-x-14 gap-y-6">
-          {poll.endsAt && (
-            <IconFact
-              icon={CalendarClock}
-              label={t('home.facts.ends')}
-              value={new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' }).format(
-                new Date(poll.endsAt),
-              )}
-            />
-          )}
-          {poll.budgetAmount ? (
-            <IconFact
-              icon={Wallet}
-              label={t('home.facts.budget')}
-              value={new Intl.NumberFormat(i18n.language).format(poll.budgetAmount)}
-            />
-          ) : null}
-          <IconFact
-            icon={Lightbulb}
-            label={t('poll.ideas')}
-            value={new Intl.NumberFormat(i18n.language).format(ideas.length)}
-          />
-        </dl>
-        <PollRoute
-          pollId={poll.id}
-          createdAt={poll.createdAt}
-          endsAt={poll.endsAt}
-          className="mx-auto max-w-3xl"
+      <section style={pollLineStyle(poll.id)} className="paper poster -rotate-[0.3deg] pb-10">
+        <div
+          aria-hidden="true"
+          className="h-4 bg-(--poll-line) [mask:radial-gradient(circle_at_10px_100%,transparent_6px,black_6.5px)_0_0/20px_100%]"
         />
+        <div className="space-y-10 px-4 pt-8 sm:px-10">
+          <dl className="flex flex-wrap justify-center gap-x-14 gap-y-6">
+            {poll.endsAt && (
+              <IconFact
+                icon={CalendarClock}
+                label={t('home.facts.ends')}
+                value={new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' }).format(
+                  new Date(poll.endsAt),
+                )}
+              />
+            )}
+            {poll.budgetAmount ? (
+              <IconFact
+                icon={Wallet}
+                label={t('home.facts.budget')}
+                value={new Intl.NumberFormat(i18n.language).format(poll.budgetAmount)}
+              />
+            ) : null}
+            <IconFact
+              icon={Lightbulb}
+              label={t('poll.ideas')}
+              value={new Intl.NumberFormat(i18n.language).format(ideas.length)}
+            />
+          </dl>
+          <PollRoute
+            pollId={poll.id}
+            createdAt={poll.createdAt}
+            endsAt={poll.endsAt}
+            className="mx-auto max-w-3xl"
+          />
+        </div>
       </section>
 
       {hasGallery && (
