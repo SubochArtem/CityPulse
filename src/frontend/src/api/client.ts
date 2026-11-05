@@ -1,30 +1,31 @@
 import createClient, { type Middleware } from 'openapi-fetch'
-import { apiBaseUrl } from './config'
+import { authQueryKey } from '../auth/useAuth'
+import { queryClient } from '../queryClient'
+import { csrfHeaders } from './csrf'
 import type { paths as FeedbackPaths } from './schema/feedback'
 import type { paths as PollsPaths } from './schema/polls'
 import type { paths as UsersPaths } from './schema/users'
 
-type TokenGetter = () => Promise<string | undefined>
+const UNAUTHORIZED = 401
 
-let getToken: TokenGetter = () => Promise.resolve(undefined)
-
-export function setTokenGetter(getter: TokenGetter) {
-  getToken = getter
-}
-
-const authMiddleware: Middleware = {
-  async onRequest({ request }) {
-    const token = await getToken()
-    if (token) {
-      request.headers.set('Authorization', `Bearer ${token}`)
+const sessionMiddleware: Middleware = {
+  onRequest({ request }) {
+    for (const [name, value] of Object.entries(csrfHeaders)) {
+      request.headers.set(name, value)
     }
     return request
+  },
+  onResponse({ response }) {
+    if (response.status === UNAUTHORIZED) {
+      void queryClient.invalidateQueries({ queryKey: authQueryKey })
+    }
+    return response
   },
 }
 
 function createApiClient<TPaths extends object>() {
-  const client = createClient<TPaths>({ baseUrl: apiBaseUrl })
-  client.use(authMiddleware)
+  const client = createClient<TPaths>({ credentials: 'same-origin' })
+  client.use(sessionMiddleware)
   return client
 }
 

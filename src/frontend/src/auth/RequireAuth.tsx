@@ -1,28 +1,18 @@
-import { useAuth0 } from '@auth0/auth0-react'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Outlet, useLocation } from 'react-router'
+import { useAuth } from './useAuth'
 
 export function RequireAuth() {
-  const { isLoading, isAuthenticated, loginWithRedirect } = useAuth0()
+  const { isLoading, isAuthenticated, login } = useAuth()
   const location = useLocation()
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      void loginWithRedirect({
-        appState: { returnTo: location.pathname + location.search },
-        authorizationParams: { ui_locales: i18n.resolvedLanguage },
-      })
+      login(location.pathname + location.search)
     }
-  }, [
-    isLoading,
-    isAuthenticated,
-    loginWithRedirect,
-    location.pathname,
-    location.search,
-    i18n.resolvedLanguage,
-  ])
+  }, [isLoading, isAuthenticated, login, location.pathname, location.search])
 
   if (isLoading || !isAuthenticated) {
     return <p className="text-muted-foreground">{t('auth.loading')}</p>

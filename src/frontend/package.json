@@ -14,7 +14,6 @@
     "gen:api": "npx --yes openapi-typescript@7.13.0 ${API_BASE_URL:-http://localhost:8080}/swagger/users/swagger.json -o src/api/schema/users.ts && npx --yes openapi-typescript@7.13.0 ${API_BASE_URL:-http://localhost:8080}/swagger/polls/swagger.json -o src/api/schema/polls.ts && npx --yes openapi-typescript@7.13.0 ${API_BASE_URL:-http://localhost:8080}/swagger/feedback/swagger.json -o src/api/schema/feedback.ts"
   },
   "dependencies": {
-    "@auth0/auth0-react": "^2.30.0",
     "@fontsource-variable/golos-text": "^5.3.0",
     "@fontsource-variable/oswald": "^5.3.0",
     "@microsoft/signalr": "^8.0.7",
