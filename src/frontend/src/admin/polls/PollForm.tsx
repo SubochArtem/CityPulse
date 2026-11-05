@@ -153,7 +153,11 @@ export function PollForm({
     : t('admin.pollForm.endsAtRange', { min: MIN_DURATION_DAYS, max: MAX_DURATION_DAYS })
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl space-y-6" noValidate>
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-2xl space-y-6 border bg-card px-4 py-8 sm:px-8"
+      noValidate
+    >
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor={ids.city}>{t('admin.pollForm.city')}</Label>

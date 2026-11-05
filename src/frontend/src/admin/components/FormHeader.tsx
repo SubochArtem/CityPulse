@@ -17,7 +17,7 @@ export function FormHeader({ title, backTo, backLabel }: Readonly<FormHeaderProp
           {backLabel}
         </Link>
       </Button>
-      <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
+      <h2 className="text-3xl font-medium text-heading">{title}</h2>
     </div>
   )
 }
