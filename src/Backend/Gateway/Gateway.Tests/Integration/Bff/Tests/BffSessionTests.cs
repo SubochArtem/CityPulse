@@ -46,6 +46,7 @@ public sealed class BffSessionTests(GatewayWebAppFactory factory) : GatewayApiTe
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal("no-store", response.Headers.CacheControl?.ToString());
         Assert.False(user!.IsAuthenticated);
+        Assert.Null(user.InternalUserId);
         Assert.Empty(user.Permissions);
         Assert.Null(user.LogoutUrl);
     }
@@ -74,6 +75,7 @@ public sealed class BffSessionTests(GatewayWebAppFactory factory) : GatewayApiTe
 
         Assert.True(user!.IsAuthenticated);
         Assert.Equal(TestConstants.Bff.UserId, user.UserId);
+        Assert.Equal(TestConstants.Bff.InternalUserId, user.InternalUserId);
         Assert.Equal(
             [TestConstants.Bff.PollsReadPermission, TestConstants.Bff.IdeasCreatePermission],
             user.Permissions);

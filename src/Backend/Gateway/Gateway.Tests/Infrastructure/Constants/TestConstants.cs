@@ -65,6 +65,7 @@ internal static class TestConstants
         public const string CallbackUri = "http://localhost/bff/callback";
         public const string GatewayOrigin = "http://localhost";
         public const string UserId = "auth0|bff-test-user";
+        public const string InternalUserId = "3f2c8a1e-6b4d-4f0a-9c7e-2d5b8e1a4c60";
         public const string PollsReadPermission = "polls.read";
         public const string IdeasCreatePermission = "ideas.create.city";
         public const string TokenPath = "/oauth/token";
