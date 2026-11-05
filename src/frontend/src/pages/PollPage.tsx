@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { IdeaApprovalBadge } from '@/ideas/IdeaApprovalBadge'
 import { useIdeaCreationAccess } from '@/ideas/useIdeaCreationAccess'
 import { coverImage } from '@/lib/images'
+import { tiltFor } from '@/lib/tilt'
 import { PollRoute } from '@/polls/PollRoute'
 import { pollLineStyle } from '@/polls/pollLine'
 import { pollTypeKey } from '@/polls/pollTypes'
@@ -155,9 +156,9 @@ function PollDetails({ poll }: Readonly<{ poll: Poll }>) {
           <SuggestIdeaAction poll={poll} />
         </div>
         {ideas.length ? (
-          <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid items-start gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {ideas.map((idea) => (
-              <li key={idea.id} className="grid">
+              <li key={idea.id}>
                 <IdeaCard
                   idea={idea}
                   author={idea.userId ? nicknames?.get(idea.userId) : undefined}
@@ -186,6 +187,7 @@ function SuggestIdeaAction({ poll }: Readonly<{ poll: Poll }>) {
 
 function IdeaCard({ idea, author }: Readonly<{ idea: Idea; author: string | undefined }>) {
   const { t, i18n } = useTranslation()
+  const seed = idea.id ?? idea.title ?? ''
   const cover = coverImage(idea.images)
   const createdAt = idea.createdAt
     ? new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' }).format(
@@ -196,31 +198,41 @@ function IdeaCard({ idea, author }: Readonly<{ idea: Idea; author: string | unde
   return (
     <Link
       to={`/ideas/${idea.id}`}
-      className="group flex h-full flex-col border bg-card p-1.5 transition-colors outline-none hover:border-heading focus-visible:ring-3 focus-visible:ring-ring/50"
+      style={{ rotate: `${tiltFor(seed)}deg` }}
+      className="group paper poster flex h-full flex-col p-3 pb-0 outline-none transition-[rotate,translate] duration-300 hover:-translate-y-1 hover:rotate-0! focus-visible:rotate-0! focus-visible:ring-3 focus-visible:ring-ring/50 motion-reduce:transition-none"
     >
       {cover?.url ? (
-        <img src={cover.url} alt="" loading="lazy" className="aspect-video w-full object-cover" />
+        <HalftonePoster
+          seed={seed}
+          photoUrl={cover.url}
+          framed={false}
+          className="[&>div]:aspect-video"
+        />
       ) : (
-        <div className="grid aspect-video place-items-center bg-secondary text-heading">
-          <Lightbulb className="size-8" />
-        </div>
+        <span
+          aria-hidden="true"
+          className="halftone h-14 text-riot/30 [mask-image:linear-gradient(100deg,black,transparent_85%)]"
+        />
       )}
-      <div className="flex flex-1 flex-col items-start gap-2 p-4">
-        <IdeaApprovalBadge status={idea.approvalStatus} />
-        <h3 className="text-2xl font-normal text-coral [overflow-wrap:anywhere] group-hover:underline group-hover:underline-offset-4">
+      <div className="flex flex-1 flex-col items-start gap-2 pt-4 pb-4">
+        <IdeaApprovalBadge
+          status={idea.approvalStatus}
+          className="h-auto -rotate-2 rounded-none border-2 border-current px-1.5 font-label text-[0.65rem] tracking-[0.2em] uppercase"
+        />
+        <h3 className="text-2xl leading-tight text-foreground [overflow-wrap:anywhere] group-hover:text-coral">
           {idea.title}
         </h3>
         {idea.description && (
           <p className="line-clamp-3 text-sm text-muted-foreground">{idea.description}</p>
         )}
-        {(author || createdAt) && (
-          <p className="mt-auto pt-2 font-label text-[0.65rem] tracking-[0.2em] text-muted-foreground uppercase">
-            {[author, createdAt && t('idea.createdAt', { date: createdAt })]
-              .filter(Boolean)
-              .join(' · ')}
-          </p>
-        )}
       </div>
+      {(author || createdAt) && (
+        <p className="-mx-3 mt-auto border-t-2 border-dashed border-foreground/60 px-3 py-2.5 font-label text-[0.65rem] tracking-[0.2em] text-muted-foreground uppercase">
+          {[author, createdAt && t('idea.createdAt', { date: createdAt })]
+            .filter(Boolean)
+            .join(' · ')}
+        </p>
+      )}
     </Link>
   )
 }
