@@ -47,7 +47,9 @@ export function CityCard({ city, highlighted = false }: Readonly<CityCardProps>)
       {city.description && (
         <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{city.description}</p>
       )}
-      {highlighted && <BoxAction icon={ArrowRight} label={t('home.openCity')} className="mt-4" />}
+      {highlighted && (
+        <BoxAction icon={ArrowRight} label={t('home.openCity')} className="mt-4 max-sm:hidden" />
+      )}
     </Link>
   )
 }

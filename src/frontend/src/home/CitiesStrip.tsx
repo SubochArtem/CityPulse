@@ -37,7 +37,7 @@ export function CitiesStrip({ cityId }: Readonly<{ cityId: string | null }>) {
     content = (
       <>
         <div className="flex justify-center">
-          <span className="rounded-full border bg-card px-3 py-0.5 font-label text-xs text-heading">
+          <span className="bg-fluo px-2 py-0.5 font-label text-xs tracking-[0.15em] text-ink uppercase">
             {t('home.cityCount', { count: total })}
           </span>
         </div>

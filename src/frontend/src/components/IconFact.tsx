@@ -9,8 +9,8 @@ interface IconFactProps {
 export function IconFact({ icon: Icon, label, value }: Readonly<IconFactProps>) {
   return (
     <div className="flex items-center gap-4">
-      <span className="grid size-11 shrink-0 place-items-center rounded-full border outline outline-offset-3 outline-border/60">
-        <Icon className="size-5 text-heading" />
+      <span className="grid size-11 shrink-0 -rotate-3 place-items-center border-2 border-heading bg-primary text-primary-foreground">
+        <Icon className="size-5" />
       </span>
       <div className="flex flex-col-reverse">
         <dt className="font-label text-[0.65rem] tracking-[0.2em] text-muted-foreground uppercase">
