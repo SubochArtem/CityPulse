@@ -2,14 +2,16 @@ import { Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, NavLink, Outlet, useMatch } from 'react-router'
 import { NoAccess } from '@/auth/RequirePermission'
+import { boxCellClass } from '@/components/boxCell'
 import { PageLoader } from '@/components/PageLoader'
 import { cn } from '@/lib/utils'
 import { useAdminSections } from './useAdminSections'
 
 const tabClass = ({ isActive }: { isActive: boolean }) =>
   cn(
-    'rounded-md px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors',
-    isActive ? 'bg-muted text-foreground' : 'text-muted-foreground hover:text-foreground',
+    boxCellClass,
+    'shrink-0 border-l whitespace-nowrap first:border-l-0',
+    isActive && 'bg-secondary shadow-[inset_0_-3px_0_var(--primary)]',
   )
 
 export function AdminLayout() {
@@ -31,10 +33,10 @@ export function AdminLayout() {
   }
 
   return (
-    <section className="space-y-6">
-      <h1 className="text-3xl font-semibold tracking-tight">{t('admin.title')}</h1>
+    <section className="space-y-8">
+      <h1 className="text-4xl font-medium text-heading">{t('admin.title')}</h1>
       {sections.length > 0 && (
-        <nav className="-mx-1 flex gap-1 overflow-x-auto border-b px-1 pb-2">
+        <nav className="flex w-fit max-w-full overflow-x-auto border bg-card">
           {sections.map((section) => (
             <NavLink key={section.path} to={section.path} className={tabClass}>
               {t(section.labelKey)}

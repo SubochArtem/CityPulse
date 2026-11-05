@@ -80,7 +80,11 @@ export function CityForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl space-y-6" noValidate>
+    <form
+      onSubmit={handleSubmit}
+      className="max-w-2xl space-y-6 border bg-card px-4 py-8 sm:px-8"
+      noValidate
+    >
       <TitleDescriptionFields
         title={{
           label: t('admin.cityForm.title'),
