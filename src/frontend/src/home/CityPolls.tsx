@@ -55,11 +55,10 @@ export function CityPolls({ cityId }: Readonly<{ cityId: string }>) {
       {selected ? (
         <>
           {polls.length > 1 && (
-            <div
-              role="group"
-              aria-label={t('home.pollsLabel', { city: city.title ?? '' })}
-              className="mx-auto mt-8 grid max-w-3xl border sm:auto-cols-fr sm:grid-flow-col"
-            >
+            <fieldset className="mx-auto mt-8 grid max-w-3xl min-w-0 border sm:auto-cols-fr sm:grid-flow-col">
+              <legend className="sr-only">
+                {t('home.pollsLabel', { city: city.title ?? '' })}
+              </legend>
               {polls.map((poll, index) => (
                 <button
                   key={poll.id}
@@ -68,7 +67,7 @@ export function CityPolls({ cityId }: Readonly<{ cityId: string }>) {
                   onClick={() => setSelectedId(poll.id)}
                   className={cn(
                     boxCellClass,
-                    'min-w-0 border-b last:border-b-0 sm:border-b-0 sm:border-l sm:first:border-l-0',
+                    'min-w-0 border-b last:border-b-0 sm:border-b-0 sm:border-l sm:[legend+&]:border-l-0',
                     poll.id === selected.id &&
                       'bg-secondary shadow-[inset_0_-3px_0_var(--primary)]',
                   )}
@@ -81,7 +80,7 @@ export function CityPolls({ cityId }: Readonly<{ cityId: string }>) {
                   <span className="truncate">{poll.title}</span>
                 </button>
               ))}
-            </div>
+            </fieldset>
           )}
           <SelectedPoll poll={selected} number={selectedIndex + 1} />
         </>
