@@ -50,5 +50,7 @@ internal static class EnvironmentConstants
     {
         public const string PublicSchema = "public";
         public const string EfMigrationsHistoryTable = "__EFMigrationsHistory";
+        public const int ResetAttempts = 5;
+        public static readonly TimeSpan ResetRetryDelay = TimeSpan.FromMilliseconds(200);
     }
 }

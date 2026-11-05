@@ -28,9 +28,30 @@ public abstract class PollsApiTestBase(PollsWebAppFactory factory) : IAsyncLifet
             TablesToIgnore = [EnvironmentConstants.Respawner.EfMigrationsHistoryTable]
         });
 
-        await respawner.ResetAsync(connection);
+        await ResetDatabaseAsync(respawner, connection);
 
         factory.ResetMocks();
+    }
+
+    private static async Task ResetDatabaseAsync(Respawner respawner, NpgsqlConnection connection)
+    {
+        var attempt = 1;
+
+        while (true)
+        {
+            try
+            {
+                await respawner.ResetAsync(connection);
+                return;
+            }
+            catch (PostgresException ex) when (
+                ex.SqlState == PostgresErrorCodes.DeadlockDetected
+                && attempt < EnvironmentConstants.Respawner.ResetAttempts)
+            {
+                attempt++;
+                await Task.Delay(EnvironmentConstants.Respawner.ResetRetryDelay);
+            }
+        }
     }
 
     public Task DisposeAsync() => Task.CompletedTask;
