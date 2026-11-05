@@ -5,6 +5,7 @@ import { Link } from 'react-router'
 import { CityCard } from '@/cities/CityCard'
 import { useCities } from '@/cities/useCities'
 import { boxCellClass } from '@/components/boxCell'
+import { PillHeading } from '@/components/PillHeading'
 import { Alert, AlertTitle } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
@@ -60,14 +61,7 @@ export function CitiesStrip({ cityId }: Readonly<{ cityId: string | null }>) {
 
   return (
     <section aria-labelledby="cities-strip-title" className="space-y-6">
-      <div className="flex justify-center">
-        <h2
-          id="cities-strip-title"
-          className="rounded-full border px-8 py-2 text-center text-2xl font-normal text-heading outline outline-offset-4 outline-border"
-        >
-          {t('home.pickCity')}
-        </h2>
-      </div>
+      <PillHeading id="cities-strip-title">{t('home.pickCity')}</PillHeading>
       {content}
     </section>
   )

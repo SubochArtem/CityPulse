@@ -9,6 +9,7 @@ import { IsoCityTile } from '@/cities/IsoCityTile'
 import { useCityWithPolls } from '@/cities/useCityWithPolls'
 import { BoxAction } from '@/components/BoxAction'
 import { ImageGallery } from '@/components/ImageGallery'
+import { PillHeading } from '@/components/PillHeading'
 import { Alert, AlertTitle } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import { coverImage } from '@/lib/images'
@@ -72,14 +73,7 @@ function CityDetails({ city }: Readonly<{ city: City }>) {
 
       {hasGallery && (
         <section aria-labelledby="city-photos-title" className="space-y-6">
-          <div className="flex justify-center">
-            <h2
-              id="city-photos-title"
-              className="rounded-full border px-8 py-2 text-center text-2xl font-normal text-heading outline outline-offset-4 outline-border"
-            >
-              {t('city.photos')}
-            </h2>
-          </div>
+          <PillHeading id="city-photos-title">{t('city.photos')}</PillHeading>
           <ImageGallery key={city.id} images={city.images} alt={city.title ?? ''} />
         </section>
       )}

@@ -1,5 +1,4 @@
 import { ArrowRight, CalendarClock, CircleAlert, Clock, Vote, Wallet } from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { components } from '@/api/schema/polls'
@@ -7,6 +6,7 @@ import { IsoCityTile } from './IsoCityTile'
 import { useCityWithPolls } from './useCityWithPolls'
 import { BoxAction } from '@/components/BoxAction'
 import { boxCellClass } from '@/components/boxCell'
+import { IconFact } from '@/components/IconFact'
 import { Alert, AlertTitle } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
 import { coverImage } from '@/lib/images'
@@ -120,7 +120,7 @@ function SelectedPoll({ poll, number }: Readonly<{ poll: Poll; number: number }>
       <div className="flex flex-col items-center gap-6 lg:items-start">
         <dl className="flex flex-col gap-5">
           {poll.endsAt && (
-            <Fact
+            <IconFact
               icon={CalendarClock}
               label={t('home.facts.ends')}
               value={new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium' }).format(
@@ -128,9 +128,9 @@ function SelectedPoll({ poll, number }: Readonly<{ poll: Poll; number: number }>
               )}
             />
           )}
-          {typeKey && <Fact icon={Vote} label={t('home.facts.type')} value={t(typeKey)} />}
+          {typeKey && <IconFact icon={Vote} label={t('home.facts.type')} value={t(typeKey)} />}
           {poll.budgetAmount ? (
-            <Fact
+            <IconFact
               icon={Wallet}
               label={t('home.facts.budget')}
               value={new Intl.NumberFormat(i18n.language).format(poll.budgetAmount)}
@@ -138,28 +138,6 @@ function SelectedPoll({ poll, number }: Readonly<{ poll: Poll; number: number }>
           ) : null}
         </dl>
         <BoxAction icon={ArrowRight} label={t('poll.open')} to={pollPath} />
-      </div>
-    </div>
-  )
-}
-
-interface FactProps {
-  icon: LucideIcon
-  label: string
-  value: string
-}
-
-function Fact({ icon: Icon, label, value }: Readonly<FactProps>) {
-  return (
-    <div className="flex items-center gap-4">
-      <span className="grid size-11 shrink-0 place-items-center rounded-full border outline outline-offset-3 outline-border/60">
-        <Icon className="size-5 text-heading" />
-      </span>
-      <div className="flex flex-col-reverse">
-        <dt className="font-heading text-[0.65rem] tracking-[0.2em] text-muted-foreground uppercase">
-          {label}
-        </dt>
-        <dd className="font-heading text-xl font-medium">{value}</dd>
       </div>
     </div>
   )
