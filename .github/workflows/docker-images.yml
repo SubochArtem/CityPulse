@@ -66,3 +66,49 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}
           secrets: |
             github_token=${{ secrets.GITHUB_TOKEN }}
+
+  deploy:
+    name: Deploy to VM
+    needs: build
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            deploy
+            docker/minio
+
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      - name: Copy deploy files
+        env:
+          DEPLOY_TARGET: ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}
+        run: |
+          tar -czhf - -C deploy docker-compose.yml Caddyfile minio \
+            | ssh -i ~/.ssh/deploy_key -o ConnectTimeout=30 "$DEPLOY_TARGET" 'tar -xzf - -C /opt/citypulse'
+
+      - name: Start new version
+        env:
+          DEPLOY_TARGET: ${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o ConnectTimeout=30 "$DEPLOY_TARGET" "
+            set -e
+            cd /opt/citypulse
+            export IMAGE_TAG=$IMAGE_TAG
+            docker compose pull --quiet
+            docker compose up -d --wait --wait-timeout 300 --remove-orphans
+            docker image prune -f
+          "
