@@ -7,7 +7,17 @@ type RussianTranslation = Translation & {
     readonly openPolls_many: string
   }
   readonly feedback: { readonly likes_few: string; readonly likes_many: string }
-  readonly activity: { readonly newEvents_few: string; readonly newEvents_many: string }
+  readonly activity: {
+    readonly newEvents_few: string
+    readonly newEvents_many: string
+    readonly likes_few: string
+    readonly likes_many: string
+    readonly comments_few: string
+    readonly comments_many: string
+    readonly moreComments_few: string
+    readonly moreComments_many: string
+    readonly trail: { readonly commented_few: string; readonly commented_many: string }
+  }
   readonly home: { readonly cityCount_few: string; readonly cityCount_many: string }
   readonly poll: {
     readonly route: { readonly daysLeft_few: string; readonly daysLeft_many: string }
@@ -85,18 +95,45 @@ export const ru: RussianTranslation = {
     loadFailed: 'Не удалось загрузить активность',
     empty: 'Здесь пока ничего не происходило.',
     someone: 'Кто-то',
-    anIdea: 'идею',
     quoted: '«{{text}}»',
-    inPoll: 'в опросе {{poll}}',
-    event: {
-      pollOpened: 'Открыт опрос <poll>{{poll}}</poll>',
-      pollFinished: 'Опрос <poll>{{poll}}</poll> завершён',
-      pollCancelled: 'Опрос <poll>{{poll}}</poll> отменён',
-      pollInactive: 'Опрос <poll>{{poll}}</poll> закрыт',
-      ideaProposed: '<actor>{{actor}}</actor> предлагает <idea>{{idea}}</idea>',
-      ideaApproved: 'Идея <idea>{{idea}}</idea> от <actor>{{actor}}</actor> одобрена',
-      ideaRejected: 'Идея <idea>{{idea}}</idea> от <actor>{{actor}}</actor> отклонена',
-      ideaCommented: '<actor>{{actor}}</actor> комментирует <idea>{{idea}}</idea>',
+    stories: 'Опросы в ленте',
+    storyLabel: 'Показать только {{poll}}',
+    storyClosed: 'Закрыт',
+    byAuthor: 'автор {{author}}',
+    openIdea: 'Открыть идею',
+    openPoll: 'Открыть опрос',
+    says: '{{author}} пишет',
+    likes_one: '{{count}} лайк',
+    likes_few: '{{count}} лайка',
+    likes_many: '{{count}} лайков',
+    likes_other: '{{count}} лайка',
+    comments_one: '{{count}} комментарий',
+    comments_few: '{{count}} комментария',
+    comments_many: '{{count}} комментариев',
+    comments_other: '{{count}} комментария',
+    moreComments_one: 'ещё {{count}} комментарий',
+    moreComments_few: 'ещё {{count}} комментария',
+    moreComments_many: 'ещё {{count}} комментариев',
+    moreComments_other: 'ещё {{count}} комментария',
+    stamp: {
+      new: 'Новая идея',
+      approved: 'Одобрено',
+      rejected: 'Отклонено',
+    },
+    trail: {
+      proposed: '<actor>{{actor}}</actor> предлагает',
+      approved: 'Одобрено модераторами',
+      rejected: 'Отклонено модераторами',
+      commented_one: '<actor>{{actors}}</actor> комментирует',
+      commented_few: '<actor>{{actors}}</actor>: {{count}} комментария',
+      commented_many: '<actor>{{actors}}</actor>: {{count}} комментариев',
+      commented_other: '<actor>{{actors}}</actor>: {{count}} комментария',
+    },
+    flyer: {
+      opened: 'Опрос открыт',
+      finished: 'Опрос завершён',
+      cancelled: 'Опрос отменён',
+      closed: 'Опрос закрыт',
     },
   },
   cities: {
