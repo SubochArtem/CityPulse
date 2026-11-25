@@ -34,6 +34,38 @@ export function useIdeaLikes(ideaId: string, userId: string | undefined, enabled
   })
 }
 
+export function useLikeCount(ideaId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: [...feedbackKey(ideaId), 'like-count'],
+    enabled,
+    staleTime: 30_000,
+    queryFn: async () => {
+      const page = await unwrap(
+        feedbackApi.GET('/api/v1/feedback', {
+          params: { query: { IdeaId: ideaId, Kind: LIKE, PageSize: 1 } },
+        }),
+      )
+      return page.totalCount ?? 0
+    },
+  })
+}
+
+export function useLatestComment(ideaId: string, enabled: boolean) {
+  return useQuery({
+    queryKey: [...feedbackKey(ideaId), 'latest-comment'],
+    enabled,
+    staleTime: 30_000,
+    queryFn: async () => {
+      const page = await unwrap(
+        feedbackApi.GET('/api/v1/feedback', {
+          params: { query: { IdeaId: ideaId, Kind: COMMENT, PageSize: 1 } },
+        }),
+      )
+      return { count: page.totalCount ?? 0, latest: page.items?.[0] }
+    },
+  })
+}
+
 export function useIdeaComments(ideaId: string, enabled: boolean) {
   return useInfiniteQuery({
     queryKey: [...feedbackKey(ideaId), 'comments'],
