@@ -70,8 +70,16 @@ export function buildStories(entries: Activity[]): PollStory[] {
   return [...stories.values()]
 }
 
-export function distribute<T>(items: T[], columns: number): T[][] {
-  const result: T[][] = Array.from({ length: columns }, () => [])
-  items.forEach((item, index) => result[index % columns].push(item))
+export interface WallColumn<T> {
+  id: string
+  items: T[]
+}
+
+export function distribute<T>(items: T[], columns: number): WallColumn<T>[] {
+  const result = Array.from({ length: columns }, (_, column) => ({
+    id: `column-${column + 1}`,
+    items: [] as T[],
+  }))
+  items.forEach((item, index) => result[index % columns].items.push(item))
   return result
 }

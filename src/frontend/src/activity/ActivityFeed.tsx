@@ -117,9 +117,9 @@ export function ActivityFeed({ cityId, actions }: Readonly<ActivityFeedProps>) {
           ref={listRef}
           className="grid scroll-mt-24 grid-cols-1 items-start gap-7 sm:grid-cols-2 lg:grid-cols-3"
         >
-          {distribute(wall, columns).map((column, index) => (
-            <ul key={index} className="flex min-w-0 flex-col gap-8">
-              {column.map((item) => (
+          {distribute(wall, columns).map((column) => (
+            <ul key={column.id} className="flex min-w-0 flex-col gap-8">
+              {column.items.map((item) => (
                 <li key={item.key}>
                   <WallEntry
                     item={item}
