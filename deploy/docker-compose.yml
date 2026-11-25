@@ -1,0 +1,290 @@
+name: citypulse
+
+x-defaults: &defaults
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: "3"
+
+x-app-healthcheck: &app-healthcheck
+  test:
+    - CMD
+    - bash
+    - -c
+    - "exec 3<>/dev/tcp/127.0.0.1/8080 && printf 'GET /health/ready HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && head -n 1 <&3 | grep -q ' 200 '"
+  interval: 10s
+  timeout: 10s
+  retries: 5
+  start_period: 60s
+
+x-gateway-healthcheck: &gateway-healthcheck
+  test:
+    - CMD
+    - bash
+    - -c
+    - "exec 3<>/dev/tcp/127.0.0.1/8080 && printf 'GET /health HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && head -n 1 <&3 | grep -q ' 200 '"
+  interval: 10s
+  timeout: 5s
+  retries: 5
+  start_period: 30s
+
+x-auth0: &auth0
+  Auth0__Domain: ${AUTH0_DOMAIN}
+  Auth0__Audience: ${AUTH0_AUDIENCE}
+  Auth0__ClientId: ${AUTH0_CLIENT_ID}
+
+x-rabbitmq: &rabbitmq
+  RabbitMq__Host: rabbitmq
+  RabbitMq__Port: 5672
+  RabbitMq__Username: ${RABBITMQ_DEFAULT_USER}
+  RabbitMq__Password: ${RABBITMQ_DEFAULT_PASS}
+  RabbitMq__VirtualHost: /
+
+x-redis: &redis
+  Redis__ConnectionString: redis:6379
+
+services:
+  caddy:
+    <<: *defaults
+    image: caddy:2
+    depends_on:
+      - frontend
+      - gateway
+    environment:
+      DOMAIN: ${DOMAIN:?DOMAIN is required}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
+  minio:
+    <<: *defaults
+    image: cgr.dev/chainguard/minio:latest
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: server /data
+    volumes:
+      - minio_data:/data
+
+  minio-init:
+    image: cgr.dev/chainguard/minio-client:latest
+    depends_on:
+      - minio
+    restart: on-failure
+    environment:
+      MC_HOST_local: http://${MINIO_ROOT_USER}:${MINIO_ROOT_PASSWORD}@minio:9000
+    command: mb --ignore-existing local/polls-images
+
+  minio-public-policy:
+    image: cgr.dev/chainguard/minio-client:latest
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
+    restart: on-failure
+    environment:
+      MC_HOST_local: http://${MINIO_ROOT_USER}:${MINIO_ROOT_PASSWORD}@minio:9000
+    volumes:
+      - ./minio:/policies:ro
+    command: anonymous set-json /policies/polls-images-public-read.json local/polls-images
+
+  rabbitmq:
+    <<: *defaults
+    image: rabbitmq:3
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  mongodb:
+    <<: *defaults
+    image: mongo:8
+    command: ["--wiredTigerCacheSizeGB", "0.25"]
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+
+  redis:
+    <<: *defaults
+    image: redis:7
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  users-db:
+    <<: *defaults
+    image: postgres:18
+    environment:
+      POSTGRES_DB: CityPulse
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - users_db_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  polls-db:
+    <<: *defaults
+    image: postgres:18
+    environment:
+      POSTGRES_DB: CityPulse_polls
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - polls_db_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  users:
+    <<: *defaults
+    image: ${IMAGE_REGISTRY:-ghcr.io/subochartem}/citypulse-users:${IMAGE_TAG:-latest}
+    depends_on:
+      users-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      polls:
+        condition: service_healthy
+    healthcheck: *app-healthcheck
+    environment:
+      <<: [*auth0, *rabbitmq, *redis]
+      DatabaseSettings__ApplyMigrationsOnStartup: true
+      ConnectionStrings__DefaultConnection: Host=users-db;Port=5432;Database=CityPulse;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      GrpcSettings__CitiesServiceUrl: http://polls:8081
+      Auth0__ClientSecret: ${AUTH0_CLIENT_SECRET}
+      Auth0__ManagementApiClientId: ${AUTH0_MANAGEMENT_API_CLIENT_ID}
+      Auth0__ManagementApiClientSecret: ${AUTH0_MANAGEMENT_API_CLIENT_SECRET}
+      Auth0__ManagementApiAudience: ${AUTH0_MANAGEMENT_API_AUDIENCE}
+      Auth0__WebhookSecret: ${AUTH0_WEBHOOK_SECRET}
+
+  polls:
+    <<: *defaults
+    image: ${IMAGE_REGISTRY:-ghcr.io/subochartem}/citypulse-polls:${IMAGE_TAG:-latest}
+    depends_on:
+      polls-db:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      minio:
+        condition: service_started
+      minio-init:
+        condition: service_completed_successfully
+      minio-public-policy:
+        condition: service_completed_successfully
+    healthcheck: *app-healthcheck
+    environment:
+      <<: [*auth0, *rabbitmq]
+      DatabaseSettings__ApplyMigrationsOnStartup: true
+      DatabaseSettings__ConnectionString: Host=polls-db;Port=5432;Database=CityPulse_polls;Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      ImageStorage__Endpoint: minio:9000
+      ImageStorage__AccessKey: ${MINIO_ROOT_USER}
+      ImageStorage__SecretKey: ${MINIO_ROOT_PASSWORD}
+      ImageStorage__BucketName: polls-images
+      ImageStorage__PublicBaseUrl: https://${DOMAIN}
+      ImageStorage__UseSsl: false
+      Kestrel__Endpoints__Http1__Url: http://+:8080
+      Kestrel__Endpoints__Http1__Protocols: Http1
+      Kestrel__Endpoints__Http2Only__Url: http://+:8081
+      Kestrel__Endpoints__Http2Only__Protocols: Http2
+
+  feedback:
+    <<: *defaults
+    image: ${IMAGE_REGISTRY:-ghcr.io/subochartem}/citypulse-feedback:${IMAGE_TAG:-latest}
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      polls:
+        condition: service_healthy
+    healthcheck: *app-healthcheck
+    environment:
+      <<: [*auth0, *rabbitmq, *redis]
+      MongoDb__ConnectionString: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@mongodb:27017/?authSource=admin
+      GrpcSettings__IdeasServiceUrl: http://polls:8081
+
+  gateway:
+    <<: *defaults
+    image: ${IMAGE_REGISTRY:-ghcr.io/subochartem}/citypulse-gateway:${IMAGE_TAG:-latest}
+    depends_on:
+      redis:
+        condition: service_healthy
+      users:
+        condition: service_healthy
+      polls:
+        condition: service_healthy
+      feedback:
+        condition: service_healthy
+    healthcheck: *gateway-healthcheck
+    environment:
+      <<: *redis
+      Bff__Enabled: true
+      Bff__Domain: ${AUTH0_DOMAIN}
+      Bff__ClientId: ${AUTH0_WEB_CLIENT_ID}
+      Bff__ClientSecret: ${AUTH0_WEB_CLIENT_SECRET}
+      Bff__Audience: ${AUTH0_AUDIENCE}
+      Swagger__Enabled: false
+      ReverseProxy__Clusters__users__Destinations__users__Address: http://users:8080
+      ReverseProxy__Clusters__polls__Destinations__polls__Address: http://polls:8080
+      ReverseProxy__Clusters__feedback__Destinations__feedback__Address: http://feedback:8080
+
+  frontend:
+    <<: *defaults
+    image: ${IMAGE_REGISTRY:-ghcr.io/subochartem}/citypulse-frontend:${IMAGE_TAG:-latest}
+    depends_on:
+      gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  caddy_data:
+  caddy_config:
+  minio_data:
+  rabbitmq_data:
+  mongodb_data:
+  redis_data:
+  users_db_data:
+  polls_db_data:
