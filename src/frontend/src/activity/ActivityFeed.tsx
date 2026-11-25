@@ -7,9 +7,14 @@ import { Alert, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
+import { useColumnCount } from '@/lib/useColumnCount'
 import { useNow } from '@/lib/useNow'
+import { useAuth } from '@/auth/useAuth'
 import { usePublicProfiles } from '@/users/usePublicProfiles'
-import { ActivityItem } from './ActivityItem'
+import { buildStories, buildWall, distribute, type WallItem } from './activityWall'
+import { IdeaPoster } from './IdeaPoster'
+import { PollFlyer } from './PollFlyer'
+import { PollStories } from './PollStories'
 import { type Activity, activityKey, prependActivity, useActivityFeed } from './useActivityFeed'
 import { type LiveStatus, useActivityLive } from './useActivityLive'
 
@@ -27,7 +32,15 @@ export function ActivityFeed({ cityId, actions }: Readonly<ActivityFeedProps>) {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const now = useNow()
-  const listRef = useRef<HTMLOListElement>(null)
+  const listRef = useRef<HTMLDivElement>(null)
+  const columns = useColumnCount()
+  const { isAuthenticated, can } = useAuth()
+  const canRead = isAuthenticated && can('feedback.read.any')
+  const [pollFilter, setPollFilter] = useState<{ cityId: string | null; pollId: string | null }>({
+    cityId,
+    pollId: null,
+  })
+  const selectedPoll = pollFilter.cityId === cityId ? pollFilter.pollId : null
   const feed = useActivityFeed(cityId)
   const entries = useMemo(
     () => feed.data?.pages.flatMap((page) => page.items ?? []) ?? [],
@@ -65,6 +78,8 @@ export function ActivityFeed({ cityId, actions }: Readonly<ActivityFeedProps>) {
   const showCity = cityId === null
   const nicknames = usePublicProfiles(entries.map((entry) => entry.userId ?? undefined))
   const cityNames = useCityNames(showCity)
+  const stories = useMemo(() => buildStories(entries), [entries])
+  const wall = useMemo(() => buildWall(entries, selectedPoll), [entries, selectedPoll])
 
   const showPending = () => {
     prependActivity(queryClient, cityId, pending)
@@ -92,18 +107,33 @@ export function ActivityFeed({ cityId, actions }: Readonly<ActivityFeedProps>) {
   } else {
     content = (
       <>
-        <ol ref={listRef} className="scroll-mt-24 space-y-3">
-          {entries.map((entry) => (
-            <ActivityItem
-              key={entry.id}
-              entry={entry}
-              nickname={entry.userId ? nicknames.data?.get(entry.userId) : undefined}
-              cityName={showCity && entry.cityId ? cityNames.data?.get(entry.cityId) : undefined}
-              now={now}
-              fresh={Boolean(entry.id && freshIds.has(entry.id))}
-            />
+        <PollStories
+          stories={stories}
+          selected={selectedPoll}
+          cityNames={showCity ? cityNames.data : undefined}
+          onSelect={(pollId) => setPollFilter({ cityId, pollId })}
+        />
+        <div
+          ref={listRef}
+          className="grid scroll-mt-24 grid-cols-1 items-start gap-7 sm:grid-cols-2 lg:grid-cols-3"
+        >
+          {distribute(wall, columns).map((column, index) => (
+            <ul key={index} className="flex min-w-0 flex-col gap-8">
+              {column.map((item) => (
+                <li key={item.key}>
+                  <WallEntry
+                    item={item}
+                    nicknames={nicknames.data}
+                    cityName={showCity ? cityNameOf(item, cityNames.data) : undefined}
+                    now={now}
+                    fresh={isFresh(item, freshIds)}
+                    canRead={canRead}
+                  />
+                </li>
+              ))}
+            </ul>
           ))}
-        </ol>
+        </div>
         {feed.hasNextPage && (
           <div className="flex justify-center">
             <Button
@@ -143,6 +173,41 @@ export function ActivityFeed({ cityId, actions }: Readonly<ActivityFeedProps>) {
   )
 }
 
+interface WallEntryProps {
+  item: WallItem
+  nicknames: Map<string, string> | undefined
+  cityName: string | undefined
+  now: number
+  fresh: boolean
+  canRead: boolean
+}
+
+function WallEntry({ item, nicknames, cityName, now, fresh, canRead }: Readonly<WallEntryProps>) {
+  if (item.type === 'poll') {
+    return <PollFlyer entry={item.entry} cityName={cityName} now={now} fresh={fresh} />
+  }
+  return (
+    <IdeaPoster
+      item={item}
+      nicknames={nicknames}
+      cityName={cityName}
+      now={now}
+      fresh={fresh}
+      canRead={canRead}
+    />
+  )
+}
+
+function cityNameOf(item: WallItem, names: Map<string, string> | undefined) {
+  const entry = item.type === 'poll' ? item.entry : item.events[0]
+  return entry.cityId ? names?.get(entry.cityId) : undefined
+}
+
+function isFresh(item: WallItem, freshIds: ReadonlySet<string>) {
+  const events = item.type === 'poll' ? [item.entry] : item.events
+  return events.some((event) => Boolean(event.id && freshIds.has(event.id)))
+}
+
 function LiveIndicator({ status }: Readonly<{ status: LiveStatus }>) {
   const { t } = useTranslation()
 
@@ -178,19 +243,25 @@ function LiveIndicator({ status }: Readonly<{ status: LiveStatus }>) {
 
 function FeedSkeleton() {
   return (
-    <ul className="space-y-3">
-      {Array.from({ length: 5 }, (_, index) => (
-        <li
-          key={index}
-          className="paper poster grid grid-cols-[1.75rem_1fr] gap-x-3 px-4 py-3 sm:px-5"
+    <div className="grid grid-cols-1 items-start gap-7 sm:grid-cols-2 lg:grid-cols-3">
+      {[0, 1, 2].map((column) => (
+        <div
+          key={column}
+          className={cn(
+            'flex-col gap-8',
+            column === 0 ? 'flex' : 'hidden sm:flex',
+            column === 2 && 'sm:hidden lg:flex',
+          )}
         >
-          <Skeleton className="mx-auto size-3 rounded-full" />
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-3 w-1/3" />
-          </div>
-        </li>
+          {[0, 1].map((row) => (
+            <div key={row} className="paper poster flex flex-col gap-3 p-3">
+              <Skeleton className={cn('w-full', (column + row) % 2 ? 'h-40' : 'h-56')} />
+              <Skeleton className="h-6 w-3/4" />
+              <Skeleton className="h-3 w-1/2" />
+            </div>
+          ))}
+        </div>
       ))}
-    </ul>
+    </div>
   )
 }
