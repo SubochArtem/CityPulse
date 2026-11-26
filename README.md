@@ -15,6 +15,7 @@
 <p align="center">
   <a href="https://github.com/SubochArtem/CityPulse/actions/workflows/sonar.yml"><img src="https://github.com/SubochArtem/CityPulse/actions/workflows/sonar.yml/badge.svg" alt="SonarQube"></a>
   <a href="https://github.com/SubochArtem/CityPulse/actions/workflows/frontend.yml"><img src="https://github.com/SubochArtem/CityPulse/actions/workflows/frontend.yml/badge.svg" alt="Frontend"></a>
+  <a href="https://github.com/SubochArtem/CityPulse/actions/workflows/docker-images.yml"><img src="https://github.com/SubochArtem/CityPulse/actions/workflows/docker-images.yml/badge.svg" alt="Build and deploy"></a>
   <a href="https://sonarcloud.io/summary/new_code?id=SubochArtem_CityPulse"><img src="https://sonarcloud.io/api/project_badges/measure?project=SubochArtem_CityPulse&metric=alert_status" alt="Quality Gate"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License"></a>
 </p>
@@ -30,6 +31,7 @@
 - [Getting started](#getting-started)
 - [Local development](#local-development)
 - [Testing](#testing)
+- [Deployment](#deployment)
 - [Project structure](#project-structure)
 - [License](#license)
 
@@ -38,7 +40,7 @@
 - **Cities and polls.** Each city runs polls about what to build, fix or replace. A poll is either a residents' vote or a manager's decision, has a budget and a deadline, and closes automatically.
 - **Ideas.** Residents of a city submit ideas with photos to its active poll. Moderators approve or reject them and can hide them.
 - **Discussion.** Likes and comments on every idea.
-- **Live activity feed.** New polls, ideas and comments appear on the home page in real time over SignalR.
+- **Live activity feed.** A wall of idea posters on the home page, updated in real time over SignalR: each idea shows its photo, what happened to it (proposed, approved, commented), likes and the newest comment. A row of poll "stories" on top filters the wall by poll.
 - **Administration.** Managing cities, polls, idea moderation and users, with access driven by permissions.
 - **Secure sign-in.** Auth0 behind a Backend-for-Frontend: tokens never reach the browser, which holds only an httpOnly session cookie.
 - **Two languages and themes.** English and Russian, light and dark ("night wall") modes, responsive layout.
@@ -54,6 +56,16 @@
 | ![Idea](docs/screenshots/idea.jpg) | ![Administration](docs/screenshots/admin-polls.jpg) |
 | **Dark theme** | **Mobile** |
 | ![Dark theme](docs/screenshots/home-dark.jpg) | <img src="docs/screenshots/cities-mobile.jpg" alt="Mobile" width="240"> |
+
+**Activity feed**
+
+| Poll stories and idea posters | Comments pasted under the posters |
+| --- | --- |
+| ![Activity feed](docs/screenshots/activity-feed.jpg) | ![Activity feed posters](docs/screenshots/activity-feed-posters.jpg) |
+
+<p align="center">
+  <img src="docs/screenshots/activity-feed-mobile.jpg" alt="Activity feed on a phone" width="300">
+</p>
 
 ## Architecture
 
@@ -145,8 +157,9 @@ flowchart LR
 
 **Infrastructure**
 
-- Docker, Docker Compose, nginx
-- GitHub Actions: build, tests, SonarCloud analysis, NuGet package publishing
+- Docker, Docker Compose, nginx, Caddy (automatic HTTPS)
+- GitHub Actions: build, tests, SonarCloud analysis, NuGet package publishing, Docker images, deployment
+- GitHub Container Registry, Azure Virtual Machine
 
 ## Getting started
 
@@ -244,11 +257,91 @@ dotnet test src/Backend/Services/Polls/Polls.Tests   # one service
 
 CI runs the backend build and tests with coverage on SonarCloud, and lint, format check and build for the frontend.
 
+## Deployment
+
+Production runs the whole stack with Docker Compose on a single Linux VM in Azure. Every merge to `main` builds new images and deploys them automatically.
+
+```mermaid
+flowchart LR
+    Dev["Merge to main"] --> Build
+
+    subgraph Actions["GitHub Actions: Docker images"]
+        Build["build ×5<br/>users, polls, feedback,<br/>gateway, frontend"]
+        Deploy["deploy<br/>environment: production"]
+        Build --> Deploy
+    end
+
+    Build -- "push :sha and :latest" --> GHCR[("GitHub Container<br/>Registry")]
+    Deploy -- "SSH: copy deploy/,<br/>compose pull + up" --> VM
+
+    subgraph VM["Azure VM: /opt/citypulse"]
+        Caddy["Caddy :443<br/>Let's Encrypt"]
+        Stack["frontend, gateway,<br/>services, databases"]
+        Caddy --> Stack
+    end
+
+    GHCR -- "pull images" --> VM
+    Users(["Users"]) -- HTTPS --> Caddy
+```
+
+### How the pipeline works
+
+| Event | Workflow | What happens |
+| --- | --- | --- |
+| Pull request | `sonar.yml`, `frontend.yml` | Backend build, tests and SonarCloud analysis; frontend lint, format check and build. Nothing is published. |
+| Push to `main` | `docker-images.yml` | Builds the five images in parallel and pushes them to `ghcr.io/subochartem/citypulse-<service>` tagged with the commit SHA and `latest`. When all builds succeed, the `deploy` job connects to the VM over SSH, copies `deploy/`, pulls the images of that commit and restarts the stack, waiting until every container is healthy. |
+| Tag `*-v*` | `publish-*.yml` | Publishes a shared NuGet package to GitHub Packages. |
+
+The workflow can also be started by hand from the Actions tab (**Docker images → Run workflow**).
+
+### Production stack
+
+`deploy/` holds everything the server needs besides secrets:
+
+| File | What |
+| --- | --- |
+| `deploy/docker-compose.yml` | The same services as locally, but with images from GHCR (`IMAGE_TAG`), `restart: unless-stopped`, log rotation and no ports exposed except Caddy |
+| `deploy/Caddyfile` | HTTPS for `DOMAIN` with an automatic Let's Encrypt certificate. `/api`, `/bff` and `/hubs` go to the gateway, `/polls-images` to MinIO, everything else to the frontend |
+| `deploy/.env.example` | Template for the server `.env` |
+
+Data (PostgreSQL, MongoDB, MinIO, Redis, Caddy certificates) lives in Docker volumes and survives deploys. Database migrations run when Users and Polls start. The whole stack uses about 1 GB of RAM.
+
+### Setting up a server
+
+1. Create a Linux VM with at least 2 vCPU and 4 GB RAM (for example Azure `B2als_v2`) and open ports 22, 80 and 443. Give it a DNS name.
+2. Install Docker Engine with the Compose plugin and add a swap file.
+3. Create `/opt/citypulse` and put a `.env` there based on `deploy/.env.example`: set `DOMAIN`, strong database passwords and the Auth0 values.
+4. In Auth0, add `https://<DOMAIN>/bff/callback` to the web application's callback URLs and `https://<DOMAIN>` to its logout URLs, and point the post-registration webhook to `https://<DOMAIN>/api/v1/auth0webhook`.
+5. Create an SSH key for deployments and add its public part to the server user's `authorized_keys`.
+6. In GitHub, create the `production` environment with these secrets:
+
+   | Secret | Value |
+   | --- | --- |
+   | `DEPLOY_HOST` | Server DNS name |
+   | `DEPLOY_USER` | User that owns `/opt/citypulse` and is in the `docker` group |
+   | `DEPLOY_SSH_KEY` | Private deploy key |
+   | `DEPLOY_KNOWN_HOSTS` | Output of `ssh-keyscan -t ed25519 <DEPLOY_HOST>` |
+
+7. Run the **Docker images** workflow. The images are public, so the server pulls them without logging in.
+
+### Operations
+
+```bash
+cd /opt/citypulse
+docker compose ps                                  # status
+docker compose logs -f gateway                     # logs of one service
+IMAGE_TAG=<previous commit sha> docker compose up -d   # roll back to an earlier version
+```
+
+If the VM is stopped when a merge happens, the `deploy` job fails with a connection timeout while the images are still published. Start the VM and use **Re-run failed jobs** on that run.
+
 ## Project structure
 
 ```text
 CityPulse/
+├── .github/workflows/           # CI, image build and deployment, NuGet publishing
 ├── docker-compose.yml           # infrastructure + app profile
+├── deploy/                      # production compose file, Caddyfile, .env template
 ├── docker/                      # MinIO bucket policy
 ├── docs/screenshots/            # images for this README
 └── src/

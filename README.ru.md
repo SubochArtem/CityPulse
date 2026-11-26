@@ -15,6 +15,7 @@
 <p align="center">
   <a href="https://github.com/SubochArtem/CityPulse/actions/workflows/sonar.yml"><img src="https://github.com/SubochArtem/CityPulse/actions/workflows/sonar.yml/badge.svg" alt="SonarQube"></a>
   <a href="https://github.com/SubochArtem/CityPulse/actions/workflows/frontend.yml"><img src="https://github.com/SubochArtem/CityPulse/actions/workflows/frontend.yml/badge.svg" alt="Frontend"></a>
+  <a href="https://github.com/SubochArtem/CityPulse/actions/workflows/docker-images.yml"><img src="https://github.com/SubochArtem/CityPulse/actions/workflows/docker-images.yml/badge.svg" alt="Сборка и деплой"></a>
   <a href="https://sonarcloud.io/summary/new_code?id=SubochArtem_CityPulse"><img src="https://sonarcloud.io/api/project_badges/measure?project=SubochArtem_CityPulse&metric=alert_status" alt="Quality Gate"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="Лицензия MIT"></a>
 </p>
@@ -30,6 +31,7 @@
 - [Запуск](#запуск)
 - [Локальная разработка](#локальная-разработка)
 - [Тестирование](#тестирование)
+- [Развёртывание](#развёртывание)
 - [Структура проекта](#структура-проекта)
 - [Лицензия](#лицензия)
 
@@ -38,7 +40,7 @@
 - **Города и опросы.** В каждом городе идут опросы о том, что построить, починить или заменить. Опрос — это либо голосование жителей, либо решение руководителя; у него есть бюджет и срок, а закрывается он автоматически.
 - **Идеи.** Жители города предлагают идеи с фотографиями в активный опрос. Модераторы одобряют или отклоняют их и могут скрывать.
 - **Обсуждение.** Лайки и комментарии к каждой идее.
-- **Живая лента активности.** Новые опросы, идеи и комментарии появляются на главной странице в реальном времени через SignalR.
+- **Живая лента активности.** Стена постеров идей на главной странице, обновляется в реальном времени через SignalR: у каждой идеи фото, что с ней произошло (предложена, одобрена, прокомментирована), лайки и последний комментарий. Ряд «историй» опросов сверху фильтрует стену по опросу.
 - **Администрирование.** Управление городами, опросами, модерация идей и пользователей; доступ определяется разрешениями.
 - **Безопасный вход.** Auth0 за Backend-for-Frontend: токены не попадают в браузер, у него есть только httpOnly cookie сессии.
 - **Два языка и темы.** Английский и русский, светлая и тёмная («ночная стена») темы, адаптивная вёрстка.
@@ -54,6 +56,16 @@
 | ![Идея](docs/screenshots/idea.jpg) | ![Администрирование](docs/screenshots/admin-polls.jpg) |
 | **Тёмная тема** | **Мобильная версия** |
 | ![Тёмная тема](docs/screenshots/home-dark.jpg) | <img src="docs/screenshots/cities-mobile.jpg" alt="Мобильная версия" width="240"> |
+
+**Лента активности**
+
+| Истории опросов и постеры идей | Комментарии под постерами |
+| --- | --- |
+| ![Лента активности](docs/screenshots/activity-feed.jpg) | ![Постеры идей](docs/screenshots/activity-feed-posters.jpg) |
+
+<p align="center">
+  <img src="docs/screenshots/activity-feed-mobile.jpg" alt="Лента активности на телефоне" width="300">
+</p>
 
 ## Архитектура
 
@@ -145,8 +157,9 @@ flowchart LR
 
 **Инфраструктура**
 
-- Docker, Docker Compose, nginx
-- GitHub Actions: сборка, тесты, анализ SonarCloud, публикация NuGet-пакетов
+- Docker, Docker Compose, nginx, Caddy (автоматический HTTPS)
+- GitHub Actions: сборка, тесты, анализ SonarCloud, публикация NuGet-пакетов, Docker-образы, деплой
+- GitHub Container Registry, виртуальная машина Azure
 
 ## Запуск
 
@@ -244,11 +257,91 @@ dotnet test src/Backend/Services/Polls/Polls.Tests   # один сервис
 
 CI собирает бэкенд и запускает тесты с покрытием в SonarCloud, а для фронтенда — линтер, проверку форматирования и сборку.
 
+## Развёртывание
+
+В продакшене весь стек запущен через Docker Compose на одной Linux-виртуалке в Azure. Каждый мерж в `main` собирает новые образы и автоматически разворачивает их.
+
+```mermaid
+flowchart LR
+    Dev["Мерж в main"] --> Build
+
+    subgraph Actions["GitHub Actions: Docker images"]
+        Build["build ×5<br/>users, polls, feedback,<br/>gateway, frontend"]
+        Deploy["deploy<br/>окружение production"]
+        Build --> Deploy
+    end
+
+    Build -- "push :sha и :latest" --> GHCR[("GitHub Container<br/>Registry")]
+    Deploy -- "SSH: копирует deploy/,<br/>compose pull + up" --> VM
+
+    subgraph VM["Azure VM: /opt/citypulse"]
+        Caddy["Caddy :443<br/>Let's Encrypt"]
+        Stack["frontend, gateway,<br/>сервисы, базы данных"]
+        Caddy --> Stack
+    end
+
+    GHCR -- "pull образов" --> VM
+    Users(["Пользователи"]) -- HTTPS --> Caddy
+```
+
+### Как работает пайплайн
+
+| Событие | Workflow | Что происходит |
+| --- | --- | --- |
+| Pull request | `sonar.yml`, `frontend.yml` | Сборка бэкенда, тесты и анализ SonarCloud; линтер, проверка форматирования и сборка фронтенда. Ничего не публикуется. |
+| Push в `main` | `docker-images.yml` | Параллельно собирает пять образов и пушит их в `ghcr.io/subochartem/citypulse-<service>` с тегами SHA коммита и `latest`. Если все сборки прошли, job `deploy` подключается к виртуалке по SSH, копирует `deploy/`, скачивает образы этого коммита и перезапускает стек, дожидаясь, пока все контейнеры станут healthy. |
+| Тег `*-v*` | `publish-*.yml` | Публикует общий NuGet-пакет в GitHub Packages. |
+
+Workflow можно запустить и вручную на вкладке Actions (**Docker images → Run workflow**).
+
+### Продакшен-стек
+
+В `deploy/` лежит всё, что нужно серверу, кроме секретов:
+
+| Файл | Что |
+| --- | --- |
+| `deploy/docker-compose.yml` | Те же сервисы, что и локально, но с образами из GHCR (`IMAGE_TAG`), `restart: unless-stopped`, ротацией логов и без открытых портов, кроме Caddy |
+| `deploy/Caddyfile` | HTTPS для `DOMAIN` с автоматическим сертификатом Let's Encrypt. `/api`, `/bff` и `/hubs` идут в gateway, `/polls-images` в MinIO, всё остальное во фронтенд |
+| `deploy/.env.example` | Шаблон `.env` для сервера |
+
+Данные (PostgreSQL, MongoDB, MinIO, Redis, сертификаты Caddy) хранятся в Docker volumes и переживают деплои. Миграции баз выполняются при старте Users и Polls. Весь стек занимает около 1 ГБ оперативной памяти.
+
+### Настройка сервера
+
+1. Создайте Linux-виртуалку минимум с 2 vCPU и 4 ГБ RAM (например, Azure `B2als_v2`) и откройте порты 22, 80 и 443. Задайте ей DNS-имя.
+2. Установите Docker Engine с плагином Compose и добавьте swap-файл.
+3. Создайте `/opt/citypulse` и положите туда `.env` на основе `deploy/.env.example`: укажите `DOMAIN`, надёжные пароли баз данных и значения Auth0.
+4. В Auth0 добавьте `https://<DOMAIN>/bff/callback` в callback URLs веб-приложения и `https://<DOMAIN>` в его logout URLs, а вебхук после регистрации направьте на `https://<DOMAIN>/api/v1/auth0webhook`.
+5. Создайте SSH-ключ для деплоя и добавьте его публичную часть в `authorized_keys` пользователя на сервере.
+6. В GitHub создайте окружение `production` с секретами:
+
+   | Секрет | Значение |
+   | --- | --- |
+   | `DEPLOY_HOST` | DNS-имя сервера |
+   | `DEPLOY_USER` | Пользователь, которому принадлежит `/opt/citypulse` и который входит в группу `docker` |
+   | `DEPLOY_SSH_KEY` | Приватный ключ для деплоя |
+   | `DEPLOY_KNOWN_HOSTS` | Вывод `ssh-keyscan -t ed25519 <DEPLOY_HOST>` |
+
+7. Запустите workflow **Docker images**. Образы публичные, поэтому сервер скачивает их без логина.
+
+### Эксплуатация
+
+```bash
+cd /opt/citypulse
+docker compose ps                                  # состояние
+docker compose logs -f gateway                     # логи одного сервиса
+IMAGE_TAG=<sha предыдущего коммита> docker compose up -d   # откат на прошлую версию
+```
+
+Если во время мержа виртуалка остановлена, job `deploy` падает по таймауту подключения, но образы всё равно публикуются. Запустите виртуалку и нажмите **Re-run failed jobs** в этом запуске.
+
 ## Структура проекта
 
 ```text
 CityPulse/
+├── .github/workflows/           # CI, сборка образов и деплой, публикация NuGet
 ├── docker-compose.yml           # инфраструктура + профиль app
+├── deploy/                      # продакшен compose-файл, Caddyfile, шаблон .env
 ├── docker/                      # политика бакета MinIO
 ├── docs/screenshots/            # изображения для README
 └── src/
