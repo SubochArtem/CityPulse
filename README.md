@@ -38,7 +38,7 @@
 - **Cities and polls.** Each city runs polls about what to build, fix or replace. A poll is either a residents' vote or a manager's decision, has a budget and a deadline, and closes automatically.
 - **Ideas.** Residents of a city submit ideas with photos to its active poll. Moderators approve or reject them and can hide them.
 - **Discussion.** Likes and comments on every idea.
-- **Live activity feed.** New polls, ideas and comments appear on the home page in real time over SignalR.
+- **Live activity feed.** A wall of idea posters on the home page, updated in real time over SignalR: each idea shows its photo, what happened to it (proposed, approved, commented), likes and the newest comment. A row of poll "stories" on top filters the wall by poll.
 - **Administration.** Managing cities, polls, idea moderation and users, with access driven by permissions.
 - **Secure sign-in.** Auth0 behind a Backend-for-Frontend: tokens never reach the browser, which holds only an httpOnly session cookie.
 - **Two languages and themes.** English and Russian, light and dark ("night wall") modes, responsive layout.
@@ -54,6 +54,16 @@
 | ![Idea](docs/screenshots/idea.jpg) | ![Administration](docs/screenshots/admin-polls.jpg) |
 | **Dark theme** | **Mobile** |
 | ![Dark theme](docs/screenshots/home-dark.jpg) | <img src="docs/screenshots/cities-mobile.jpg" alt="Mobile" width="240"> |
+
+**Activity feed**
+
+| Poll stories and idea posters | Comments pasted under the posters |
+| --- | --- |
+| ![Activity feed](docs/screenshots/activity-feed.jpg) | ![Activity feed posters](docs/screenshots/activity-feed-posters.jpg) |
+
+<p align="center">
+  <img src="docs/screenshots/activity-feed-mobile.jpg" alt="Activity feed on a phone" width="300">
+</p>
 
 ## Architecture
 
